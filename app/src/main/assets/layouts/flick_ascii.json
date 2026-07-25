@@ -1,0 +1,519 @@
+{
+  "id": "flick_ascii",
+  "label": "英数 (フリック)",
+  "inputStyle": "TOGGLE_FLICK_HALFWIDTH_ASCII",
+  "rows": [
+    {
+      "keys": [
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "↶",
+            "action": {
+              "type": "undo"
+            }
+          },
+          "style": "MODIFIER"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "@",
+            "action": {
+              "type": "input",
+              "text": "1"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "-",
+            "action": {
+              "type": "input",
+              "text": "-"
+            }
+          },
+          "up": {
+            "label": "_",
+            "action": {
+              "type": "input",
+              "text": "_"
+            }
+          },
+          "right": {
+            "label": "/",
+            "action": {
+              "type": "input",
+              "text": "/"
+            }
+          },
+          "down": {
+            "label": "1",
+            "action": {
+              "type": "input",
+              "text": "@"
+            }
+          },
+          "label": "@-_/"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "a",
+            "action": {
+              "type": "input",
+              "text": "2"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "b",
+            "action": {
+              "type": "input",
+              "text": "b"
+            }
+          },
+          "up": {
+            "label": "c",
+            "action": {
+              "type": "input",
+              "text": "c"
+            }
+          },
+          "right": null,
+          "down": {
+            "label": "2",
+            "action": {
+              "type": "input",
+              "text": "|"
+            }
+          },
+          "label": "ABC"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "d",
+            "action": {
+              "type": "input",
+              "text": "3"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "e",
+            "action": {
+              "type": "input",
+              "text": "e"
+            }
+          },
+          "up": {
+            "label": "f",
+            "action": {
+              "type": "input",
+              "text": "f"
+            }
+          },
+          "right": null,
+          "down": {
+            "label": "3",
+            "action": {
+              "type": "input",
+              "text": "~"
+            }
+          },
+          "label": "DEF"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "⌫",
+            "action": {
+              "type": "backspace"
+            }
+          },
+          "style": "ACTION",
+          "repeatable": true
+        }
+      ]
+    },
+    {
+      "keys": [
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "◀",
+            "action": {
+              "type": "cursor",
+              "delta": -1
+            }
+          },
+          "style": "MODIFIER",
+          "repeatable": true
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "g",
+            "action": {
+              "type": "input",
+              "text": "4"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "h",
+            "action": {
+              "type": "input",
+              "text": "h"
+            }
+          },
+          "up": {
+            "label": "i",
+            "action": {
+              "type": "input",
+              "text": "i"
+            }
+          },
+          "right": null,
+          "down": {
+            "label": "4",
+            "action": {
+              "type": "input",
+              "text": "$"
+            }
+          },
+          "label": "GHI"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "j",
+            "action": {
+              "type": "input",
+              "text": "5"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "k",
+            "action": {
+              "type": "input",
+              "text": "k"
+            }
+          },
+          "up": {
+            "label": "l",
+            "action": {
+              "type": "input",
+              "text": "l"
+            }
+          },
+          "right": null,
+          "down": {
+            "label": "5",
+            "action": {
+              "type": "input",
+              "text": "%"
+            }
+          },
+          "label": "JKL"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "m",
+            "action": {
+              "type": "input",
+              "text": "6"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "n",
+            "action": {
+              "type": "input",
+              "text": "n"
+            }
+          },
+          "up": {
+            "label": "o",
+            "action": {
+              "type": "input",
+              "text": "o"
+            }
+          },
+          "right": null,
+          "down": {
+            "label": "6",
+            "action": {
+              "type": "input",
+              "text": "&"
+            }
+          },
+          "label": "MNO"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "▶",
+            "action": {
+              "type": "cursor",
+              "delta": 1
+            }
+          },
+          "style": "ACTION",
+          "repeatable": true
+        }
+      ]
+    },
+    {
+      "keys": [
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "数字",
+            "action": {
+              "type": "layout",
+              "layoutId": "flick_symbol"
+            }
+          },
+          "style": "MODIFIER"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "p",
+            "action": {
+              "type": "input",
+              "text": "7"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "q",
+            "action": {
+              "type": "input",
+              "text": "q"
+            }
+          },
+          "up": {
+            "label": "r",
+            "action": {
+              "type": "input",
+              "text": "r"
+            }
+          },
+          "right": {
+            "label": "s",
+            "action": {
+              "type": "input",
+              "text": "s"
+            }
+          },
+          "down": {
+            "label": "7",
+            "action": {
+              "type": "input",
+              "text": "<"
+            }
+          },
+          "label": "PQRS"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "t",
+            "action": {
+              "type": "input",
+              "text": "8"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "u",
+            "action": {
+              "type": "input",
+              "text": "u"
+            }
+          },
+          "up": {
+            "label": "v",
+            "action": {
+              "type": "input",
+              "text": "v"
+            }
+          },
+          "right": null,
+          "down": {
+            "label": "8",
+            "action": {
+              "type": "input",
+              "text": "^"
+            }
+          },
+          "label": "TUV"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "w",
+            "action": {
+              "type": "input",
+              "text": "9"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "x",
+            "action": {
+              "type": "input",
+              "text": "x"
+            }
+          },
+          "up": {
+            "label": "y",
+            "action": {
+              "type": "input",
+              "text": "y"
+            }
+          },
+          "right": {
+            "label": "z",
+            "action": {
+              "type": "input",
+              "text": "z"
+            }
+          },
+          "down": {
+            "label": "9",
+            "action": {
+              "type": "input",
+              "text": ">"
+            }
+          },
+          "label": "WXYZ"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "␣",
+            "action": {
+              "type": "space"
+            }
+          },
+          "style": "ACTION",
+          "repeatable": true
+        }
+      ]
+    },
+    {
+      "keys": [
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "かな",
+            "action": {
+              "type": "layout",
+              "layoutId": "flick_kana"
+            }
+          },
+          "style": "MODIFIER"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "a⇔A",
+            "action": {
+              "type": "modify"
+            }
+          },
+          "style": "MODIFIER"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "'",
+            "action": {
+              "type": "input",
+              "text": "0"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "\"",
+            "action": {
+              "type": "input",
+              "text": "\""
+            }
+          },
+          "up": {
+            "label": ":",
+            "action": {
+              "type": "input",
+              "text": ":"
+            }
+          },
+          "right": {
+            "label": ";",
+            "action": {
+              "type": "input",
+              "text": ";"
+            }
+          },
+          "down": {
+            "label": "0",
+            "action": {
+              "type": "input",
+              "text": "#"
+            }
+          },
+          "label": "'\":;"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": ".",
+            "action": {
+              "type": "input",
+              "text": "."
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": ",",
+            "action": {
+              "type": "input",
+              "text": ","
+            }
+          },
+          "up": {
+            "label": "?",
+            "action": {
+              "type": "input",
+              "text": "?"
+            }
+          },
+          "right": {
+            "label": "!",
+            "action": {
+              "type": "input",
+              "text": "!"
+            }
+          },
+          "down": null,
+          "label": ".,?!"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "↵",
+            "action": {
+              "type": "enter"
+            }
+          },
+          "style": "ACTION"
+        }
+      ]
+    }
+  ]
+}

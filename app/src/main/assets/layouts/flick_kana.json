@@ -1,0 +1,573 @@
+{
+  "id": "flick_kana",
+  "label": "かな (フリック)",
+  "inputStyle": "FLICK_HIRAGANA",
+  "rows": [
+    {
+      "keys": [
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "↶",
+            "action": {
+              "type": "undo"
+            }
+          },
+          "style": "MODIFIER"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "あ",
+            "action": {
+              "type": "input",
+              "text": "1"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "い",
+            "action": {
+              "type": "input",
+              "text": "_"
+            }
+          },
+          "up": {
+            "label": "う",
+            "action": {
+              "type": "input",
+              "text": ";"
+            }
+          },
+          "right": {
+            "label": "え",
+            "action": {
+              "type": "input",
+              "text": ":"
+            }
+          },
+          "down": {
+            "label": "お",
+            "action": {
+              "type": "input",
+              "text": "@"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "か",
+            "action": {
+              "type": "input",
+              "text": "2"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "き",
+            "action": {
+              "type": "input",
+              "text": "a"
+            }
+          },
+          "up": {
+            "label": "く",
+            "action": {
+              "type": "input",
+              "text": "b"
+            }
+          },
+          "right": {
+            "label": "け",
+            "action": {
+              "type": "input",
+              "text": "c"
+            }
+          },
+          "down": {
+            "label": "こ",
+            "action": {
+              "type": "input",
+              "text": "|"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "さ",
+            "action": {
+              "type": "input",
+              "text": "3"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "し",
+            "action": {
+              "type": "input",
+              "text": "d"
+            }
+          },
+          "up": {
+            "label": "す",
+            "action": {
+              "type": "input",
+              "text": "e"
+            }
+          },
+          "right": {
+            "label": "せ",
+            "action": {
+              "type": "input",
+              "text": "f"
+            }
+          },
+          "down": {
+            "label": "そ",
+            "action": {
+              "type": "input",
+              "text": "~"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "⌫",
+            "action": {
+              "type": "backspace"
+            }
+          },
+          "style": "ACTION",
+          "repeatable": true
+        }
+      ]
+    },
+    {
+      "keys": [
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "◀",
+            "action": {
+              "type": "cursor",
+              "delta": -1
+            }
+          },
+          "style": "MODIFIER",
+          "repeatable": true
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "た",
+            "action": {
+              "type": "input",
+              "text": "4"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "ち",
+            "action": {
+              "type": "input",
+              "text": "g"
+            }
+          },
+          "up": {
+            "label": "つ",
+            "action": {
+              "type": "input",
+              "text": "h"
+            }
+          },
+          "right": {
+            "label": "て",
+            "action": {
+              "type": "input",
+              "text": "i"
+            }
+          },
+          "down": {
+            "label": "と",
+            "action": {
+              "type": "input",
+              "text": "$"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "な",
+            "action": {
+              "type": "input",
+              "text": "5"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "に",
+            "action": {
+              "type": "input",
+              "text": "j"
+            }
+          },
+          "up": {
+            "label": "ぬ",
+            "action": {
+              "type": "input",
+              "text": "k"
+            }
+          },
+          "right": {
+            "label": "ね",
+            "action": {
+              "type": "input",
+              "text": "l"
+            }
+          },
+          "down": {
+            "label": "の",
+            "action": {
+              "type": "input",
+              "text": "%"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "は",
+            "action": {
+              "type": "input",
+              "text": "6"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "ひ",
+            "action": {
+              "type": "input",
+              "text": "m"
+            }
+          },
+          "up": {
+            "label": "ふ",
+            "action": {
+              "type": "input",
+              "text": "n"
+            }
+          },
+          "right": {
+            "label": "へ",
+            "action": {
+              "type": "input",
+              "text": "o"
+            }
+          },
+          "down": {
+            "label": "ほ",
+            "action": {
+              "type": "input",
+              "text": "&"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "▶",
+            "action": {
+              "type": "cursor",
+              "delta": 1
+            }
+          },
+          "style": "ACTION",
+          "repeatable": true
+        }
+      ]
+    },
+    {
+      "keys": [
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "数字",
+            "action": {
+              "type": "layout",
+              "layoutId": "flick_symbol"
+            }
+          },
+          "style": "MODIFIER"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "ま",
+            "action": {
+              "type": "input",
+              "text": "7"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "み",
+            "action": {
+              "type": "input",
+              "text": "p"
+            }
+          },
+          "up": {
+            "label": "む",
+            "action": {
+              "type": "input",
+              "text": "q"
+            }
+          },
+          "right": {
+            "label": "め",
+            "action": {
+              "type": "input",
+              "text": "r"
+            }
+          },
+          "down": {
+            "label": "も",
+            "action": {
+              "type": "input",
+              "text": "s"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "や",
+            "action": {
+              "type": "input",
+              "text": "8"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "(",
+            "action": {
+              "type": "input",
+              "text": "t"
+            }
+          },
+          "up": {
+            "label": "ゆ",
+            "action": {
+              "type": "input",
+              "text": "u"
+            }
+          },
+          "right": {
+            "label": ")",
+            "action": {
+              "type": "input",
+              "text": "v"
+            }
+          },
+          "down": {
+            "label": "よ",
+            "action": {
+              "type": "input",
+              "text": "^"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "ら",
+            "action": {
+              "type": "input",
+              "text": "9"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "り",
+            "action": {
+              "type": "input",
+              "text": "w"
+            }
+          },
+          "up": {
+            "label": "る",
+            "action": {
+              "type": "input",
+              "text": "x"
+            }
+          },
+          "right": {
+            "label": "れ",
+            "action": {
+              "type": "input",
+              "text": "y"
+            }
+          },
+          "down": {
+            "label": "ろ",
+            "action": {
+              "type": "input",
+              "text": "z"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "␣",
+            "action": {
+              "type": "space"
+            }
+          },
+          "style": "ACTION",
+          "repeatable": true
+        }
+      ]
+    },
+    {
+      "keys": [
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "英数",
+            "action": {
+              "type": "layout",
+              "layoutId": "flick_ascii"
+            }
+          },
+          "style": "MODIFIER"
+        },
+        {
+          "weight": 1.0,
+          "label": "゛小゜",
+          "center": {
+            "label": "゛小゜",
+            "action": {
+              "type": "modify"
+            }
+          },
+          "left": {
+            "label": "゛",
+            "action": {
+              "type": "input",
+              "text": "["
+            }
+          },
+          "up": {
+            "label": "小",
+            "action": {
+              "type": "input",
+              "text": "`"
+            }
+          },
+          "right": {
+            "label": "゜",
+            "action": {
+              "type": "input",
+              "text": "]"
+            }
+          },
+          "style": "MODIFIER"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "わ",
+            "action": {
+              "type": "input",
+              "text": "0"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "を",
+            "action": {
+              "type": "input",
+              "text": "+"
+            }
+          },
+          "up": {
+            "label": "ん",
+            "action": {
+              "type": "input",
+              "text": "/"
+            }
+          },
+          "right": {
+            "label": "ー",
+            "action": {
+              "type": "input",
+              "text": "-"
+            }
+          },
+          "down": {
+            "label": "〜",
+            "action": {
+              "type": "input",
+              "text": "<"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "、",
+            "action": {
+              "type": "input",
+              "text": "#"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "。",
+            "action": {
+              "type": "input",
+              "text": ","
+            }
+          },
+          "up": {
+            "label": "？",
+            "action": {
+              "type": "input",
+              "text": "?"
+            }
+          },
+          "right": {
+            "label": "！",
+            "action": {
+              "type": "input",
+              "text": "!"
+            }
+          },
+          "down": {
+            "label": "…",
+            "action": {
+              "type": "input",
+              "text": ">"
+            }
+          },
+          "label": "、。?!"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "↵",
+            "action": {
+              "type": "enter"
+            }
+          },
+          "style": "ACTION"
+        }
+      ]
+    }
+  ]
+}

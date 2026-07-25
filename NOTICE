@@ -1,0 +1,35 @@
+zinna-IME
+Copyright 2026 zinna-IME contributors
+
+This product bundles software from the Mozc project:
+  https://github.com/google/mozc
+  Copyright 2010-2021, Google Inc. All rights reserved.
+  Licensed under the BSD 3-Clause License.
+
+Bundled binaries built from Mozc sources:
+  lib/*/libmozc.so    - Mozc conversion engine
+  assets/mozc.data    - Mozc OSS dictionary and conversion data
+
+The dictionary data incorporates several corpora with their own terms; see
+third_party/mozc/src/data/dictionary_oss/README.txt upstream for the full list.
+
+Bundled supplementary dictionary:
+  dic-nico-intersection-pixiv  (mozc/src/main/assets/dictionaries/)
+  https://github.com/ncaq/dic-nico-intersection-pixiv
+  The project's code is MIT licensed. Its author states that no copyright is
+  claimed over the generated dictionary itself, as it is derived from scraped
+  article titles of Niconico Pedia and Pixiv Encyclopedia. That is the upstream
+  author's own statement rather than a formal licence grant; redistributors
+  should satisfy themselves it fits their situation.
+
+  google-ime-user-dictionary-ja-en  (mozc/src/main/assets/dictionaries/)
+  https://github.com/KEINOS/google-ime-user-dictionary-ja-en
+  Katakana loanword to English spelling, derived from the EDICT project.
+  The dictionary data is under Creative Commons Attribution-ShareAlike 3.0, the
+  same terms as EDICT itself.
+
+  Those terms cover the dictionary, not software that uses it: the upstream
+  project states explicitly that an application bundling this dictionary need
+  not adopt a Creative Commons licence, and asks only that it say it uses this
+  community-built open-source dictionary. This notice is that statement.
+  zinna-IME itself remains Apache 2.0.

@@ -1,0 +1,351 @@
+diff --git a/src/engine/BUILD.bazel b/src/engine/BUILD.bazel
+index 3c03da50c..da9d2d9ad 100644
+--- a/src/engine/BUILD.bazel
++++ b/src/engine/BUILD.bazel
+@@ -136,6 +136,25 @@ mozc_cc_library(
+     ],
+ )
+ 
++mozc_cc_library(
++    name = "typing_correction_model",
++    srcs = [
++        "flick_geometry.inc",
++        "typing_correction_model.cc",
++    ],
++    hdrs = ["typing_correction_model.h"],
++    visibility = ["//:__subpackages__"],
++    deps = [
++        ":supplemental_model_interface",
++        "//base:util",
++        "//composer:query",
++        "//request:conversion_request",
++        "@com_google_absl//absl/container:flat_hash_map",
++        "@com_google_absl//absl/container:flat_hash_set",
++        "@com_google_absl//absl/strings",
++    ],
++)
++
+ mozc_cc_library(
+     name = "modules",
+     srcs = ["modules.cc"],
+@@ -146,6 +165,7 @@ mozc_cc_library(
+     ],
+     deps = [
+         ":supplemental_model_interface",
++        ":typing_correction_model",
+         "//base/container:tuple",
+         "//converter:connector",
+         "//converter:segmenter",
+diff --git a/src/engine/modules.cc b/src/engine/modules.cc
+index 4219f6cf5..0df8d0125 100644
+--- a/src/engine/modules.cc
++++ b/src/engine/modules.cc
+@@ -55,6 +55,7 @@
+ #include "dictionary/user_dictionary.h"
+ #include "dictionary/user_pos.h"
+ #include "engine/supplemental_model_interface.h"
++#include "engine/typing_correction_model.h"
+ #include "prediction/suggestion_filter.h"
+ #include "prediction/user_history_storage.h"
+ 
+@@ -178,8 +179,11 @@ absl::Status Modules::Init(std::unique_ptr<const DataManager> data_manager) {
+     static std::shared_ptr<engine::SupplementalModelInterface>
+         g_supplemental_model =
+             []() -> std::unique_ptr<engine::SupplementalModelInterface> {
+-      DLOG(INFO) << "Placeholder of supplemental model stub is loaded";
+-      return std::make_unique<engine::SupplementalModelStub>();
++      // Upstream installs SupplementalModelStub here, whose CorrectComposition() returns nullopt
++      // and so disables typing correction entirely in OSS builds. TypingCorrectionModel is a
++      // rule-based stand-in for the model Google ships internally.
++      DLOG(INFO) << "Rule-based typing correction model is loaded";
++      return std::make_unique<engine::TypingCorrectionModel>();
+     }();
+     supplemental_model_ = g_supplemental_model;
+   }
+diff --git a/src/engine/typing_correction_model.cc b/src/engine/typing_correction_model.cc
+new file mode 100644
+index 000000000..171ceda4a
+--- /dev/null
++++ b/src/engine/typing_correction_model.cc
+@@ -0,0 +1,239 @@
++#include "engine/typing_correction_model.h"
++
++#include <algorithm>
++#include <cmath>
++#include <optional>
++#include <string>
++#include <utility>
++#include <vector>
++
++#include "absl/container/flat_hash_map.h"
++#include "absl/container/flat_hash_set.h"
++#include "absl/strings/str_join.h"
++#include "absl/strings/string_view.h"
++#include "base/util.h"
++#include "composer/query.h"
++#include "request/conversion_request.h"
++
++namespace mozc::engine {
++namespace {
++
++using ::mozc::composer::TypeCorrectedQuery;
++
++// Readings shorter than this are too ambiguous to correct usefully — almost any single-kana edit
++// of "あい" is also a word, so corrections would drown the literal reading. The predictor applies
++// its own minimum of 3 as well; this keeps the two in step.
++constexpr size_t kMinReadingLen = 3;
++
++// Long readings are usually deliberate, and each extra kana multiplies the candidate count.
++constexpr size_t kMaxReadingLen = 12;
++
++// Every candidate costs the caller a full dictionary lookup — unigram, realtime, bigram and
++// number aggregation — which measures at roughly 5 ms each on a desktop and several times that on
++// a phone. Since prediction runs on every keystroke, this ceiling is a latency budget, and a tight
++// one: 12 candidates made prediction six times slower.
++constexpr size_t kMaxCandidates = 18;
++
++// Substitutions are only considered on the last few kana. A mistake further back has usually already
++// been noticed and fixed by the user, and every extra position costs four candidates out of four.
++constexpr size_t kVowelSlipWindow = 3;
++
++// Neighbours considered per position. Without it the nearest position floods the whole budget with
++// its own eight alternatives and nothing is left for a dropped っ or for the kana before it.
++constexpr size_t kMaxNeighboursPerPosition = 8;
++
++// Penalty in the caller's log10 domain: bias is multiplied by -1150 and added to the word cost.
++// A vowel slip is the single most common flick mistake, so it is charged least.
++constexpr float kVowelSlipBias = -0.25f;
++
++// Distance decides *which* hypotheses are worth spending the budget on; it deliberately barely
++// touches their final cost. Letting it do both meant a near-but-meaningless substitution outranked
++// a further one that is a real word — the dictionary and language model are far better judges of
++// that than a ruler is.
++constexpr float kDistanceBiasScale = 0.04f;
++constexpr float kTranspositionBias = -0.55f;
++constexpr float kDroppedGeminateBias = -0.45f;
++
++// Where each kana sits: which key, and which flick direction reaches it. Generated from the layout
++// that actually ships (scripts/gen_flick_layout.py), so this cannot drift away from the keys.
++struct KanaPosition {
++  absl::string_view kana;
++  int column;
++  int row;
++  int direction;  // 0=centre, 1=left, 2=up, 3=right, 4=down
++};
++
++constexpr KanaPosition kKanaPositions[] = {
++#include "engine/flick_geometry.inc"
++};
++
++// Cost of confusing one flick direction with another on the same key. Reaching past the centre —
++// up for down — is the least likely slip; stopping short of the threshold, so a flick registers as
++// the centre kana, is the most likely.
++constexpr float kDirectionCost[5][5] = {
++    /*          centre left  up    right down */
++    /* centre */ {0.0f, 0.5f, 0.5f, 0.5f, 0.5f},
++    /* left   */ {0.5f, 0.0f, 0.7f, 1.0f, 0.7f},
++    /* up     */ {0.5f, 0.7f, 0.0f, 0.7f, 1.0f},
++    /* right  */ {0.5f, 1.0f, 0.7f, 0.0f, 0.7f},
++    /* down   */ {0.5f, 0.7f, 1.0f, 0.7f, 0.0f},
++};
++
++// Kana further apart than this are not treated as confusable. 1.05 admits any slip within one key
++// and a hit on an adjacent key in the same direction — わ↑ん mistyped as や↑ゆ, the vertical miss
++// — while excluding the combination of both mistakes at once.
++constexpr float kMaxConfusionDistance = 1.05f;
++
++// Keys are much wider than they are tall — a fifth of the screen across, about 56 dp down — so the
++// thumb strays between rows more easily than between columns. Scaling the row axis below 1 encodes
++// that, and it is what makes わ↑ん beat ま↑む and ら↑る as the correction for a mistyped や↑ゆ:
++// all three are one key away, but only ん is one key *up*.
++constexpr float kRowDistanceScale = 0.85f;
++
++float ConfusionDistance(const KanaPosition &from, const KanaPosition &to) {
++  const float dx = from.column - to.column;
++  const float dy = (from.row - to.row) * kRowDistanceScale;
++  return std::sqrt(dx * dx + dy * dy) +
++         kDirectionCost[from.direction][to.direction];
++}
++
++// Neighbours of each kana, nearest first, as (kana, distance).
++const absl::flat_hash_map<absl::string_view,
++                          std::vector<std::pair<absl::string_view, float>>> &
++GetNeighbourMap() {
++  static const auto *map = [] {
++    auto *m = new absl::flat_hash_map<
++        absl::string_view, std::vector<std::pair<absl::string_view, float>>>();
++    for (const KanaPosition &from : kKanaPositions) {
++      auto &neighbours = (*m)[from.kana];
++      for (const KanaPosition &to : kKanaPositions) {
++        if (from.kana == to.kana) continue;
++        const float distance = ConfusionDistance(from, to);
++        if (distance <= kMaxConfusionDistance) {
++          neighbours.emplace_back(to.kana, distance);
++        }
++      }
++      std::stable_sort(neighbours.begin(), neighbours.end(),
++                       [](const auto &lhs, const auto &rhs) {
++                         return lhs.second < rhs.second;
++                       });
++    }
++    return m;
++  }();
++  return *map;
++}
++
++// Small kana that a fast typist drops entirely, leaving a reading one mora short.
++bool IsGeminateOrSmall(absl::string_view kana) {
++  return kana == "っ" || kana == "ゃ" || kana == "ゅ" || kana == "ょ" ||
++         kana == "ぁ" || kana == "ぃ" || kana == "ぅ" || kana == "ぇ" ||
++         kana == "ぉ" || kana == "ー";
++}
++
++// How implausible a hypothesis is, lowest first. The budget is far smaller than the number of
++// hypotheses, so this — not generation order — decides what survives.
++//
++// For substitutions the rank *is* the distance between the two kana on the keyboard, which is the
++// whole point: a slip inside one key (0.5–1.0) outranks a hit on the neighbouring key (1.0), and
++// both outrank the guesses below.
++constexpr float kDroppedSokuonRank = 0.9f;
++constexpr float kTranspositionRank = 1.3f;
++
++// Added per kana of distance from the end of the reading. A mistake further back has usually been
++// noticed already, but only mildly so — this must not outweigh keyboard distance.
++constexpr float kOlderKanaPenalty = 0.15f;
++
++struct Hypothesis {
++  std::string correction;
++  float bias;
++  float rank;
++};
++
++void AddCandidate(std::vector<std::string> chars, float bias, float rank,
++                  absl::string_view original,
++                  absl::flat_hash_set<std::string> *seen,
++                  std::vector<Hypothesis> *out) {
++  std::string corrected = absl::StrJoin(chars, "");
++  if (corrected == original || !seen->insert(corrected).second) return;
++  out->push_back(Hypothesis{std::move(corrected), bias, rank});
++}
++
++}  // namespace
++
++std::optional<std::vector<TypeCorrectedQuery>>
++TypingCorrectionModel::CorrectComposition(
++    const ConversionRequest &request) const {
++  const absl::string_view key = request.key();
++  const std::vector<std::string> chars = Util::SplitStringToUtf8Chars(key);
++  if (chars.size() < kMinReadingLen || chars.size() > kMaxReadingLen) {
++    // An empty vector, not nullopt: nullopt means "no spellchecker here" and makes the caller skip
++    // the whole path, while an empty list means "nothing to correct this time".
++    return std::vector<TypeCorrectedQuery>();
++  }
++
++  std::vector<Hypothesis> hypotheses;
++  absl::flat_hash_set<std::string> seen;
++  const auto &neighbours = GetNeighbourMap();
++
++  // Substitutions, ranked by how close the two kana are on the keyboard.
++  const size_t slip_from =
++      chars.size() > kVowelSlipWindow ? chars.size() - kVowelSlipWindow : 0;
++  for (size_t i = chars.size(); i-- > slip_from;) {
++    const auto it = neighbours.find(chars[i]);
++    if (it == neighbours.end()) continue;
++    const float age_penalty = (chars.size() - 1 - i) * kOlderKanaPenalty;
++    size_t taken = 0;
++    for (const auto &[alternative, distance] : it->second) {
++      if (taken++ >= kMaxNeighboursPerPosition) break;
++      std::vector<std::string> variant = chars;
++      variant[i] = std::string(alternative);
++      // Nearer misses are charged less, so when several corrections all produce real words the
++      // physically likelier one wins.
++      const float bias = kVowelSlipBias - kDistanceBiasScale * distance;
++      AddCandidate(std::move(variant), bias, distance + age_penalty, key, &seen,
++                   &hypotheses);
++    }
++  }
++
++  // A dropped っ. Only the sokuon is worth guessing blind — the other small kana depend on the
++  // preceding consonant, and the dictionary lookup would reject the noise anyway.
++  for (size_t i = 1; i < chars.size(); ++i) {
++    if (IsGeminateOrSmall(chars[i])) continue;
++    std::vector<std::string> variant = chars;
++    variant.insert(variant.begin() + i, "っ");
++    AddCandidate(std::move(variant), kDroppedGeminateBias, kDroppedSokuonRank, key,
++                 &seen, &hypotheses);
++  }
++
++  // Adjacent transposition — two thumbs racing each other.
++  for (size_t i = 0; i + 1 < chars.size(); ++i) {
++    if (chars[i] == chars[i + 1]) continue;
++    std::vector<std::string> variant = chars;
++    std::swap(variant[i], variant[i + 1]);
++    AddCandidate(std::move(variant), kTranspositionBias, kTranspositionRank, key,
++                 &seen, &hypotheses);
++  }
++
++  // Trim by plausibility rather than by generation order. Allocating first-come starves whichever
++  // generator runs last: with slips first "がこう" never proposes "がっこう", and with the sokuon
++  // first "ありがとお" never proposes "ありがとう". Both are ordinary mistakes and both have to fit.
++  std::stable_sort(hypotheses.begin(), hypotheses.end(),
++                   [](const Hypothesis &lhs, const Hypothesis &rhs) {
++                     return lhs.rank < rhs.rank;
++                   });
++  if (hypotheses.size() > kMaxCandidates) hypotheses.resize(kMaxCandidates);
++
++  std::vector<TypeCorrectedQuery> candidates;
++  candidates.reserve(hypotheses.size());
++  for (Hypothesis &hypothesis : hypotheses) {
++    TypeCorrectedQuery query;
++    query.correction = std::move(hypothesis.correction);
++    query.type = TypeCorrectedQuery::CORRECTION;
++    query.score = hypothesis.bias;
++    query.bias = hypothesis.bias;
++    candidates.push_back(std::move(query));
++  }
++  return candidates;
++}
++
++}  // namespace mozc::engine
+diff --git a/src/engine/typing_correction_model.h b/src/engine/typing_correction_model.h
+new file mode 100644
+index 000000000..bdeba6dae
+--- /dev/null
++++ b/src/engine/typing_correction_model.h
+@@ -0,0 +1,36 @@
++// Rule-based composition spellchecker for Japanese flick / 12-key input.
++//
++// Upstream mozc keeps the typing-correction *plumbing* — the predictor asks
++// SupplementalModelInterface::CorrectComposition() for corrected readings and does the dictionary
++// lookup, ranking and TYPING_CORRECTION tagging itself — but the OSS build ships
++// SupplementalModelStub, whose CorrectComposition() returns nullopt. This class fills that hole
++// without touching any of the surrounding machinery.
++
++#ifndef MOZC_ENGINE_TYPING_CORRECTION_MODEL_H_
++#define MOZC_ENGINE_TYPING_CORRECTION_MODEL_H_
++
++#include <optional>
++#include <vector>
++
++#include "composer/query.h"
++#include "engine/supplemental_model_interface.h"
++#include "request/conversion_request.h"
++
++namespace mozc::engine {
++
++class TypingCorrectionModel : public SupplementalModelInterface {
++ public:
++  bool IsAvailable() const override { return true; }
++
++  // Returns plausible corrections of the pre-edit hiragana in `request`.
++  //
++  // Deliberately proposes rather than decides: every candidate reading is looked up in the
++  // dictionary by the caller, so a correction that is not a real word simply produces nothing.
++  // That removes the need for a language model here — the dictionary is the filter.
++  std::optional<std::vector<composer::TypeCorrectedQuery>> CorrectComposition(
++      const ConversionRequest &request) const override;
++};
++
++}  // namespace mozc::engine
++
++#endif  // MOZC_ENGINE_TYPING_CORRECTION_MODEL_H_

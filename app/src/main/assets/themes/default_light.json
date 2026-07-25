@@ -1,0 +1,19 @@
+{
+  "id": "default_light",
+  "label": "Default Light",
+  "backgroundColor": "#FFE7E9EC",
+  "keyColor": "#FFFDFDFD",
+  "keyPressedColor": "#FFC9CDD3",
+  "modifierKeyColor": "#FFD3D7DD",
+  "labelColor": "#FF1B1C1E",
+  "flickGuideColor": "#FF4C7DF0",
+  "flickGuideLabelColor": "#FFEDF1FB",
+  "flickGuideSelectedLabelColor": "#FFFFFFFF",
+  "candidateBackgroundColor": "#FFE7E9EC",
+  "candidateTextColor": "#FF1B1C1E",
+  "keyHeightDp": 56.0,
+  "keyGapDp": 2.0,
+  "keyCornerRadiusDp": 8.0,
+  "labelSizeSp": 17.0,
+  "hapticFeedback": true
+}

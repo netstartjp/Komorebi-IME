@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">zinna-IME</string>
+    <string name="ime_name">zinna-IME (mozc)</string>
+    <string name="subtype_ja">日本語</string>
+    <string name="settings_title">zinna-IME 設定</string>
+    <string name="enable_ime">キーボードを有効化</string>
+    <string name="select_ime">キーボードを選択</string>
+    <string name="engine_status">変換エンジン</string>
+    <string name="flick_sensitivity">フリック感度</string>
+    <string name="key_height">キーの高さ</string>
+    <string name="theme">テーマ</string>
+    <string name="layout">配列</string>
+    <string name="user_dictionary">ユーザー辞書</string>
+</resources>
