@@ -1,0 +1,509 @@
+{
+  "id": "flick_symbol",
+  "label": "記号・数字",
+  "inputStyle": "TOGGLE_FLICK_NUMBER",
+  "rows": [
+    {
+      "keys": [
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "↶",
+            "action": {
+              "type": "undo"
+            }
+          },
+          "style": "MODIFIER"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "1",
+            "action": {
+              "type": "input",
+              "text": "1"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "☆",
+            "action": {
+              "type": "input",
+              "text": "☆"
+            }
+          },
+          "up": {
+            "label": "♪",
+            "action": {
+              "type": "input",
+              "text": "♪"
+            }
+          },
+          "right": {
+            "label": "→",
+            "action": {
+              "type": "input",
+              "text": "→"
+            }
+          },
+          "down": null
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "2",
+            "action": {
+              "type": "input",
+              "text": "2"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "¥",
+            "action": {
+              "type": "input",
+              "text": "¥"
+            }
+          },
+          "up": {
+            "label": "$",
+            "action": {
+              "type": "input",
+              "text": "$"
+            }
+          },
+          "right": {
+            "label": "€",
+            "action": {
+              "type": "input",
+              "text": "€"
+            }
+          },
+          "down": null
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "3",
+            "action": {
+              "type": "input",
+              "text": "3"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "%",
+            "action": {
+              "type": "input",
+              "text": "%"
+            }
+          },
+          "up": {
+            "label": "゜",
+            "action": {
+              "type": "input",
+              "text": "゜"
+            }
+          },
+          "right": {
+            "label": "#",
+            "action": {
+              "type": "input",
+              "text": "#"
+            }
+          },
+          "down": null
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "⌫",
+            "action": {
+              "type": "backspace"
+            }
+          },
+          "style": "ACTION",
+          "repeatable": true
+        }
+      ]
+    },
+    {
+      "keys": [
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "◀",
+            "action": {
+              "type": "cursor",
+              "delta": -1
+            }
+          },
+          "style": "MODIFIER",
+          "repeatable": true
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "4",
+            "action": {
+              "type": "input",
+              "text": "4"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "○",
+            "action": {
+              "type": "input",
+              "text": "○"
+            }
+          },
+          "up": {
+            "label": "*",
+            "action": {
+              "type": "input",
+              "text": "*"
+            }
+          },
+          "right": {
+            "label": "・",
+            "action": {
+              "type": "input",
+              "text": "・"
+            }
+          },
+          "down": null
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "5",
+            "action": {
+              "type": "input",
+              "text": "5"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "+",
+            "action": {
+              "type": "input",
+              "text": "+"
+            }
+          },
+          "up": {
+            "label": "×",
+            "action": {
+              "type": "input",
+              "text": "×"
+            }
+          },
+          "right": {
+            "label": "÷",
+            "action": {
+              "type": "input",
+              "text": "÷"
+            }
+          },
+          "down": null
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "6",
+            "action": {
+              "type": "input",
+              "text": "6"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "<",
+            "action": {
+              "type": "input",
+              "text": "<"
+            }
+          },
+          "up": {
+            "label": "=",
+            "action": {
+              "type": "input",
+              "text": "="
+            }
+          },
+          "right": {
+            "label": ">",
+            "action": {
+              "type": "input",
+              "text": ">"
+            }
+          },
+          "down": null
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "▶",
+            "action": {
+              "type": "cursor",
+              "delta": 1
+            }
+          },
+          "style": "ACTION",
+          "repeatable": true
+        }
+      ]
+    },
+    {
+      "keys": [
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "かな",
+            "action": {
+              "type": "layout",
+              "layoutId": "flick_kana"
+            }
+          },
+          "style": "MODIFIER"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "7",
+            "action": {
+              "type": "input",
+              "text": "7"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "「",
+            "action": {
+              "type": "input",
+              "text": "「"
+            }
+          },
+          "up": {
+            "label": "」",
+            "action": {
+              "type": "input",
+              "text": "」"
+            }
+          },
+          "right": {
+            "label": ":",
+            "action": {
+              "type": "input",
+              "text": ":"
+            }
+          },
+          "down": null
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "8",
+            "action": {
+              "type": "input",
+              "text": "8"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "〒",
+            "action": {
+              "type": "input",
+              "text": "〒"
+            }
+          },
+          "up": {
+            "label": "々",
+            "action": {
+              "type": "input",
+              "text": "々"
+            }
+          },
+          "right": {
+            "label": "〆",
+            "action": {
+              "type": "input",
+              "text": "〆"
+            }
+          },
+          "down": null
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "9",
+            "action": {
+              "type": "input",
+              "text": "9"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "^",
+            "action": {
+              "type": "input",
+              "text": "^"
+            }
+          },
+          "up": {
+            "label": "|",
+            "action": {
+              "type": "input",
+              "text": "|"
+            }
+          },
+          "right": {
+            "label": "\\",
+            "action": {
+              "type": "input",
+              "text": "\\"
+            }
+          },
+          "down": null
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "␣",
+            "action": {
+              "type": "space"
+            }
+          },
+          "style": "ACTION",
+          "repeatable": true
+        }
+      ]
+    },
+    {
+      "keys": [
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "英数",
+            "action": {
+              "type": "layout",
+              "layoutId": "flick_ascii"
+            }
+          },
+          "style": "MODIFIER"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "(",
+            "action": {
+              "type": "input",
+              "text": "("
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": ")",
+            "action": {
+              "type": "input",
+              "text": ")"
+            }
+          },
+          "up": {
+            "label": "[",
+            "action": {
+              "type": "input",
+              "text": "["
+            }
+          },
+          "right": {
+            "label": "]",
+            "action": {
+              "type": "input",
+              "text": "]"
+            }
+          },
+          "down": null,
+          "label": "()[]"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "0",
+            "action": {
+              "type": "input",
+              "text": "0"
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": "〜",
+            "action": {
+              "type": "input",
+              "text": "〜"
+            }
+          },
+          "up": {
+            "label": "…",
+            "action": {
+              "type": "input",
+              "text": "…"
+            }
+          },
+          "right": {
+            "label": "@",
+            "action": {
+              "type": "input",
+              "text": "@"
+            }
+          },
+          "down": null
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": ".",
+            "action": {
+              "type": "input",
+              "text": "."
+            }
+          },
+          "style": "CHARACTER",
+          "left": {
+            "label": ",",
+            "action": {
+              "type": "input",
+              "text": ","
+            }
+          },
+          "up": {
+            "label": "-",
+            "action": {
+              "type": "input",
+              "text": "-"
+            }
+          },
+          "right": {
+            "label": "/",
+            "action": {
+              "type": "input",
+              "text": "/"
+            }
+          },
+          "down": null,
+          "label": ".,-/"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "↵",
+            "action": {
+              "type": "enter"
+            }
+          },
+          "style": "ACTION"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      No uses-permission elements at all, and that is the point: conversion runs entirely inside
+      libmozc.so against the bundled mozc.data, so the app has no way to reach the network even if
+      a future dependency tried to. Any PR that adds android.permission.INTERNET is changing the
+      product, not just the manifest.
+    -->
+
+    <!--
+      allowBackup is off deliberately. The profile directory holds mozc's conversion-learning
+      history and both dictionaries; shipping that to a backup server would undo the point of an
+      IME that never touches the network itself.
+    -->
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ZinnaIme">
+
+        <service
+            android:name=".ime.ZinnaImeService"
+            android:exported="true"
+            android:label="@string/ime_name"
+            android:permission="android.permission.BIND_INPUT_METHOD">
+            <intent-filter>
+                <!--
+                  This is InputMethod.SERVICE_INTERFACE, which is "android.view.InputMethod" —
+                  NOT the interface's fully-qualified name (android.view.inputmethod.InputMethod).
+                  Getting it wrong fails silently: the service still installs and still resolves by
+                  its own action, but InputMethodManagerService never sees it, so the IME is simply
+                  absent from `ime list` with nothing logged anywhere.
+                -->
+                <action android:name="android.view.InputMethod" />
+            </intent-filter>
+            <meta-data
+                android:name="android.view.im"
+                android:resource="@xml/method" />
+        </service>
+
+        <activity
+            android:name=".settings.UserDictionaryActivity"
+            android:exported="false"
+            android:label="@string/user_dictionary"
+            android:parentActivityName=".settings.SettingsActivity" />
+
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

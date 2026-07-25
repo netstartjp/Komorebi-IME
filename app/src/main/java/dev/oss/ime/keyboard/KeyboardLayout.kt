@@ -1,0 +1,171 @@
+package dev.oss.ime.keyboard
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+/**
+ * Declarative keyboard description.
+ *
+ * Layouts are data, not code: they ship as JSON in assets/layouts/ and users can drop replacements
+ * into the app's layouts directory. That is the hinge the whole customization story hangs on — key
+ * arrangement, flick assignments and per-key actions are all editable without touching the app.
+ */
+@Serializable
+data class KeyboardLayout(
+    val id: String,
+    val label: String,
+    /** Which mozc romanji table this layout feeds. See [InputStyle]. */
+    val inputStyle: InputStyle = InputStyle.FLICK_HIRAGANA,
+    val rows: List<KeyRow>,
+) {
+    /** Largest column count across rows; used to normalise key widths. */
+    val columnWeight: Float = rows.maxOfOrNull { row -> row.keys.sumOf { it.weight.toDouble() }.toFloat() } ?: 1f
+}
+
+@Serializable
+data class KeyRow(
+    val keys: List<KeySpec>,
+    /** Row height relative to the other rows. */
+    val weight: Float = 1f,
+)
+
+@Serializable
+data class KeySpec(
+    /** Horizontal share of the row. */
+    val weight: Float = 1f,
+    /** What the key does when tapped without flicking. */
+    val center: KeyOutput,
+    val left: KeyOutput? = null,
+    val up: KeyOutput? = null,
+    val right: KeyOutput? = null,
+    val down: KeyOutput? = null,
+    /** Overrides the label drawn on the key face; defaults to [center]'s label. */
+    val label: String? = null,
+    /** Holding the key repeats it (backspace, cursor movement). */
+    val repeatable: Boolean = false,
+    /** Visual role, so themes can style modifiers differently from character keys. */
+    val style: KeyStyle = KeyStyle.CHARACTER,
+) {
+    fun output(direction: FlickDirection): KeyOutput? = when (direction) {
+        FlickDirection.CENTER -> center
+        FlickDirection.LEFT -> left
+        FlickDirection.UP -> up
+        FlickDirection.RIGHT -> right
+        FlickDirection.DOWN -> down
+    }
+
+    /** True when this key has anything to show in a flick guide. */
+    val hasFlicks: Boolean get() = left != null || up != null || right != null || down != null
+
+    val faceLabel: String get() = label ?: center.label
+}
+
+@Serializable
+data class KeyOutput(
+    /** Text drawn in the flick guide. */
+    val label: String,
+    val action: KeyAction,
+)
+
+@Serializable
+sealed interface KeyAction {
+    /** Feed [text] to mozc as a key event. The usual case for character keys. */
+    @Serializable
+    @SerialName("input")
+    data class Input(val text: String) : KeyAction
+
+    /**
+     * Insert [text] verbatim, bypassing the active romanji table.
+     *
+     * Unused by the bundled layouts — the symbol plane's characters are all keys in mozc's number
+     * table, so they go through [Input] like anything else. It exists for hand-written layouts:
+     * the tables reuse punctuation as *table keys* (in the latin table `<` selects 7 and `%`
+     * selects 5), so anyone adding a symbol to a spare flick direction elsewhere needs a way in
+     * that does not get reinterpreted as a digit.
+     */
+    @Serializable
+    @SerialName("symbol")
+    data class InsertSymbol(val text: String) : KeyAction
+
+    /** Cycle the preceding character through dakuten / handakuten / small forms. */
+    @Serializable
+    @SerialName("modify")
+    data object ModifyChar : KeyAction
+
+    /** Undoes the last commit, restoring it to a composition that can be re-converted. */
+    @Serializable
+    @SerialName("undo")
+    data object Undo : KeyAction
+
+    @Serializable
+    @SerialName("backspace")
+    data object Backspace : KeyAction
+
+    @Serializable
+    @SerialName("enter")
+    data object Enter : KeyAction
+
+    @Serializable
+    @SerialName("space")
+    data object Space : KeyAction
+
+    /** Convert the current composition, or insert a full-width space when idle. */
+    @Serializable
+    @SerialName("convert")
+    data object Convert : KeyAction
+
+    @Serializable
+    @SerialName("cursor")
+    data class MoveCursor(val delta: Int) : KeyAction
+
+    /** Switch to another layout by id, e.g. from kana to the alphabet plane. */
+    @Serializable
+    @SerialName("layout")
+    data class SwitchLayout(val layoutId: String) : KeyAction
+
+    /** Hand control back to the system input method picker. */
+    @Serializable
+    @SerialName("ime_picker")
+    data object ShowImePicker : KeyAction
+}
+
+enum class KeyStyle { CHARACTER, MODIFIER, ACTION }
+
+enum class FlickDirection { CENTER, LEFT, UP, RIGHT, DOWN }
+
+/**
+ * Maps onto mozc's `Request.SpecialRomanjiTable`. The app resolves the flick direction itself and
+ * sends the resulting kana, so FLICK_TO_HIRAGANA is the natural pairing — mozc then treats each
+ * key event as a finished kana rather than re-running its own toggle state machine.
+ */
+enum class InputStyle(val mozcTableNumber: Int, val mozcCompositionMode: Int) {
+    FLICK_HIRAGANA(13, HIRAGANA),
+    TOGGLE_FLICK_HIRAGANA(16, HIRAGANA),
+    FLICK_HALFWIDTH_ASCII(14, HALF_ASCII),
+
+    /**
+     * The Gboard-equivalent latin plane: one key per letter group, tapping repeatedly walks
+     * a→b→c and the '*' key walks case. Digits live on the down flick.
+     */
+    TOGGLE_FLICK_HALFWIDTH_ASCII(17, HALF_ASCII),
+
+    /**
+     * The 記号・数字 plane behind Gboard's ☺記 key: digits with the symbol sets flicked off them
+     * (1 → ☆♪→, 5 → +×÷, 7 → 「」:). Stays in HIRAGANA so number input still offers the useful
+     * conversions — "51" → 5月1日, 5時1分.
+     */
+    TOGGLE_FLICK_NUMBER(42, HIRAGANA),
+
+    /** Plain numeric pad with no symbols. Available to custom layouts. */
+    FLICK_NUMBER(43, HALF_ASCII),
+
+    QWERTY_HIRAGANA(20, HIRAGANA),
+    QWERTY_HALFWIDTH_ASCII(22, HALF_ASCII),
+    GODAN_HIRAGANA(30, HIRAGANA),
+}
+
+// mozc.commands.CompositionMode. The romanji table decides what a keystroke transliterates to, but
+// the composition mode decides whether mozc then tries to convert it — leaving a latin plane in
+// HIRAGANA mode gets you kanji candidates for "abc".
+private const val HIRAGANA = 1
+private const val HALF_ASCII = 3

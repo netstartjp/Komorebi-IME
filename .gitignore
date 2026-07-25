@@ -1,0 +1,18 @@
+# Build output
+/build/
+**/build/
+.gradle/
+local.properties
+.cxx/
+
+# Vendored / generated
+/tools/
+/third_party/mozc/
+!/patches/
+/mozc/src/main/jniLibs/
+/mozc/src/main/assets/mozc.data
+
+# IDE
+.idea/
+*.iml
+/mozc/src/main/assets/dictionaries/
