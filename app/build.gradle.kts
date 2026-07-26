@@ -6,15 +6,15 @@ plugins {
 }
 
 android {
-    namespace = "dev.oss.ime"
+    namespace = "me.zssu.ime"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "dev.oss.ime"
+        applicationId = "me.zssu.ime"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "0.1.0"
+        versionName = "0.1.0-zensky.1"
     }
 
     buildTypes {

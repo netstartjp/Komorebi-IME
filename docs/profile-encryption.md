@@ -75,8 +75,8 @@ real device:
 
 - register a word → restart the app → it is still there
 - converse a while → restart → the learning still applies
-- `adb shell run-as dev.oss.ime.debug ls files/mozc/` — `.encrypt_key.db` should be **absent**
-- `adb shell run-as dev.oss.ime.debug cat files/mozc/user_dictionary.db` — no readable words
+- `adb shell run-as me.zssu.ime.debug ls files/mozc/` — `.encrypt_key.db` should be **absent**
+- `adb shell run-as me.zssu.ime.debug cat files/mozc/user_dictionary.db` — no readable words
 - clear app data → the keystore key is gone → must start empty rather than crash
 
 ## Known bound

@@ -1,212 +1,260 @@
-# zinna-IME
+# zinna-IME — ZenSky Project版
 
-Android 向けオープンソース日本語 IME。変換エンジンに [mozc](https://github.com/google/mozc) を
-ネイティブ組み込みし、フリック入力・配列/テーマのカスタマイズに対応する。
+端末の外へ入力内容を送らずに使える、Android 向けオープンソース日本語 IME です。
+[Mozc](https://github.com/google/mozc) をネイティブ組み込みし、フリック入力と QWERTY
+入力、ユーザー辞書、誤入力補正、キーボードの外観カスタマイズに対応しています。
 
-名前とアイコンはヒャクニチソウ (百日草, *Zinnia*) から。アイコンは
-`scripts/gen_launcher_icon.py` が花の記述一つからベクタとラスタの両方を生成する。
+> [!NOTE]
+> このリポジトリは、**ZenSky Project** が
+> [soichi11208/Zinna-IME](https://github.com/soichi11208/Zinna-IME) をフォークし、
+> 独自に変更・配布しているものです。フォーク元の作者がこの版を公開・保証・サポート
+> しているわけではありません。この版への問い合わせは
+> [support@zslink.xyz](mailto:support@zslink.xyz) へお願いします。
 
-**完全オフライン動作**: 変換は端末内の `libmozc.so` と同梱辞書 `mozc.data` のみで完結する。
-`AndroidManifest.xml` に `uses-permission` は一つも無く、ネットワークに出る手段が存在しない。
+> [!IMPORTANT]
+> 現在は Open Beta（`0.1.x`）です。日常利用に必要な基本機能はありますが、パスワード
+> マネージャー連携やクリップボード履歴など、一般的な商用 IME の全機能を置き換える
+> 段階ではありません。
 
-0.0.1〜0.0.9はOpenAlpha
-0.1.0〜0.9.xはOpenBeta
-1.0.0から安定とする予定
+## 特長
 
-### 既知の不具合
+- **完全オフライン** — 変換は同梱した `libmozc.so` と `mozc.data` だけで完結します。
+  アプリは `INTERNET` を含む `uses-permission` を一つも要求しません。
+- **3 種類の入力方式** — かな/英字ともフリック、かな/英字とも QWERTY、かなフリック
+  + 英字 QWERTY から選べます。
+- **実用的な日本語変換** — Mozc の予測変換に加え、フリック方向ずれ、促音の脱落、
+  隣接文字の転置をルールベースで補正します。
+- **辞書を端末内で管理** — ユーザー辞書を GUI から追加・編集・削除できます。
+  約 10 万語の固有語辞書と、カタカナから英語綴りを引く辞書も同梱できます。
+- **入力データを暗号化** — ユーザー辞書と変換学習履歴は Android Keystore の鍵を
+  使って保存時に暗号化します。クラウドバックアップも無効です。
+- **外観を調整可能** — Material You、ピュアブラック、キーの高さ、背景画像に対応。
+  配列とテーマは JSON で差し替えられます。
 
-- `onUpdateSelection` を実装していないため、アプリ側がテキストを外部から
-  クリア・変更しても変換中の composition がリセットされない。
-  (Chrome のアドレスバーの × を押しても mozc 側の「あか」が残り、
-  続きが「あかにほん」になる)
+名前とアイコンはヒャクニチソウ（百日草、*Zinnia*）に由来します。
 
-## ビルド
+## 対応環境
 
-### 前提
+- Android 7.0（API 24）以上
+- `arm64-v8a` / `armeabi-v7a` / `x86_64` / `x86`
 
-- JDK 17 以上
-- Python 3.12 以上 (mozc のビルドスクリプトが要求)
-- [bazelisk](https://github.com/bazelbuild/bazelisk) または bazel
-- Android SDK (platform 35 / build-tools 35.0.0)
+## インストールと初期設定
 
-### 手順
+現時点ではソースから APK をビルドしてインストールします。ビルド方法は
+[開発者向けビルド](#開発者向けビルド)を参照してください。
+
+インストール後は次の順に設定します。
+
+1. 「zinna-IME — ZenSky Project版」を起動する。
+2. 「キーボードを有効化」から zinna-IME を有効にする。
+3. 「キーボードを選択」から zinna-IME を選ぶ。
+4. 設定画面の「試し入力」で変換できることを確認する。
+
+初回起動時は同梱の追加辞書をバックグラウンドで取り込みます。進捗は設定画面の
+「追加辞書」で確認できます。この処理にもネットワーク接続は使いません。
+
+application ID がフォーク元と異なるため、Android 上では別アプリとして共存します。
+フォーク元や旧 `dev.oss.ime` ビルドの設定・学習履歴・ユーザー辞書は自動移行されません。
+
+## 使える機能
+
+### 入力と変換
+
+- フリックかな、フリック英数、フリック記号
+- ローマ字 QWERTY、英字 QWERTY、2 面の QWERTY 記号
+- 予測候補の表示と候補タップによる確定
+- 濁点・半濁点・小書き文字の切り替え
+- カーソル移動、Undo、連続 Backspace、変換、確定
+- 入力欄側で文字列やカーソルが変更された場合の composition 同期
+
+最後の同期により、たとえば Chrome のアドレスバーを「×」で消した後に、消す前の
+読みが次の入力へ混ざることはありません。
+
+### 辞書
+
+設定画面の「ユーザー辞書」から、読み・単語・品詞を登録できます。正本は
+Mozc / Google 日本語入力の辞書ツールと互換性のある TSV として管理され、端末上では
+暗号化して保存されます。
+
+ビルド時に次の追加辞書を同梱できます。
+
+- [dic-nico-intersection-pixiv](https://github.com/ncaq/dic-nico-intersection-pixiv) —
+  ニコニコ大百科とピクシブ百科事典に共通する見出し
+- [google-ime-user-dictionary-ja-en](https://github.com/KEINOS/google-ime-user-dictionary-ja-en) —
+  カタカナ語から英語綴りへの変換（例: 「ぶらっく」→ `black`）
+
+各データのライセンスと再配布上の注意は [NOTICE](NOTICE) を確認してください。
+
+### 外観と配列
+
+設定画面では入力方式、キーの高さ、ピュアブラック、背景画像と濃さを変更できます。
+キーボードは次に開いたときに設定を反映します。
+
+配列とテーマは JSON です。同じ ID のファイルをアプリの内部ディレクトリへ置くと
+同梱版より優先され、削除すると既定へ戻ります。
+
+```text
+files/layouts/flick_kana.json
+files/themes/default_dark.json
+```
+
+この仕組みは開発者向けです。現在、アプリ内の JSON インポート画面や配列エディタは
+ありません。
+
+## プライバシーとセキュリティ
+
+`AndroidManifest.xml` に `uses-permission` はありません。したがって、入力内容、変換履歴、
+ユーザー辞書、背景画像をアプリ自身がネットワークへ送ることはできません。
+
+保存データは次のように扱います。
+
+| データ | 保存方法 |
+| --- | --- |
+| GUI のユーザー辞書 | AES-GCM + Android Keystore |
+| Mozc のユーザー辞書 | Keystore 由来の鍵で暗号化 |
+| Mozc の変換学習履歴 | Keystore 由来の鍵で暗号化 |
+| Android のクラウドバックアップ | 無効 |
+
+これは Android の端末暗号化を置き換えるものではありません。Keystore の実装や安全性は
+端末に依存します。設計、移行処理、検証状況は
+[docs/profile-encryption.md](docs/profile-encryption.md) にまとめています。
+
+## 既知の制約
+
+- フリック記号面に 2 ページ目はありません。QWERTY 記号面は 2 ページあります。
+- 配列・テーマの差し替えにはアプリ内 GUI がなく、内部ファイルの操作が必要です。
+- 暗号化した Mozc ストレージは 64 MB を超えるファイルを読み込めません。
+- Keystore を使う Android 固有の暗号化経路は、実機での継続的な検証が必要です。
+- Open Beta 中は設定形式や内部ファイル形式が変更される可能性があります。
+
+不具合を報告する際は、端末名、Android バージョン、入力した文字、期待した結果、
+実際の結果、再現手順を添えてください。入力内容を含むログは公開前に必ず確認してください。
+
+## 実用性を高めるロードマップ
+
+日常利用で効果が大きく、このプロジェクトの「オフライン・最小権限」という方針を
+壊さない機能を優先します。
+
+| 優先度 | 機能案 | 実用上の効果 |
+| --- | --- | --- |
+| 高 | パスワード欄・数値欄・URL・メール欄への自動最適化 | 不要な学習や候補表示を止め、入力面を自動で合わせる |
+| 高 | ユーザー辞書の SAF インポート/エクスポート | 機種変更と他 IME からの移行をオフラインで完結できる |
+| 高 | 片手モードと左右寄せ | 大画面端末でも親指で届きやすくする |
+| 高 | 候補の長押し削除・学習リセット | 誤学習を利用者自身で直せる |
+| 中 | クリップボード（履歴なし、現在値のみ） | 権限や保存リスクを増やさず貼り付けを速くする |
+| 中 | 配列・テーマの GUI インポートと検証 | JSON を手作業で内部配置する必要をなくす |
+| 中 | 日本語の音声入力を別アプリへ委譲 | 本体に通信権限を追加せず、必要な人だけ利用できる |
+| 低 | 絵文字・顔文字パレット | 記号入力を補完する。最近使った項目は端末内だけに保存する |
+
+特に上位 4 件は、見た目の追加よりも誤入力・移行・片手操作・誤学習という日常的な
+離脱理由を直接減らせます。実装時はパスワード欄で学習しないこと、外部へ暗黙に通信
+しないこと、保存するデータを明示することを受け入れ条件にします。
+
+## 開発者向けビルド
+
+### 必要なもの
+
+- Git
+- JDK 17–21（JRE のみ、および JDK 25 は不可）
+- Python 3.12 以上
+- Android SDK Platform 35 / Build Tools 35.0.0
+- [Bazelisk](https://github.com/bazelbuild/bazelisk) または Bazel
+- `curl`、`unzip`
+
+Android SDK の場所は `ANDROID_HOME` に設定しておきます。
+
+このリポジトリの Android Gradle Plugin 8.7.3 は JDK 25 に対応していません。複数の
+Java が入っている環境では、`JAVA_HOME` が JDK 17 または 21 を指すことを確認してください。
+
+### ビルド手順
 
 ```bash
+git clone <this-repository-url>
+cd Zinna-IME-forktest
+
 git clone --depth 1 https://github.com/google/mozc.git third_party/mozc
 
-# libmozc.so (4 ABI), mozc.data, protocol/*.proto を :mozc モジュールへ配置
+# Mozc の取得、パッチ適用、4 ABI の libmozc.so、mozc.data、proto の配置
 ./scripts/build_mozc.sh
 
-# 配列 JSON を mozc のローマ字テーブルから生成
+# Mozc のローマ字テーブルからフリック配列と補正用データを再生成
 python3 scripts/gen_flick_layout.py
 
-# 同梱する追加辞書を取得 (ビルド時のみ。アプリは実行時に通信しない)
+# QWERTY 配列を再生成
+python3 scripts/gen_qwerty_layout.py
+
+# APK に入れる追加辞書を取得
 ./scripts/fetch_dictionaries.sh
 
-echo "sdk.dir=$ANDROID_HOME" > local.properties
+printf 'sdk.dir=%s\n' "$ANDROID_HOME" > local.properties
 ./gradlew :app:assembleDebug
 ```
 
-`scripts/build_mozc.sh` は bazel を 2 回叩く。これは分けざるを得ない: `mozc.data` は
-アーキ非依存のデータ blob だがホストツールで生成され、そのホストツールは
-`--config oss_android` 下で incompatible とマークされているため、
-1 コマンドで両方を要求すると analysis 段階で失敗する。
+生成物は `app/build/outputs/apk/` 以下に出力されます。ABI 別 APK と universal APK を
+生成します。実機と接続できる場合は、次でもインストールできます。
 
-## 構成
-
-```
-app/     IME 本体 — InputMethodService, フリックキーボード View, 設定画面
-mozc/    mozc ネイティブのラッパ — JNI シム, 生成 protobuf, libmozc.so, mozc.data
-scripts/ ネイティブビルドと配列生成
-third_party/mozc/  上流そのまま (パッチ無し)
+```bash
+./gradlew :app:installDebug
 ```
 
-### mozc との境界
+`build_mozc.sh` が Bazel を 2 回実行するのは意図した動作です。Android 向け
+`libmozc.so` と、ホストツールが生成するアーキテクチャ非依存の `mozc.data` は、Mozc
+側の制約により同じ Bazel コマンドではビルドできません。
 
-`third_party/mozc` には**一切パッチを当てていない**。上流の
-`android/jni/mozcjni.cc` がエクスポートするシンボルは 1 つだけで、
+### テスト
 
-```
-Java_com_google_android_apps_inputmethod_libs_mozc_session_MozcJNI_initialize
-```
-
-これが `RegisterNatives` で残り 3 メソッドを登録する。つまり Java 側のクラス名が
-`com.google.android.apps.inputmethod.libs.mozc.session.MozcJNI` に固定される。
-そこで mozc を書き換える代わりに、その名前のシムクラス
-(`mozc/src/main/java/.../MozcJNI.java`) をこちら側に置いた。結果として
-third_party は素の checkout のままで、いつでも上流に追従できる。
-
-アプリコードはシムを直接触らず、`dev.oss.ime.mozc.MozcEngine`
-(ライフサイクルとスレッド安全性を持つ) を経由する。
-
-### フリック入力と mozc の契約
-
-キーボードは「かな」を送らない。mozc の `FLICK_TO_HIRAGANA` テーブルは **ASCII キー**を
-入力とする対応表で (`1`→あ, `_`→い, `*`→濁点/小文字の循環)、濁点処理も小書き文字の規則も
-このテーブルが実装している。かなを直接送るとそれらを全部迂回してしまうため、
-配列 JSON には**テーブルキー**を格納し、mozc に合成させる。
-
-その対応表を手書きすると「あるフリック方向だけ無反応」という壊れ方をするので、
-`scripts/gen_flick_layout.py` が上流の
-`data/preedit/*.tsv` から直接生成し、値を検証している。
-
-テーブルだけでは足りず、**変換モード**も合わせて切り替える必要がある。
-テーブルは打鍵が何の文字になるかを決めるだけで、そこから変換をかけるかどうかは
-`CompositionMode` が決める。英数プレーンを HIRAGANA のままにすると
-"abc" に漢字候補が出てしまう。
-
-| プレーン | テーブル | CompositionMode |
-| --- | --- | --- |
-| かな | `FLICK_TO_HIRAGANA` (13) | `HIRAGANA` |
-| 英数 | `TOGGLE_FLICK_TO_HALFWIDTHASCII` (17) | `HALF_ASCII` |
-| 記号・数字 | `TOGGLE_FLICK_TO_NUMBER` (42) | `HIRAGANA` |
-
-### 追加辞書
-
-[dic-nico-intersection-pixiv](https://github.com/ncaq/dic-nico-intersection-pixiv)
-(ニコニコ大百科とピクシブ百科事典の共通見出し、約 10.2 万語) を標準で同梱する。
-あわせて [google-ime-user-dictionary-ja-en](https://github.com/KEINOS/google-ime-user-dictionary-ja-en)
-(カタカナ語→英語つづり、約 3.7 万語) も同梱する。「ぶらっく」で black が出る。
-配布形態が Google IME の旧 1 万行制限に合わせて分割されているので 1 ファイルに結合し、
-同じディレクトリに .docx を .txt 名で置いてあるファイルが混ざっているため
-`よみ<TAB>単語<TAB>品詞` として読める行だけを通している。
-
-どちらも `scripts/fetch_dictionaries.sh` がビルド時に取得し、APK に入る。
-
-mozc.data に焼き込むのではなく **ユーザー辞書として取り込む**。
-システム辞書に入れるには mozc の bazel 辞書ソースにパッチを当てる必要があり、
-third_party を素のままにしておく方針と衝突するため。
-辞書の差し替えもアセットを置き換えるだけで済み、18 MB のネイティブデータを
-作り直さなくてよい。
-
-取り込みは初回起動時にバックグラウンドで一度だけ走る。mozc 側の
-`IMPORT_USER_DICTIONARY` が TSV の解析・同名辞書の置き換え・即時リロード・
-プロファイルディレクトリへの保存まで面倒を見るので、こちらは投げるだけでよい。
-状況は設定画面の「追加辞書」に出る。
-
-### ユーザー辞書
-
-設定 →「ユーザー辞書」から単語を 1 件ずつ追加・編集・削除できる。品詞は
-mozc が TSV で受け付ける 45 種類から選ぶ。
-
-この mozc には**単語単位の API が無い**。`SEND_USER_DICTIONARY_COMMAND` は
-reserved になっていて、入口は辞書まるごとを名前で置き換える
-`IMPORT_USER_DICTIONARY` だけ。そこで一覧の正本を
-`files/user_dictionary.tsv` に持ち、編集のたびに全体を投げ直している。
-個人辞書のサイズなら書き直しのコストは無視できるし、追加・編集・削除が
-すべて同じ操作になる (空を投げれば辞書ごと消える)。
-
-このファイルはそのまま mozc / Google 日本語入力の辞書ツールに読ませられる。
-
-### 誤字修正
-
-OSS 版 mozc に誤字修正は入っていない。上流は予測器側の配線
-(`SupplementalModelInterface::CorrectComposition` を呼び、補正後の読みを辞書引きして
-`TYPING_CORRECTION` を付ける処理) を残したまま、モデル本体だけを社内に置いている。
-OSS ビルドが積むのは常に `nullopt` を返す `SupplementalModelStub`。
-
-そこで `patches/0001-rule-based-typing-correction.patch` で
-`TypingCorrectionModel` を追加し、スタブと差し替えている。周辺の機構には触っていない。
-
-生成する仮説は 3 種類。
-
-| 種類 | 例 |
-| --- | --- |
-| フリック方向ずれ (同一キー内の母音違い) | ありがと**お** → ありがと**う** |
-| っ の脱落 | が**こ**う → が**っこ**う |
-| 隣接転置 | にほん**こ** → 日本語 |
-
-濁点・半濁点・小書きの誤りはこの補正の対象外で、
-`kana_modifier_insensitive_conversion` (Request/Config 両方で有効化済み) が吸収する。
-辞書引きの範囲を広げるだけなので追加コストがない。
-
-**候補数は 6 に絞ってある。** 呼び出し側は補正候補 1 件ごとに
-unigram / realtime / bigram / number の全アグリゲーションを回すため、
-デスクトップ実測で 1 件あたり約 5 ms かかる。12 件にすると予測が 6 倍遅くなった。
-配分は生成順ではなく「もっともらしさ順」で、直前に打ったかなの方向ずれを最優先にする
-(先着順にすると後段の生成器が枯れて、が**っこ**う か ありがと**う** の
-どちらかが必ず出なくなる)。
-
-`Config.use_typing_correction` と `use_kana_modifier_insensitive_conversion` は
-どちらも既定 off なので、クライアント側で `SET_CONFIG` して有効化している。
-
-## カスタマイズ
-
-記号は Gboard と同じく専用プレーン (`記号` キー) にまとめてある。英数プレーンの
-空きフリック方向には何も入れない。プレーンの中身は mozc の
-`toggle_flick-number` テーブルそのままで、Gboard の記号面と一致する
-(`1` → ☆♪→、`5` → +×÷、`7` → 「」:)。
-
-なお Gboard がこの面の `!?#` に持っている 2 ページ目の記号面は未実装で、
-その位置は現状「かな」に戻るキーになっている。
-
-配列とテーマは JSON。読み込み順は **ユーザーディレクトリ → アセット** で、
-同じ id のファイルをアプリの `files/layouts/` に置けば同梱版を上書きし、
-削除すれば既定に戻る。将来の GUI エディタもこの同じファイルを書くだけになる。
-
-```
-files/layouts/flick_kana.json    配列 (キー配置, フリック割り当て, 動作)
-files/themes/default_dark.json   配色, キー高さ, 角丸, ハプティクス, キー塗り
+```bash
+./gradlew :app:testDebugUnitTest
 ```
 
-### 外観設定 (端末ごと)
+レイアウト JSON の解析、切り替え先、QWERTY の幅、フリック方向判定、入力方式の切り替え、
+editor/composition の同期方針をユニットテストしています。ネイティブ暗号化の追加検証は
+[docs/profile-encryption.md](docs/profile-encryption.md) を参照してください。
 
-テーマが「持ち運べる見た目」なのに対し、こちらはこの端末固有の選択なので
-テーマファイルではなく SharedPreferences に置く。設定画面の「外観」から操作する。
+## リポジトリ構成
 
-- **ピュアブラック** — 背景を `#000000` にする。有機ELでは黒画素が消灯する。
-  システムがライトテーマでも配色はダーク側を使う (黒地に明色のラベルが要るため)。
-- **キーボード背景画像** — 選んだ画像はアプリの files 配下に**コピー**する。
-  IME は SAF の権限を持たない別プロセスで動くうえ、元ファイルは後から
-  削除されうるため。濃さはスライダーで調整でき、既定は 45%。
+```text
+app/              InputMethodService、キーボード UI、設定画面
+mozc/             JNI シム、Kotlin ラッパー、生成 protobuf、ネイティブ成果物
+patches/          Mozc に適用する誤入力補正・保存時暗号化のパッチ
+scripts/          Mozc ビルド、配列生成、追加辞書取得
+docs/             設計と検証の詳細
+third_party/mozc/ 上流 Mozc の checkout（Git 管理対象外）
+```
 
-キーは既定で**塗りを持たない**。ラベルがある以上キーごとの枠は情報を足さず、
-コントラストを食って背景画像の邪魔になるだけなので。従来の塗り表示に戻すには
-テーマの `flatKeys` を `false` にする。
+### Mozc との境界
+
+アプリは `MozcJNI` を直接扱わず、`MozcEngine` と `MozcSession` を通してセッションの
+ライフサイクルと protobuf の入出力を管理します。上流 checkout へ加える変更は
+`patches/` に分離し、`scripts/build_mozc.sh` がビルド前に適用します。
+
+フリック配列の JSON が保持するのは表示上の「かな」ではなく、Mozc のローマ字テーブルへ
+渡す ASCII キーです。`scripts/gen_flick_layout.py` は上流の `data/preedit/*.tsv` から
+対応を生成・検証し、濁点や小書き文字の規則を迂回しないようにしています。
+
+適用する独自パッチは次の 2 つです。
+
+- `0001-rule-based-typing-correction.patch` — OSS 版 Mozc の補正フックへ軽量な
+  ルールベース補正を実装
+- `0002-android-keystore-profile-encryption.patch` — Mozc の履歴とユーザー辞書を
+  Keystore 由来の鍵で暗号化
+
+## バージョニング
+
+- `0.0.1`–`0.0.9`: Open Alpha
+- `0.1.0`–`0.9.x`: Open Beta
+- `1.0.0` 以降: Stable（予定）
 
 ## ライセンス
 
-- 本体: Apache License 2.0
-- `third_party/mozc`: BSD 3-Clause (Google Inc.)
-- 同梱辞書 `mozc.data`: mozc OSS 辞書由来。構成要素ごとのライセンスは
-  上流の `data/dictionary_oss/README.txt` を参照
+本ソフトウェアは、Apache License 2.0 で提供される
+[soichi11208/Zinna-IME](https://github.com/soichi11208/Zinna-IME) の派生物です。
+元の著作権表示を保持したうえで、ZenSky Project による変更部分も同じ
+[Apache License 2.0](LICENSE) の条件で提供します。
+
+Android の application ID とコード namespace は、フォーク元との共存および識別のため
+`me.zssu.ime` へ変更しています。Mozc は BSD 3-Clause、追加辞書にはそれぞれ別の条件が
+あります。完全な帰属表示、変更の告知、再配布上の注意事項は [NOTICE](NOTICE) を参照して
+ください。APK にも `LICENSE`、`NOTICE`、[PRIVACY](PRIVACY.md) の全文を同梱します。
+
+このフォークに関する問い合わせ: [support@zslink.xyz](mailto:support@zslink.xyz)

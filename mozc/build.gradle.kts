@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.oss.ime.mozc"
+    namespace = "me.zssu.ime.mozc"
     compileSdk = 35
 
     defaultConfig {
