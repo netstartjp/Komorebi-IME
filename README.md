@@ -9,6 +9,10 @@ Android 向けオープンソース日本語 IME。変換エンジンに [mozc](
 **完全オフライン動作**: 変換は端末内の `libmozc.so` と同梱辞書 `mozc.data` のみで完結する。
 `AndroidManifest.xml` に `uses-permission` は一つも無く、ネットワークに出る手段が存在しない。
 
+0.0.1〜0.0.9はOpenAlpha
+0.1.0〜0.9.xはOpenBeta
+1.0.0から安定とする予定
+
 ### 既知の不具合
 
 - `onUpdateSelection` を実装していないため、アプリ側がテキストを外部から
