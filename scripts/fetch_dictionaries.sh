@@ -46,10 +46,14 @@ unzip -q "${work}/master.zip" -d "${work}"
 # The repository also carries .docx files that were saved with a .txt suffix, and other dictionaries
 # we do not want. Take only the katakana-English directory, and only lines that actually parse as
 # `reading <tab> word <tab> part-of-speech` — that rejects the Word documents wholesale.
+#
+# Then keep only the entries that are transliterations. The source is EDICT, a translation
+# dictionary, so it also answers 黒 with "black" and そ with the definition of the solfa syllable —
+# which surfaces as English prose in the middle of ordinary Japanese input. See the filter script.
 merged="${work}/merged.txt"
 find "${work}" -path "*Google-ime-jp-カタカナ英語辞典*" -name "*.txt" -exec cat {} + 2>/dev/null |
   awk -F"\t" 'NF >= 3 && $1 ~ /^[ぁ-ゖー]+$/ && $2 != "" {print $1 "\t" $2 "\t" $3}' |
-  sort -u > "${merged}"
+  "${PYTHON:-python3}" "${ROOT}/scripts/filter_katakana_english.py" > "${merged}"
 
 ja_en_entries="$(wc -l < "${merged}")"
 if [[ "${ja_en_entries}" -lt 10000 ]]; then
