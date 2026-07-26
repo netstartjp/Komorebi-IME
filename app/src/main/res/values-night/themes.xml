@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      The dark counterpart of the activity theme. Compose paints the real colours, but the window
+      background is up before the first frame, so without this the settings screen opens as a white
+      flash on a dark device.
+    -->
+    <style name="Theme.ZinnaIme" parent="android:Theme.Material.NoActionBar" />
+</resources>

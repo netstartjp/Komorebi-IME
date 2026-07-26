@@ -43,9 +43,18 @@ class FlickKeyboardView @JvmOverloads constructor(
             invalidate()
         }
 
+    /** Whether the next letter, or every letter, is capitalised. See [KeyAction.Shift]. */
+    private enum class ShiftState { OFF, ONCE, LOCKED }
+
+    private var shift = ShiftState.OFF
+
     var layout: KeyboardLayout? = null
         set(value) {
             field = value
+            // A plane switch starts fresh: a shift armed on the symbol page means nothing on the
+            // one being switched to, and leaving it latched is the kind of state users cannot see
+            // the cause of.
+            shift = ShiftState.OFF
             // Recompute here rather than waiting for onSizeChanged: every plane has the same row
             // count, so swapping kana → ascii leaves the view exactly the same size and
             // onSizeChanged never fires. Relying on it left the new layout with no placed keys at
@@ -146,8 +155,8 @@ class FlickKeyboardView @JvmOverloads constructor(
         var y = 0f
         for (row in current.rows) {
             val rowHeight = height * (row.weight / totalRowWeight)
-            val rowWeight = row.keys.sumOf { it.weight.toDouble() }.toFloat()
-            var x = 0f
+            val rowWeight = row.totalWeight
+            var x = width * (row.padStart / rowWeight)
             for (key in row.keys) {
                 val keyWidth = width * (key.weight / rowWeight)
                 placed += PlacedKey(
@@ -177,7 +186,7 @@ class FlickKeyboardView @JvmOverloads constructor(
             }
             if (paint != null) canvas.drawRoundRect(placed.bounds, radius, radius, paint)
             val baseline = placed.bounds.centerY() - (labelPaint.descent() + labelPaint.ascent()) / 2f
-            canvas.drawText(placed.spec.faceLabel, placed.bounds.centerX(), baseline, labelPaint)
+            canvas.drawText(faceLabel(placed.spec), placed.bounds.centerX(), baseline, labelPaint)
         }
 
         // Guides go on top of every key so a guide near the edge is never clipped by a neighbour.
@@ -346,7 +355,49 @@ class FlickKeyboardView @JvmOverloads constructor(
 
     private fun emit(touch: Touch) {
         val output = touch.key.spec.output(touch.direction) ?: return
-        listener?.onKeyOutput(output, touch.key.spec, touch.direction)
+        if (output.action is KeyAction.Shift) {
+            // Tap cycles off → once → locked, the way every phone keyboard does it. Consumed here:
+            // the service has nothing to do with it and never sees the key.
+            shift = when (shift) {
+                ShiftState.OFF -> ShiftState.ONCE
+                ShiftState.ONCE -> ShiftState.LOCKED
+                ShiftState.LOCKED -> ShiftState.OFF
+            }
+            invalidate()
+            return
+        }
+        listener?.onKeyOutput(shiftApplied(output), touch.key.spec, touch.direction)
+        if (shift == ShiftState.ONCE && output.action is KeyAction.Input) {
+            shift = ShiftState.OFF
+            invalidate()
+        }
+    }
+
+    /**
+     * What to draw on a key face, which under shift is not what the layout says.
+     *
+     * The shift key itself reports the state rather than a fixed glyph — without that, a latched
+     * shift is invisible and the next capital looks like a bug.
+     */
+    private fun faceLabel(spec: KeySpec): String {
+        if (spec.center.action is KeyAction.Shift) {
+            return when (shift) {
+                ShiftState.OFF -> spec.faceLabel
+                ShiftState.ONCE -> SHIFT_ONCE_LABEL
+                ShiftState.LOCKED -> SHIFT_LOCKED_LABEL
+            }
+        }
+        return if (shift == ShiftState.OFF) spec.faceLabel else spec.faceLabel.uppercase()
+    }
+
+    /** The output as typed under the current shift state. */
+    private fun shiftApplied(output: KeyOutput): KeyOutput {
+        if (shift == ShiftState.OFF) return output
+        val action = output.action
+        if (action !is KeyAction.Input) return output
+        val upper = action.text.uppercase()
+        if (upper == action.text) return output
+        return output.copy(label = upper, action = KeyAction.Input(upper))
     }
 
     private fun scheduleRepeat(key: KeySpec) {
@@ -375,6 +426,10 @@ class FlickKeyboardView @JvmOverloads constructor(
 
     companion object {
         private const val DEFAULT_FLICK_THRESHOLD_DP = 24f
+
+        /** Filled arrow while shift is armed for one letter, underlined arrow while it is locked. */
+        private const val SHIFT_ONCE_LABEL = "⬆"
+        private const val SHIFT_LOCKED_LABEL = "⇪"
         /** How long the key must be held before it starts repeating. */
         private const val REPEAT_DELAY_MS = 400L
 

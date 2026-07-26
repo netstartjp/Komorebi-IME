@@ -1,0 +1,378 @@
+{
+  "id": "qwerty_symbol2",
+  "label": "記号 2 (QWERTY)",
+  "inputStyle": "QWERTY_HALFWIDTH_ASCII",
+  "rows": [
+    {
+      "keys": [
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "~",
+            "action": {
+              "type": "symbol",
+              "text": "~"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "`",
+            "action": {
+              "type": "symbol",
+              "text": "`"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "|",
+            "action": {
+              "type": "symbol",
+              "text": "|"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "•",
+            "action": {
+              "type": "symbol",
+              "text": "•"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "√",
+            "action": {
+              "type": "symbol",
+              "text": "√"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "π",
+            "action": {
+              "type": "symbol",
+              "text": "π"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "÷",
+            "action": {
+              "type": "symbol",
+              "text": "÷"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "×",
+            "action": {
+              "type": "symbol",
+              "text": "×"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "¶",
+            "action": {
+              "type": "symbol",
+              "text": "¶"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "Δ",
+            "action": {
+              "type": "symbol",
+              "text": "Δ"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "keys": [
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "£",
+            "action": {
+              "type": "symbol",
+              "text": "£"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "¢",
+            "action": {
+              "type": "symbol",
+              "text": "¢"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "€",
+            "action": {
+              "type": "symbol",
+              "text": "€"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "¥",
+            "action": {
+              "type": "symbol",
+              "text": "¥"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "^",
+            "action": {
+              "type": "symbol",
+              "text": "^"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "°",
+            "action": {
+              "type": "symbol",
+              "text": "°"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "=",
+            "action": {
+              "type": "symbol",
+              "text": "="
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "{",
+            "action": {
+              "type": "symbol",
+              "text": "{"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "}",
+            "action": {
+              "type": "symbol",
+              "text": "}"
+            }
+          }
+        }
+      ],
+      "padStart": 0.5,
+      "padEnd": 0.5
+    },
+    {
+      "keys": [
+        {
+          "weight": 1.5,
+          "center": {
+            "label": "?123",
+            "action": {
+              "type": "layout",
+              "layoutId": "qwerty_symbol"
+            }
+          },
+          "style": "MODIFIER"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "\\",
+            "action": {
+              "type": "symbol",
+              "text": "\\"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "©",
+            "action": {
+              "type": "symbol",
+              "text": "©"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "®",
+            "action": {
+              "type": "symbol",
+              "text": "®"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "™",
+            "action": {
+              "type": "symbol",
+              "text": "™"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "%",
+            "action": {
+              "type": "symbol",
+              "text": "%"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "[",
+            "action": {
+              "type": "symbol",
+              "text": "["
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "]",
+            "action": {
+              "type": "symbol",
+              "text": "]"
+            }
+          }
+        },
+        {
+          "weight": 1.5,
+          "center": {
+            "label": "⌫",
+            "action": {
+              "type": "backspace"
+            }
+          },
+          "repeatable": true,
+          "style": "MODIFIER"
+        }
+      ]
+    },
+    {
+      "keys": [
+        {
+          "weight": 1.5,
+          "center": {
+            "label": "ABC",
+            "action": {
+              "type": "layout",
+              "layoutId": "qwerty_ascii"
+            }
+          },
+          "style": "MODIFIER"
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": ",",
+            "action": {
+              "type": "symbol",
+              "text": ","
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": "<",
+            "action": {
+              "type": "symbol",
+              "text": "<"
+            }
+          }
+        },
+        {
+          "weight": 2.5,
+          "center": {
+            "label": "␣",
+            "action": {
+              "type": "space"
+            }
+          },
+          "repeatable": true
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": ">",
+            "action": {
+              "type": "symbol",
+              "text": ">"
+            }
+          }
+        },
+        {
+          "weight": 1.0,
+          "center": {
+            "label": ".",
+            "action": {
+              "type": "symbol",
+              "text": "."
+            }
+          }
+        },
+        {
+          "weight": 2.0,
+          "center": {
+            "label": "↵",
+            "action": {
+              "type": "enter"
+            }
+          },
+          "style": "ACTION"
+        }
+      ]
+    }
+  ]
+}

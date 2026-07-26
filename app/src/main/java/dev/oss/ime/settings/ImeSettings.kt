@@ -2,6 +2,7 @@ package dev.oss.ime.settings
 
 import android.content.Context
 import android.content.SharedPreferences
+import dev.oss.ime.keyboard.KeyboardStyle
 import java.io.File
 
 /**
@@ -31,6 +32,32 @@ class ImeSettings(context: Context) {
     var backgroundOpacity: Float
         get() = prefs.getFloat(KEY_BACKGROUND_OPACITY, DEFAULT_BACKGROUND_OPACITY)
         set(value) = prefs.edit().putFloat(KEY_BACKGROUND_OPACITY, value.coerceIn(0f, 1f)).apply()
+
+    /**
+     * Multiplier on the theme's key height.
+     *
+     * A scale rather than an absolute height so it composes with whatever theme is active instead
+     * of overriding a value the theme author chose. The range stops well short of filling the
+     * screen: past that the candidate strip and the editor stop sharing the display usefully.
+     */
+    var keyHeightScale: Float
+        get() = prefs.getFloat(KEY_HEIGHT_SCALE, 1f)
+        set(value) = prefs.edit()
+            .putFloat(KEY_HEIGHT_SCALE, value.coerceIn(MIN_KEY_HEIGHT_SCALE, MAX_KEY_HEIGHT_SCALE))
+            .apply()
+
+    /**
+     * Flick, qwerty, or one of each. See [KeyboardStyle].
+     *
+     * Stored by name so adding a combination later does not invalidate what is on disk; an
+     * unreadable value falls back to flick rather than leaving the user with no keyboard.
+     */
+    var keyboardStyle: KeyboardStyle
+        get() = KeyboardStyle.of(prefs.getString(KEY_KEYBOARD_STYLE, null))
+        set(value) {
+            prefs.edit().putString(KEY_KEYBOARD_STYLE, value.name).apply()
+            bumpRevision()
+        }
 
     /**
      * The keyboard background image, or null for a plain colour.
@@ -63,7 +90,8 @@ class ImeSettings(context: Context) {
     val revision: Int
         get() = prefs.getInt(KEY_REVISION, 0) +
             (if (pureBlack) 1 shl 16 else 0) +
-            (backgroundOpacity * 100).toInt() * (1 shl 8)
+            (backgroundOpacity * 100).toInt() * (1 shl 8) +
+            (keyHeightScale * 100).toInt() * (1 shl 20)
 
     private fun bumpRevision() {
         prefs.edit().putInt(KEY_REVISION, prefs.getInt(KEY_REVISION, 0) + 1).apply()
@@ -76,6 +104,10 @@ class ImeSettings(context: Context) {
         private const val KEY_REVISION = "revision"
         private const val BACKGROUND_DIR = "backgrounds"
         private const val BACKGROUND_FILE = "keyboard_background"
+        private const val KEY_HEIGHT_SCALE = "key_height_scale"
+        private const val KEY_KEYBOARD_STYLE = "keyboard_style"
         const val DEFAULT_BACKGROUND_OPACITY = 0.45f
+        const val MIN_KEY_HEIGHT_SCALE = 0.7f
+        const val MAX_KEY_HEIGHT_SCALE = 1.5f
     }
 }

@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import dev.oss.ime.mozc.UserDictionary
+import dev.oss.ime.theme.ZinnaTheme
 
 /**
  * Add, edit and delete the user's own words.
@@ -48,7 +49,7 @@ import dev.oss.ime.mozc.UserDictionary
 class UserDictionaryActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { MaterialTheme { UserDictionaryScreen() } }
+        setContent { ZinnaTheme { UserDictionaryScreen() } }
     }
 }
 

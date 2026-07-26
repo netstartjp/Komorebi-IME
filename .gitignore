@@ -16,3 +16,6 @@ local.properties
 .idea/
 *.iml
 /mozc/src/main/assets/dictionaries/
+
+# Kotlin compiler session files
+.kotlin/

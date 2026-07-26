@@ -19,7 +19,7 @@ data class KeyboardLayout(
     val rows: List<KeyRow>,
 ) {
     /** Largest column count across rows; used to normalise key widths. */
-    val columnWeight: Float = rows.maxOfOrNull { row -> row.keys.sumOf { it.weight.toDouble() }.toFloat() } ?: 1f
+    val columnWeight: Float = rows.maxOfOrNull { it.totalWeight } ?: 1f
 }
 
 @Serializable
@@ -27,7 +27,21 @@ data class KeyRow(
     val keys: List<KeySpec>,
     /** Row height relative to the other rows. */
     val weight: Float = 1f,
-)
+    /**
+     * Empty space at the ends, in the same units as [KeySpec.weight].
+     *
+     * A row is stretched to the full width on its own, so a nine-key home row would otherwise come
+     * out wider than the ten-key row above it and the columns would not line up. On a qwerty
+     * surface that misalignment is not just untidy — the keys stop being where the thumb has
+     * learned they are.
+     */
+    val padStart: Float = 0f,
+    val padEnd: Float = 0f,
+) {
+    /** Total horizontal weight including the padding, which is what the row is divided into. */
+    val totalWeight: Float
+        get() = padStart + padEnd + keys.sumOf { it.weight.toDouble() }.toFloat()
+}
 
 @Serializable
 data class KeySpec(
@@ -122,6 +136,21 @@ sealed interface KeyAction {
     @Serializable
     @SerialName("layout")
     data class SwitchLayout(val layoutId: String) : KeyAction
+
+    /**
+     * Shift, for the qwerty planes. Tap for one capital, tap again to lock, again to release.
+     *
+     * Handled inside [FlickKeyboardView] rather than by the service, because the state is mostly a
+     * drawing concern: every letter key has to re-label itself. The view applies the case to the
+     * text on its way out, so nothing downstream needs to know shift exists.
+     *
+     * Deliberately absent from the kana qwerty layout. mozc's romaji table only composes lowercase
+     * — feeding it "KA" yields a literal "KA" rather than か — so a shift key there would look like
+     * it broke kana input.
+     */
+    @Serializable
+    @SerialName("shift")
+    data object Shift : KeyAction
 
     /** Hand control back to the system input method picker. */
     @Serializable

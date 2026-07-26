@@ -81,7 +81,8 @@ class ZinnaImeService : InputMethodService() {
     }
 
     override fun onCreateInputView(): View {
-        val loaded = repository.loadLayout(LayoutRepository.DEFAULT_LAYOUT_ID)
+        val loaded = repository.loadLayout(settings.keyboardStyle.defaultLayoutId)
+            ?: repository.loadLayout(LayoutRepository.DEFAULT_LAYOUT_ID)
         if (loaded == null) Log.e(TAG, "default layout missing from assets")
         layout = loaded
         theme = resolveTheme()
@@ -160,7 +161,8 @@ class ZinnaImeService : InputMethodService() {
     private fun resolveTheme(): KeyboardTheme {
         val base = repository.loadTheme(MaterialYouTheme.ID)
             ?: MaterialYouTheme.create(this, forceDark = settings.pureBlack)
-        return if (settings.pureBlack) base.asPureBlack() else base
+        val sized = base.copy(keyHeightDp = base.keyHeightDp * settings.keyHeightScale)
+        return if (settings.pureBlack) sized.asPureBlack() else sized
     }
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
@@ -226,6 +228,10 @@ class ZinnaImeService : InputMethodService() {
             is KeyAction.MoveCursor -> handleCursorMove(action.delta)
 
             is KeyAction.SwitchLayout -> switchLayout(action.layoutId)
+
+            // Consumed by the keyboard view, which owns the shift state because it has to draw it.
+            // Reaching here would mean the view stopped intercepting it.
+            is KeyAction.Shift -> Log.w(TAG, "shift reached the service; view did not consume it")
 
             is KeyAction.ShowImePicker -> {
                 val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -314,9 +320,12 @@ class ZinnaImeService : InputMethodService() {
     }
 
     private fun switchLayout(layoutId: String) {
-        val next = repository.loadLayout(layoutId)
+        // The layouts point inside their own family; the user's style decides which family the
+        // kana and alphabet planes actually come from, so every switch goes through it.
+        val resolved = settings.keyboardStyle.resolve(layoutId)
+        val next = repository.loadLayout(resolved)
         if (next == null) {
-            Log.w(TAG, "layout $layoutId not found; staying on ${layout?.id}")
+            Log.w(TAG, "layout $resolved not found; staying on ${layout?.id}")
             return
         }
         // Finalise before swapping planes so a half-typed kana is not silently discarded.

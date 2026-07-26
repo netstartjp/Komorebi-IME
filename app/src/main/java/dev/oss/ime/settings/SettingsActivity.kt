@@ -37,9 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import dev.oss.ime.keyboard.KeyboardStyle
 import dev.oss.ime.keyboard.LayoutRepository
 import dev.oss.ime.mozc.MozcEngine
 import dev.oss.ime.mozc.UserDictionary
+import dev.oss.ime.theme.ZinnaTheme
 
 /**
  * Setup and status screen.
@@ -52,7 +54,7 @@ class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
+            ZinnaTheme {
                 Scaffold { padding ->
                     SettingsScreen(Modifier.padding(padding))
                 }
@@ -84,6 +86,8 @@ private fun SettingsScreen(modifier: Modifier = Modifier) {
         InfoCard(title = "テーマ", body = themes.joinToString(", ").ifEmpty { "(なし)" })
 
         UserDictionaryCard()
+
+        KeyboardCard()
 
         AppearanceCard()
 
@@ -129,6 +133,62 @@ private fun UserDictionaryCard() {
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) { Text("単語を編集") }
+        }
+    }
+}
+
+/**
+ * How the keyboard is laid out and how big it is — choices about the input surface rather than
+ * about how it looks, which is why they are not in [AppearanceCard].
+ */
+@Composable
+private fun KeyboardCard() {
+    val context = LocalContext.current
+    val settings = remember { ImeSettings(context) }
+
+    var style by remember { mutableStateOf(settings.keyboardStyle) }
+    var heightScale by remember { mutableStateOf(settings.keyHeightScale) }
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("キーボード", style = MaterialTheme.typography.titleMedium)
+
+            Text("入力方式", style = MaterialTheme.typography.bodyLarge)
+            Text(
+                "かなと英字それぞれの配列。キーボード上のキーで面を切り替えたときも、この選択に従います",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            for ((option, label) in listOf(
+                KeyboardStyle.FLICK to "フリック",
+                KeyboardStyle.QWERTY to "QWERTY",
+                KeyboardStyle.MIXED to "かなフリック + 英字QWERTY",
+            )) {
+                val onSelect = {
+                    style = option
+                    settings.keyboardStyle = option
+                }
+                if (style == option) {
+                    Button(onClick = onSelect, modifier = Modifier.fillMaxWidth()) { Text(label) }
+                } else {
+                    OutlinedButton(
+                        onClick = onSelect,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text(label) }
+                }
+            }
+
+            HorizontalDivider()
+
+            Text(
+                "キーボードの高さ  ${(heightScale * 100).toInt()}%",
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Slider(
+                value = heightScale,
+                onValueChange = { heightScale = it },
+                onValueChangeFinished = { settings.keyHeightScale = heightScale },
+                valueRange = ImeSettings.MIN_KEY_HEIGHT_SCALE..ImeSettings.MAX_KEY_HEIGHT_SCALE,
+            )
         }
     }
 }
