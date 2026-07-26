@@ -12,4 +12,5 @@
     <string name="theme">テーマ</string>
     <string name="layout">配列</string>
     <string name="user_dictionary">ユーザー辞書</string>
+    <string name="open_source_licenses">オープンソースライセンス</string>
 </resources>

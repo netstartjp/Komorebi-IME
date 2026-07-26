@@ -26,7 +26,6 @@ object BundledDictionaries {
 
     /** Dictionary name as it appears in mozc's user dictionary list, keyed by asset file name. */
     private val DICTIONARIES = mapOf(
-        "dic-nico-intersection-pixiv.txt" to "ニコニコ大百科×ピクシブ百科事典",
         "katakana-english.txt" to "カタカナ語→英語",
     )
 

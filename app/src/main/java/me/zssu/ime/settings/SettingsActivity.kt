@@ -124,6 +124,7 @@ private fun SettingsScreen(modifier: Modifier = Modifier) {
  */
 @Composable
 private fun AboutCard() {
+    val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
 
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -141,9 +142,15 @@ private fun AboutCard() {
             )
             Text(
                 "原作者および Mozc・同梱辞書の権利は各権利者に帰属します。完全な表示は" +
-                    "配布物内の LICENSE、NOTICE、PRIVACY を参照してください。",
+                    "「オープンソースライセンス」から確認できます。",
                 style = MaterialTheme.typography.bodySmall,
             )
+            Button(
+                onClick = {
+                    context.startActivity(Intent(context, LegalActivity::class.java))
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text("オープンソースライセンス") }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = {

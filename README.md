@@ -25,7 +25,7 @@
 - **実用的な日本語変換** — Mozc の予測変換に加え、フリック方向ずれ、促音の脱落、
   隣接文字の転置をルールベースで補正します。
 - **辞書を端末内で管理** — ユーザー辞書を GUI から追加・編集・削除できます。
-  約 10 万語の固有語辞書と、カタカナから英語綴りを引く辞書も同梱できます。
+  カタカナから英語綴りを引く CC BY-SA 3.0 辞書も同梱できます。
 - **入力データを暗号化** — ユーザー辞書と変換学習履歴は Android Keystore の鍵を
   使って保存時に暗号化します。クラウドバックアップも無効です。
 - **外観を調整可能** — Material You、ピュアブラック、キーの高さ、背景画像に対応。
@@ -82,10 +82,14 @@ Mozc / Google 日本語入力の辞書ツールと互換性のある TSV とし�
 
 ビルド時に次の追加辞書を同梱できます。
 
-- [dic-nico-intersection-pixiv](https://github.com/ncaq/dic-nico-intersection-pixiv) —
-  ニコニコ大百科とピクシブ百科事典に共通する見出し
 - [google-ime-user-dictionary-ja-en](https://github.com/KEINOS/google-ime-user-dictionary-ja-en) —
   カタカナ語から英語綴りへの変換（例: 「ぶらっく」→ `black`）
+
+元データを結合・検証し、翻訳語を除外して英語綴りを正規化した派生辞書を
+[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) で再配布します。
+出典、ライセンス、変更内容は生成する辞書ファイル自身にもコメントとして埋め込みます。
+権利関係が明示的なライセンスだけでは判断できないスクレイピング由来辞書は、標準配布物へ
+含めません。
 
 各データのライセンスと再配布上の注意は [NOTICE](NOTICE) を確認してください。
 
@@ -289,6 +293,8 @@ third_party/mozc/ 上流 Mozc の checkout（Git 管理対象外）
 Android の application ID とコード namespace は、フォーク元との共存および識別のため
 `me.zssu.ime` へ変更しています。Mozc は BSD 3-Clause、追加辞書にはそれぞれ別の条件が
 あります。完全な帰属表示、変更の告知、再配布上の注意事項は [NOTICE](NOTICE) を参照して
-ください。APK にも `LICENSE`、`NOTICE`、[PRIVACY](PRIVACY.md) の全文を同梱します。
+ください。APKには本体の `LICENSE`、`NOTICE`、[PRIVACY](PRIVACY.md) に加えて、Mozc、
+Mozc OSS辞書、Protocol Buffers、その他ランタイム依存関係のライセンス・帰属表示を同梱
+します。設定画面の「オープンソースライセンス」から全文を閲覧できます。
 
 このフォークに関する問い合わせ: [support@zslink.xyz](mailto:support@zslink.xyz)

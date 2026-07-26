@@ -25,22 +25,21 @@ The dictionary data incorporates several corpora with their own terms; see
 third_party/mozc/src/data/dictionary_oss/README.txt upstream for the full list.
 
 Bundled supplementary dictionary:
-  dic-nico-intersection-pixiv  (mozc/src/main/assets/dictionaries/)
-  https://github.com/ncaq/dic-nico-intersection-pixiv
-  The project's code is MIT licensed. Its author states that no copyright is
-  claimed over the generated dictionary itself, as it is derived from scraped
-  article titles of Niconico Pedia and Pixiv Encyclopedia. That is the upstream
-  author's own statement rather than a formal licence grant; redistributors
-  should satisfy themselves it fits their situation.
-
   google-ime-user-dictionary-ja-en  (mozc/src/main/assets/dictionaries/)
   https://github.com/KEINOS/google-ime-user-dictionary-ja-en
   Katakana loanword to English spelling, derived from the EDICT project.
-  The dictionary data is under Creative Commons Attribution-ShareAlike 3.0, the
-  same terms as EDICT itself.
+  Licensed under Creative Commons Attribution-ShareAlike 3.0:
+  https://creativecommons.org/licenses/by-sa/3.0/
 
-  Those terms cover the dictionary, not software that uses it: the upstream
-  project states explicitly that an application bundling this dictionary need
-  not adopt a Creative Commons licence, and asks only that it say it uses this
-  community-built open-source dictionary. This notice is that statement.
+  ZenSky Project's build process merges the upstream parts, rejects files and
+  rows that are not valid Mozc TSV, removes translation/definition entries,
+  normalizes English spellings, and sorts/deduplicates the remaining entries.
+  The resulting adapted dictionary remains licensed under CC BY-SA 3.0. The
+  attribution, source, license URL, and modification summary are also embedded
+  as comment lines in the distributed dictionary itself.
+
   zinna-IME — ZenSky Project edition remains Apache 2.0.
+
+Complete terms for Mozc, its OSS dictionary, Protocol Buffers, and the other
+runtime dependencies are shipped in assets/legal/ and can be read from the
+application's "Open source licenses" screen.

@@ -157,6 +157,12 @@ def main():
         # Stripping the annotations collapses several senses onto one spelling.
         kept.setdefault((reading, spelling), pos)
 
+    print("# Adapted from KEINOS/google-ime-user-dictionary-ja-en")
+    print("# Source: https://github.com/KEINOS/google-ime-user-dictionary-ja-en")
+    print("# License: CC BY-SA 3.0 https://creativecommons.org/licenses/by-sa/3.0/")
+    print("# Changes: merged upstream parts, removed non-TSV data, filtered translations,")
+    print("# normalized English spellings, and sorted/deduplicated entries.")
+    print("# This adapted dictionary is distributed under CC BY-SA 3.0.")
     for (reading, spelling), pos in sorted(kept.items()):
         print("%s\t%s\t%s" % (reading, spelling, pos))
 
