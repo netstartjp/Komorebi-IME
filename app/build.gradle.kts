@@ -7,12 +7,16 @@ plugins {
 
 android {
     namespace = "me.zssu.ime"
-    compileSdk = 35
+    compileSdk {
+        version = release(36) {
+            minorApiLevel = 1
+        }
+    }
 
     defaultConfig {
         applicationId = "me.zssu.ime"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "0.1.0-zensky.1"
     }

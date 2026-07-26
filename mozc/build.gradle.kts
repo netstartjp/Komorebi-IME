@@ -8,7 +8,11 @@ plugins {
 
 android {
     namespace = "me.zssu.ime.mozc"
-    compileSdk = 35
+    compileSdk {
+        version = release(36) {
+            minorApiLevel = 1
+        }
+    }
 
     defaultConfig {
         minSdk = 24
@@ -53,4 +57,40 @@ dependencies {
     api(libs.protobuf.javalite)
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)
+}
+
+val verifyMozcRuntime by tasks.registering {
+    group = "verification"
+    description = "Fails before packaging when generated Mozc runtime files are absent."
+
+    val runtimeFiles = listOf(
+        "src/main/assets/mozc.data",
+        "src/main/jniLibs/arm64-v8a/libmozc.so",
+        "src/main/jniLibs/armeabi-v7a/libmozc.so",
+        "src/main/jniLibs/x86/libmozc.so",
+        "src/main/jniLibs/x86_64/libmozc.so",
+    ).map(::file)
+    inputs.files(runtimeFiles)
+
+    doLast {
+        val missing = inputs.files.files.filterNot { it.isFile }
+        if (missing.isNotEmpty()) {
+            throw GradleException(
+                buildString {
+                    appendLine("Mozc runtime files are missing:")
+                    missing.forEach { appendLine("  - $it") }
+                    append("Run scripts/build_mozc.sh before building the APK.")
+                }
+            )
+        }
+    }
+}
+
+// A source-only checkout is useful for editing, but must never silently produce an installable APK
+// whose keyboard cannot convert anything. Keep unit-test compilation available while making every
+// Android package merge depend on the generated native engine and dictionary.
+tasks.configureEach {
+    if (name.startsWith("merge") && (name.endsWith("NativeLibs") || name.endsWith("Assets"))) {
+        dependsOn(verifyMozcRuntime)
+    }
 }

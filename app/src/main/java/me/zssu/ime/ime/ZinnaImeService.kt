@@ -46,6 +46,7 @@ class ZinnaImeService : InputMethodService() {
     private var candidateView: CandidateStripView? = null
     private var layout: KeyboardLayout? = null
     private var theme: KeyboardTheme = KeyboardTheme.Default
+    private var fieldPolicy = InputFieldPolicy.DEFAULT
 
     /**
      * Whether mozc currently holds a composition. Mirrors the last rendered state so Enter can
@@ -81,7 +82,10 @@ class ZinnaImeService : InputMethodService() {
     }
 
     override fun onCreateInputView(): View {
-        val loaded = repository.loadLayout(settings.keyboardStyle.defaultLayoutId)
+        // onStartInputView normally makes this available first. Keep an explicitly selected policy
+        // if an OEM calls view creation with no EditorInfo instead of falling back to normal text.
+        currentInputEditorInfo?.let { fieldPolicy = InputFieldPolicy.from(it) }
+        val loaded = repository.loadLayout(initialLayoutId(fieldPolicy))
             ?: repository.loadLayout(LayoutRepository.DEFAULT_LAYOUT_ID)
         if (loaded == null) Log.e(TAG, "default layout missing from assets")
         layout = loaded
@@ -124,7 +128,11 @@ class ZinnaImeService : InputMethodService() {
                 render(session.selectCandidate(candidate.id))
             }
         }
-        val stripHeight = (theme.keyHeightDp * 0.8f * resources.displayMetrics.density).toInt()
+        val stripHeight = if (fieldPolicy.showCandidates) {
+            (theme.keyHeightDp * 0.8f * resources.displayMetrics.density).toInt()
+        } else {
+            0
+        }
 
         val keyboard = FlickKeyboardView(this).apply {
             theme = this@ZinnaImeService.theme
@@ -148,6 +156,7 @@ class ZinnaImeService : InputMethodService() {
         candidateView = candidates
         keyboardView = keyboard
         builtFromRevision = settings.revision
+        session.setIncognitoMode(fieldPolicy.incognito)
         loaded?.let { session.applyInputStyle(it.inputStyle) }
         return root
     }
@@ -167,11 +176,14 @@ class ZinnaImeService : InputMethodService() {
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
+        val nextPolicy = InputFieldPolicy.from(info)
         // Settings live in another process's Activity, so this is the first moment we can notice
         // they changed. Rebuilding only on a revision bump keeps the common case free.
-        if (settings.revision != builtFromRevision) {
+        if (settings.revision != builtFromRevision || nextPolicy != fieldPolicy) {
+            fieldPolicy = nextPolicy
             setInputView(onCreateInputView())
         }
+        session.setIncognitoMode(nextPolicy.incognito)
         if (!restarting) session.resetContext()
         isComposing = false
         candidateView?.clear()
@@ -379,6 +391,15 @@ class ZinnaImeService : InputMethodService() {
         layout = next
         keyboardView?.layout = next
         session.applyInputStyle(next.inputStyle)
+    }
+
+    private fun initialLayoutId(policy: InputFieldPolicy): String = when (policy.plane) {
+        InputFieldPolicy.Plane.USER_DEFAULT -> settings.keyboardStyle.defaultLayoutId
+        InputFieldPolicy.Plane.ASCII -> settings.keyboardStyle.resolve("qwerty_ascii")
+        InputFieldPolicy.Plane.NUMERIC -> when (settings.keyboardStyle) {
+            me.zssu.ime.keyboard.KeyboardStyle.QWERTY -> "qwerty_symbol"
+            else -> "flick_symbol"
+        }
     }
 
     private fun render(state: MozcSession.State?) {

@@ -66,8 +66,12 @@ application ID がフォーク元と異なるため、Android 上では別アプ
 - 濁点・半濁点・小書き文字の切り替え
 - カーソル移動、Undo、連続 Backspace、変換、確定
 - 入力欄側で文字列やカーソルが変更された場合の composition 同期
+- パスワード・数値・URL・メール欄に合わせた入力面と候補表示の自動最適化
 
-最後の同期により、たとえば Chrome のアドレスバーを「×」で消した後に、消す前の
+パスワード欄では Mozc のシークレットモードも自動で有効になり、その入力を学習せず、
+既存の学習履歴も変換に利用しません。パスワード欄を離れると通常モードへ戻ります。
+
+composition 同期により、たとえば Chrome のアドレスバーを「×」で消した後に、消す前の
 読みが次の入力へ混ざることはありません。
 
 ### 辞書
@@ -137,7 +141,7 @@ files/themes/default_dark.json
 
 | 優先度 | 機能案 | 実用上の効果 |
 | --- | --- | --- |
-| 高 | パスワード欄・数値欄・URL・メール欄への自動最適化 | 不要な学習や候補表示を止め、入力面を自動で合わせる |
+| 完了 | パスワード欄・数値欄・URL・メール欄への自動最適化 | 不要な学習や候補表示を止め、入力面を自動で合わせる |
 | 高 | ユーザー辞書の SAF インポート/エクスポート | 機種変更と他 IME からの移行をオフラインで完結できる |
 | 高 | 片手モードと左右寄せ | 大画面端末でも親指で届きやすくする |
 | 高 | 候補の長押し削除・学習リセット | 誤学習を利用者自身で直せる |
@@ -157,14 +161,32 @@ files/themes/default_dark.json
 - Git
 - JDK 17–21（JRE のみ、および JDK 25 は不可）
 - Python 3.12 以上
-- Android SDK Platform 35 / Build Tools 35.0.0
+- Android SDK Platform 36.1 / Build Tools 36.0.0
 - [Bazelisk](https://github.com/bazelbuild/bazelisk) または Bazel
 - `curl`、`unzip`
 
 Android SDK の場所は `ANDROID_HOME` に設定しておきます。
 
-このリポジトリの Android Gradle Plugin 8.7.3 は JDK 25 に対応していません。複数の
+このリポジトリの Android Gradle Plugin 8.13.2 は JDK 25 に対応していません。複数の
 Java が入っている環境では、`JAVA_HOME` が JDK 17 または 21 を指すことを確認してください。
+
+### Linux / WSL が必要な工程
+
+Gradle だけでは Mozc のネイティブエンジンは生成されません。`scripts/build_mozc.sh` は
+Linux 用 Bazel ホストツールも実行するため、Linux または WSL2 上で実行してください。
+Windows の Android Studio で SDK を導入して `assembleDebug` だけ実行しても、
+`libmozc.so` と `mozc.data` は生成されません。
+
+現在の Gradle 構成では、次の必須成果物がない状態で APK をパッケージしようとすると
+`:mozc:verifyMozcRuntime` が失敗します。変換不能な APK を成功扱いしないための検査です。
+
+```text
+mozc/src/main/assets/mozc.data
+mozc/src/main/jniLibs/arm64-v8a/libmozc.so
+mozc/src/main/jniLibs/armeabi-v7a/libmozc.so
+mozc/src/main/jniLibs/x86/libmozc.so
+mozc/src/main/jniLibs/x86_64/libmozc.so
+```
 
 ### ビルド手順
 
@@ -189,6 +211,18 @@ python3 scripts/gen_qwerty_layout.py
 printf 'sdk.dir=%s\n' "$ANDROID_HOME" > local.properties
 ./gradlew :app:assembleDebug
 ```
+
+Codex Linux など別のLinux環境へ引き継ぐ場合も、上記を先頭から順に実行します。
+`third_party/mozc/`、`mozc/src/main/jniLibs/`、`mozc/src/main/assets/mozc.data` は
+Git管理対象外なので、Windows側のcheckoutに存在しなくても異常ではありません。
+ビルド後は次のコマンドでAPKへの収録を確認できます。
+
+```bash
+unzip -l app/build/outputs/apk/debug/app-universal-debug.apk \
+  | grep -E 'libmozc\.so|mozc\.data'
+```
+
+4 ABI の `libmozc.so` と1つの `mozc.data` が表示されてからAPKを実機へ渡してください。
 
 生成物は `app/build/outputs/apk/` 以下に出力されます。ABI 別 APK と universal APK を
 生成します。実機と接続できる場合は、次でもインストールできます。

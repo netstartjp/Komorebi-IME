@@ -51,6 +51,7 @@ class MozcSession(context: Context) {
 
     private var currentStyle: InputStyle? = null
     private var configApplied = false
+    private var incognito = false
 
     fun applyInputStyle(style: InputStyle) {
         if (style == currentStyle) return
@@ -139,9 +140,23 @@ class MozcSession(context: Context) {
                     builder
                         .setUseTypingCorrection(true)
                         .setUseKanaModifierInsensitiveConversion(true)
+                        .setIncognitoMode(incognito)
                 )
         )
         configApplied = true
+    }
+
+    /**
+     * Prevents both learning from and consulting mutable history in sensitive editors.
+     *
+     * This is Mozc's own incognito switch, not merely a hidden candidate view: conversion requests
+     * therefore cannot accidentally update history while a password field is active.
+     */
+    fun setIncognitoMode(enabled: Boolean) {
+        if (incognito == enabled && configApplied) return
+        incognito = enabled
+        configApplied = false
+        engine?.let(::applyConfig)
     }
 
     fun submit(): State? = sendSessionCommand(SessionCommand.CommandType.SUBMIT)
