@@ -185,7 +185,7 @@ class ZinnaImeService : InputMethodService() {
 
             is KeyAction.Backspace -> handleBackspace()
 
-            is KeyAction.Space -> render(session.sendSpecialKey(KeyEvent.SpecialKey.SPACE))
+            is KeyAction.Space -> handleSpace()
 
             // With something composing, this converts; with nothing to convert it behaves as
             // Enter. Inserting a space there would be the desktop behaviour and is not what a
@@ -216,6 +216,22 @@ class ZinnaImeService : InputMethodService() {
     private fun handleSymbol(text: String) {
         if (isComposing) render(session.submit())
         currentInputConnection?.commitText(text, 1)
+    }
+
+    /**
+     * Space, which mozc only handles while something is composing.
+     *
+     * With an empty composition it returns the key unconsumed on every plane — it has nowhere to
+     * put a space and leaves the character to the client. Rendering that empty response was doing
+     * nothing at all, so space appeared to work only as the second keystroke of a word.
+     */
+    private fun handleSpace() {
+        val state = session.sendSpecialKey(KeyEvent.SpecialKey.SPACE)
+        if (state == null || !state.consumed) {
+            val fullWidth = layout?.inputStyle?.fullWidthSpace ?: false
+            currentInputConnection?.commitText(if (fullWidth) FULL_WIDTH_SPACE else " ", 1)
+        }
+        render(state)
     }
 
     private fun handleBackspace() {
@@ -310,5 +326,8 @@ class ZinnaImeService : InputMethodService() {
 
         /** '*' in mozc's flick/12-key tables. See data/preedit/flick-hiragana.tsv upstream. */
         private const val CYCLE_MODIFIER_KEY = "*"
+
+        /** U+3000 IDEOGRAPHIC SPACE, what a Japanese input mode types for the space key. */
+        private const val FULL_WIDTH_SPACE = "　"
     }
 }

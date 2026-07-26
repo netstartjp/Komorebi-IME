@@ -35,6 +35,14 @@ class MozcSession(context: Context) {
         val preeditCursor: Int = 0,
         val candidates: List<Candidate> = emptyList(),
         val focusedCandidateIndex: Int = -1,
+        /**
+         * Whether mozc handled the key at all.
+         *
+         * False means it declined and expects the client to act — which it does for any key it has
+         * no use for in the current state, notably space on an empty composition. Treating that as
+         * "nothing to do" silently swallows the keystroke.
+         */
+        val consumed: Boolean = false,
     ) {
         val hasComposition: Boolean get() = preedit.isNotEmpty()
     }
@@ -202,6 +210,7 @@ class MozcSession(context: Context) {
             preeditCursor = cursor.coerceIn(0, preeditText.length),
             candidates = candidates,
             focusedCandidateIndex = focused,
+            consumed = consumed,
         )
     }
 }

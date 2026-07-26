@@ -138,30 +138,44 @@ enum class FlickDirection { CENTER, LEFT, UP, RIGHT, DOWN }
  * sends the resulting kana, so FLICK_TO_HIRAGANA is the natural pairing — mozc then treats each
  * key event as a finished kana rather than re-running its own toggle state machine.
  */
-enum class InputStyle(val mozcTableNumber: Int, val mozcCompositionMode: Int) {
-    FLICK_HIRAGANA(13, HIRAGANA),
-    TOGGLE_FLICK_HIRAGANA(16, HIRAGANA),
-    FLICK_HALFWIDTH_ASCII(14, HALF_ASCII),
+enum class InputStyle(
+    val mozcTableNumber: Int,
+    val mozcCompositionMode: Int,
+    /**
+     * Which space to type when the space key lands on an empty composition.
+     *
+     * mozc refuses that keystroke — it comes back `consumed=false` on every plane — so the client
+     * picks the character. This follows mozc's own `space_character_form` default, where a space
+     * takes the width of the input mode: 全角 while writing Japanese, 半角 otherwise.
+     *
+     * Stated per plane rather than derived from [mozcCompositionMode], because the number plane
+     * borrows HIRAGANA mode for its conversions while still wanting an ASCII space.
+     */
+    val fullWidthSpace: Boolean,
+) {
+    FLICK_HIRAGANA(13, HIRAGANA, fullWidthSpace = true),
+    TOGGLE_FLICK_HIRAGANA(16, HIRAGANA, fullWidthSpace = true),
+    FLICK_HALFWIDTH_ASCII(14, HALF_ASCII, fullWidthSpace = false),
 
     /**
      * The Gboard-equivalent latin plane: one key per letter group, tapping repeatedly walks
      * a→b→c and the '*' key walks case. Digits live on the down flick.
      */
-    TOGGLE_FLICK_HALFWIDTH_ASCII(17, HALF_ASCII),
+    TOGGLE_FLICK_HALFWIDTH_ASCII(17, HALF_ASCII, fullWidthSpace = false),
 
     /**
      * The 記号・数字 plane behind Gboard's ☺記 key: digits with the symbol sets flicked off them
      * (1 → ☆♪→, 5 → +×÷, 7 → 「」:). Stays in HIRAGANA so number input still offers the useful
      * conversions — "51" → 5月1日, 5時1分.
      */
-    TOGGLE_FLICK_NUMBER(42, HIRAGANA),
+    TOGGLE_FLICK_NUMBER(42, HIRAGANA, fullWidthSpace = false),
 
     /** Plain numeric pad with no symbols. Available to custom layouts. */
-    FLICK_NUMBER(43, HALF_ASCII),
+    FLICK_NUMBER(43, HALF_ASCII, fullWidthSpace = false),
 
-    QWERTY_HIRAGANA(20, HIRAGANA),
-    QWERTY_HALFWIDTH_ASCII(22, HALF_ASCII),
-    GODAN_HIRAGANA(30, HIRAGANA),
+    QWERTY_HIRAGANA(20, HIRAGANA, fullWidthSpace = true),
+    QWERTY_HALFWIDTH_ASCII(22, HALF_ASCII, fullWidthSpace = false),
+    GODAN_HIRAGANA(30, HIRAGANA, fullWidthSpace = true),
 }
 
 // mozc.commands.CompositionMode. The romanji table decides what a keystroke transliterates to, but
