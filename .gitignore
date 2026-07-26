@@ -1,9 +1,25 @@
 # Build output
 /build/
 **/build/
+*.apk
+*.aab
+*.apks
+*.idsig
 .gradle/
 local.properties
 .cxx/
+
+# Release signing credentials — never commit private keys or their passwords.
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.key
+/keystore.properties
+/signing.properties
+.env
+.env.*
+!.env.example
 
 # Vendored / generated
 /tools/
