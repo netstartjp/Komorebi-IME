@@ -12,6 +12,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnAttach
 import androidx.core.view.updatePadding
 import dev.oss.ime.keyboard.CandidateStripView
 import dev.oss.ime.keyboard.FlickDirection
@@ -55,6 +56,18 @@ class ZinnaImeService : InputMethodService() {
     /** [ImeSettings.revision] the current input view was built from. */
     private var builtFromRevision = Int.MIN_VALUE
 
+    /**
+     * The system-bar insets last dispatched to us.
+     *
+     * Kept because a view built mid-session may never be handed them again: the window's insets
+     * have not changed, so nothing re-dispatches, and a fresh panel would sit at zero padding with
+     * its bottom row under the navigation bar. Seeding from these makes the rebuilt view correct on
+     * its first frame instead of waiting for a dispatch that may not come.
+     */
+    private var systemInsetLeft = 0
+    private var systemInsetRight = 0
+    private var systemInsetBottom = 0
+
     override fun onCreate() {
         super.onCreate()
         repository = LayoutRepository(this)
@@ -80,14 +93,28 @@ class ZinnaImeService : InputMethodService() {
             // the bar, so the keyboard still reaches the bottom of the screen.
             setBackgroundColor(this@ZinnaImeService.theme.backgroundColor)
             setBackgroundImage(settings.backgroundImage, settings.backgroundOpacity)
+            // Start from what we already know, so a rebuild triggered by a settings change is
+            // padded before it draws rather than after the next dispatch — which, since the
+            // window's insets did not change, may never arrive.
+            updatePadding(
+                left = systemInsetLeft,
+                right = systemInsetRight,
+                bottom = systemInsetBottom,
+            )
             ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
                 val bars = insets.getInsets(
                     WindowInsetsCompat.Type.navigationBars() or
                         WindowInsetsCompat.Type.displayCutout()
                 )
+                systemInsetLeft = bars.left
+                systemInsetRight = bars.right
+                systemInsetBottom = bars.bottom
                 view.updatePadding(left = bars.left, right = bars.right, bottom = bars.bottom)
                 WindowInsetsCompat.CONSUMED
             }
+            // And ask for a fresh dispatch once attached, so a stale seed (after a rotation, say)
+            // is corrected rather than persisting for the rest of the session.
+            doOnAttach { ViewCompat.requestApplyInsets(it) }
         }
 
         val candidates = CandidateStripView(this).apply {
