@@ -56,6 +56,7 @@ class ZinnaImeService : InputMethodService() {
     private lateinit var emojiRepository: EmojiRepository
     private lateinit var meaningDictionaries: MeaningDictionaryRepository
     private lateinit var priorityCandidates: PriorityCandidateRepository
+    private lateinit var clipboardHistory: ClipboardHistory
     private lateinit var session: MozcSession
 
     private var keyboardView: FlickKeyboardView? = null
@@ -113,6 +114,7 @@ class ZinnaImeService : InputMethodService() {
         emojiRepository = EmojiRepository(this)
         meaningDictionaries = MeaningDictionaryRepository(this)
         priorityCandidates = PriorityCandidateRepository(this)
+        clipboardHistory = ClipboardHistory()
         session = MozcSession(this, priorityCandidates::match)
         if (!session.isAvailable) {
             // Without the native engine there is nothing useful to do; the keyboard still renders
@@ -249,6 +251,19 @@ class ZinnaImeService : InputMethodService() {
                 setCandidates(lastCandidates, lastFocusedCandidateIndex)
             }
             onToolAction = ::handleToolAction
+            onClipboardItemSelected = { text ->
+                currentInputConnection?.commitText(text, 1)
+                showTools()
+            }
+            onClipboardHistoryCleared = {
+                clipboardHistory.clear()
+                showClipboardHistory(emptyList())
+                Toast.makeText(
+                    this@ZinnaImeService,
+                    "クリップボード履歴を消去しました",
+                    Toast.LENGTH_SHORT,
+                ).show()
+            }
             onEmojiSelected = { emoji ->
                 currentInputConnection?.commitText(emoji, 1)
                 emojiRepository.recordUsed(emoji)
@@ -345,10 +360,11 @@ class ZinnaImeService : InputMethodService() {
     private fun handleToolAction(action: CandidateStripView.ToolAction) {
         when (action) {
             CandidateStripView.ToolAction.CLIPBOARD -> {
-                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val text = clipboard.primaryClip?.getItemAt(0)?.coerceToText(this)?.toString()
-                if (!text.isNullOrEmpty()) currentInputConnection?.commitText(text, 1)
-                else Toast.makeText(this, "クリップボードは空です", Toast.LENGTH_SHORT).show()
+                clipboardHistory.record(
+                    this,
+                    getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager,
+                )
+                candidateView?.showClipboardHistory(clipboardHistory.items())
             }
             CandidateStripView.ToolAction.EMOJI -> candidateView?.showEmoji(
                 emojiRepository.recents(),
@@ -429,6 +445,12 @@ class ZinnaImeService : InputMethodService() {
         renderedPreeditCursor = 0
         keyboardView?.isConversionAvailable = false
         ownSelectionUpdatePending = false
+        if (!nextPolicy.incognito) {
+            clipboardHistory.record(
+                this,
+                getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager,
+            )
+        }
         candidateView?.clear()
     }
 

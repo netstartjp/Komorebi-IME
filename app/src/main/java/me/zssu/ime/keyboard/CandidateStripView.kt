@@ -3,6 +3,7 @@ package me.zssu.ime.keyboard
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.content.Context
+import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
@@ -38,6 +39,8 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
     var listener: OnCandidateSelectedListener? = null
     var onCandidateLongPressed: ((MozcSession.Candidate) -> Unit)? = null
     var onToolAction: ((ToolAction) -> Unit)? = null
+    var onClipboardItemSelected: ((String) -> Unit)? = null
+    var onClipboardHistoryCleared: (() -> Unit)? = null
 
     var theme: KeyboardTheme = KeyboardTheme.Default
         set(value) {
@@ -181,6 +184,55 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
                 onToolAction?.invoke(ToolAction.SETTINGS)
             }
         )
+    }
+
+    fun showClipboardHistory(items: List<String>) {
+        focusedChild = -1
+        container.removeAllViews()
+        scrollTo(0, 0)
+        val padding = (12 * resources.displayMetrics.density).toInt()
+        container.addView(
+            iconButton(R.drawable.ic_material_arrow_back, "ツールバーに戻る") { showTools() }
+        )
+        if (items.isEmpty()) {
+            container.addView(TextView(context).apply {
+                text = "履歴はありません"
+                applyTheme(this)
+                gravity = Gravity.CENTER
+                isSingleLine = true
+            })
+            return
+        }
+        container.addView(TextView(context).apply {
+            text = "すべて消去"
+            applyTheme(this)
+            gravity = Gravity.CENTER
+            isSingleLine = true
+            contentDescription = "クリップボード履歴をすべて消去"
+            setOnClickListener {
+                if (theme.hapticFeedback) {
+                    it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                }
+                onClipboardHistoryCleared?.invoke()
+            }
+        })
+        items.forEach { value ->
+            container.addView(TextView(context).apply {
+                text = value.replace(Regex("\\s+"), " ")
+                applyTheme(this)
+                gravity = Gravity.CENTER
+                isSingleLine = true
+                ellipsize = TextUtils.TruncateAt.END
+                maxWidth = (240 * resources.displayMetrics.density).toInt()
+                contentDescription = "クリップボード履歴: $text"
+                setOnClickListener {
+                    if (theme.hapticFeedback) {
+                        it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                    }
+                    onClipboardItemSelected?.invoke(value)
+                }
+            })
+        }
     }
 
     fun showEmoji(
