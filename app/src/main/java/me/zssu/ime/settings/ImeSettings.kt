@@ -2,6 +2,7 @@ package me.zssu.ime.settings
 
 import android.content.Context
 import android.content.SharedPreferences
+import me.zssu.ime.keyboard.FlickGuideStyle
 import me.zssu.ime.keyboard.KeyboardStyle
 import java.io.File
 
@@ -111,6 +112,19 @@ class ImeSettings(context: Context) {
         }
 
     /**
+     * What a flick key shows while it is held. See [FlickGuideStyle].
+     *
+     * Defaults to the preview: the cross of four directions covers the neighbouring keys, which is
+     * where the eye is looking, and most of the time only one of the four is wanted.
+     */
+    var flickGuideStyle: FlickGuideStyle
+        get() = FlickGuideStyle.of(prefs.getString(KEY_FLICK_GUIDE, null))
+        set(value) {
+            prefs.edit().putString(KEY_FLICK_GUIDE, value.name).apply()
+            bumpRevision()
+        }
+
+    /**
      * The keyboard background image, or null for a plain colour.
      *
      * A copy under our own files directory, not the content URI the user picked: the IME runs in a
@@ -194,6 +208,7 @@ class ImeSettings(context: Context) {
         private const val KEY_ACTIVE_THEME = "active_theme"
         private const val KEY_ACTIVE_LAYOUT = "active_layout"
         private const val KEY_ONE_HAND_MODE = "one_hand_mode"
+        private const val KEY_FLICK_GUIDE = "flick_guide_style"
         private const val KEY_BACKGROUND_PRESET = "background_preset"
         private const val KEY_USE_PRONOUN_DICT = "use_pronoun_dict"
         private const val KEY_USE_AI_TECH_DICT = "use_ai_tech_dict"

@@ -283,6 +283,36 @@ class MozcSession(context: Context) {
     private fun sendSessionCommand(type: SessionCommand.CommandType): State? =
         engine?.sendCommand(SessionCommand.newBuilder().setType(type).build())?.toState()
 
+    /**
+     * Whether candidate [id] is for a reading other than the one being typed.
+     *
+     * See [exactReadingFirst] for what is done with the answer.
+     *
+     * mozc's mobile prediction mixes two kinds of candidate into one list: conversions of exactly
+     * what was typed, and predictions that assume more typing to come. It ranks them together by
+     * cost, so a prediction routinely outranks the plain conversion — typing でんわ offers 電話番号
+     * above 電話, and あり offers ありだと above あり. That is useful when it guesses right and a
+     * nuisance when the word was already finished, which is the common case.
+     *
+     * `CandidateWord.key` is set exactly when the candidate's reading differs from the composition
+     * (it covers both longer readings like でんわばんごう and shorter partial ones like こんにち),
+     * so it is the signal for pushing those below the exact matches.
+     */
+    private fun idsExtendingReading(reading: String): Set<Int> {
+        val metadata = if (hasAllCandidateWords()) {
+            allCandidateWords.candidatesList.take(CandidateRanking.MAX_LIVE_POOL_SIZE)
+        } else {
+            return emptySet()
+        }
+        var ids: MutableSet<Int>? = null
+        for (word in metadata) {
+            if (word.hasKey() && word.key != reading) {
+                (ids ?: HashSet<Int>().also { ids = it }).add(word.id)
+            }
+        }
+        return ids ?: emptySet()
+    }
+
     private fun Output.toState(): State {
         val preeditText = StringBuilder()
         var cursor = 0
@@ -375,18 +405,23 @@ class MozcSession(context: Context) {
             emptyList()
         }
 
-        val focused = if (hasCandidateWindow() && candidateWindow.hasFocusedIndex()) {
-            candidateWindow.focusedIndex
+        val reading = preeditText.toString()
+        val extending = idsExtendingReading(reading)
+        val focusedId = if (hasCandidateWindow() && candidateWindow.hasFocusedIndex()) {
+            candidates.getOrNull(candidateWindow.focusedIndex)?.id
         } else {
-            -1
+            null
         }
+        val (reordered, reorderedFocused) = exactReadingFirst(
+            candidates, focusedId, extending::contains,
+        )
 
         return State(
             committedText = if (hasResult()) result.value else "",
             preedit = preeditText.toString(),
             preeditCursor = cursor.coerceIn(0, preeditText.length),
-            candidates = candidates,
-            focusedCandidateIndex = focused,
+            candidates = reordered,
+            focusedCandidateIndex = reorderedFocused,
             segments = segments,
             isConverting = hasCandidateWindow() &&
                 candidateWindow.category == Category.CONVERSION &&
@@ -452,4 +487,29 @@ internal object CandidateRanking {
             ch in '\u4e00'..'\u9fff' || // CJK Unified Ideographs
             ch == '\u3005' || ch == '\u3006' || ch == '\u303b'
     }
+}
+
+/**
+ * Moves the candidates that convert exactly what was typed ahead of the predictions.
+ *
+ * A stable partition, not a re-ranking: mozc's order within each group is left alone, because it
+ * is the product of a language model this has no business second-guessing. All this decides is
+ * that a finished word beats a guess about an unfinished one.
+ *
+ * Split out from the proto handling so the focus arithmetic can be tested — the focused index
+ * points at a slot, and once the list is reordered that slot holds something else.
+ *
+ * @param focusedId the id of the focused candidate, or null when nothing is focused
+ * @return the reordered list and the index the focus moved to, or -1 for none
+ */
+internal fun exactReadingFirst(
+    candidates: List<MozcSession.Candidate>,
+    focusedId: Int?,
+    extendsReading: (Int) -> Boolean,
+): Pair<List<MozcSession.Candidate>, Int> {
+    val ordered =
+        if (candidates.none { extendsReading(it.id) }) candidates
+        else candidates.sortedBy { if (extendsReading(it.id)) 1 else 0 }
+    val focused = focusedId?.let { id -> ordered.indexOfFirst { it.id == id } } ?: -1
+    return ordered to focused
 }

@@ -47,6 +47,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
+import me.zssu.ime.keyboard.FlickGuideStyle
 import me.zssu.ime.keyboard.KeyboardStyle
 import me.zssu.ime.keyboard.LayoutRepository
 import me.zssu.ime.mozc.MozcEngine
@@ -371,6 +372,7 @@ private fun KeyboardCard() {
 
     var style by remember { mutableStateOf(settings.keyboardStyle) }
     var flickInputMode by remember { mutableStateOf(settings.flickInputMode) }
+    var guide by remember { mutableStateOf(settings.flickGuideStyle) }
     var heightScale by remember { mutableStateOf(settings.keyHeightScale) }
     var oneHandMode by remember { mutableStateOf(settings.oneHandMode) }
 
@@ -419,6 +421,31 @@ private fun KeyboardCard() {
                     settings.flickInputMode = option
                 }
                 if (flickInputMode == option) {
+                    Button(onClick = onSelect, modifier = Modifier.fillMaxWidth()) { Text(label) }
+                } else {
+                    OutlinedButton(
+                        onClick = onSelect,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text(label) }
+                }
+            }
+
+            HorizontalDivider()
+
+            Text("フリック中の表示", style = MaterialTheme.typography.bodyLarge)
+            Text(
+                "キーを押している間に何を出すか。フリック配列のときだけ効きます",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            for ((option, label) in listOf(
+                FlickGuideStyle.PREVIEW to "離したら入る文字だけ",
+                FlickGuideStyle.DIRECTIONS to "4方向すべて",
+            )) {
+                val onSelect = {
+                    guide = option
+                    settings.flickGuideStyle = option
+                }
+                if (guide == option) {
                     Button(onClick = onSelect, modifier = Modifier.fillMaxWidth()) { Text(label) }
                 } else {
                     OutlinedButton(
