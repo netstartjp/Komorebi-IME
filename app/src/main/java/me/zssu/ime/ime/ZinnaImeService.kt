@@ -734,6 +734,13 @@ class ZinnaImeService : InputMethodService() {
         val ic = currentInputConnection ?: return
         if (state == null) return
 
+        val hadComposition = isComposing
+        val removeOldEditorComposition =
+            BackspaceRouting.shouldRemoveOldEditorComposition(
+                hadComposition = hadComposition,
+                nextHasComposition = state.hasComposition,
+                committedText = state.committedText,
+            )
         isComposing = state.hasComposition
         isConverting = state.isConverting
         renderedPreeditCursor = state.preeditCursor
@@ -747,7 +754,13 @@ class ZinnaImeService : InputMethodService() {
                 ic.commitText(state.committedText, 1)
             }
             if (state.preedit.isEmpty()) {
-                ic.finishComposingText()
+                if (removeOldEditorComposition) {
+                    // finishComposingText would confirm the previous editor-side preedit. Replacing
+                    // its composing span with empty text is what makes the last Backspace visible.
+                    ic.commitText("", 1)
+                } else {
+                    ic.finishComposingText()
+                }
             } else {
                 val styled = SpannableString(state.preedit).apply {
                     if (state.isConverting && isNotEmpty()) {

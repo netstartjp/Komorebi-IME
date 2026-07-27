@@ -19,4 +19,17 @@ internal object BackspaceRouting {
         hasSelection -> Target.EDITOR_SELECTION
         else -> Target.EDITOR_PREVIOUS_CODE_POINT
     }
+
+    /**
+     * An empty Mozc preedit can mean either "the old composition was deleted" or "text was
+     * committed". Calling finishComposingText for the former would preserve the old editor text as
+     * a confirmed hiragana string, so only that transition must replace the composing span with
+     * empty text.
+     */
+    fun shouldRemoveOldEditorComposition(
+        hadComposition: Boolean,
+        nextHasComposition: Boolean,
+        committedText: String,
+    ): Boolean =
+        hadComposition && !nextHasComposition && committedText.isEmpty()
 }

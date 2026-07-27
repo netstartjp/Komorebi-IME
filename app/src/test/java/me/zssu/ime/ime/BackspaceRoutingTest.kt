@@ -36,4 +36,40 @@ class BackspaceRoutingTest {
             BackspaceRouting.target(hadComposition = true, hasSelection = true),
         )
     }
+
+    @Test
+    fun `empty preedit after backspace removes old editor composition`() {
+        assertEquals(
+            true,
+            BackspaceRouting.shouldRemoveOldEditorComposition(
+                hadComposition = true,
+                nextHasComposition = false,
+                committedText = "",
+            ),
+        )
+    }
+
+    @Test
+    fun `submitted text replaces old composition without an extra empty commit`() {
+        assertEquals(
+            false,
+            BackspaceRouting.shouldRemoveOldEditorComposition(
+                hadComposition = true,
+                nextHasComposition = false,
+                committedText = "確定",
+            ),
+        )
+    }
+
+    @Test
+    fun `idle empty response has no old composition to remove`() {
+        assertEquals(
+            false,
+            BackspaceRouting.shouldRemoveOldEditorComposition(
+                hadComposition = false,
+                nextHasComposition = false,
+                committedText = "",
+            ),
+        )
+    }
 }
