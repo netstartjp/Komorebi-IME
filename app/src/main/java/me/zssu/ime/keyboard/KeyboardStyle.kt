@@ -35,11 +35,11 @@ enum class KeyboardStyle(private val kana: String, private val ascii: String) {
     }
 
     /**
-     * In mixed mode the bottom-left key remains the language switch even on the QWERTY alphabet
-     * plane. The symbol key moves one place right, matching the flick plane's left-edge behaviour.
+     * In QWERTY modes the bottom-left key remains the language switch, matching the flick plane's
+     * left-edge behaviour. The symbol key moves one place right.
      */
     fun adapt(layout: KeyboardLayout): KeyboardLayout {
-        if (this != MIXED || layout.id != QWERTY_ASCII) return layout
+        if ((this != MIXED && this != QWERTY) || layout.id != QWERTY_ASCII) return layout
         val last = layout.rows.lastOrNull() ?: return layout
         if (last.keys.size < 2) return layout
         val keys = last.keys.toMutableList()

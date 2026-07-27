@@ -76,8 +76,14 @@ class KeyboardStyleTest {
     }
 
     @Test
-    fun otherStylesKeepBundledOrder() {
-        assertSame(source, KeyboardStyle.QWERTY.adapt(source))
+    fun qwertyAlsoPutsLanguageSwitchAtBottomLeft() {
+        val adapted = KeyboardStyle.QWERTY.adapt(source)
+        assertEquals("かな", adapted.rows.last().keys[0].faceLabel)
+        assertEquals("?123", adapted.rows.last().keys[1].faceLabel)
+    }
+
+    @Test
+    fun flickKeepsBundledOrder() {
         assertSame(source, KeyboardStyle.FLICK.adapt(source))
     }
 }

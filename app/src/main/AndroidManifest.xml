@@ -47,6 +47,36 @@
             android:parentActivityName=".settings.SettingsActivity" />
 
         <activity
+            android:name=".settings.EngineDictActivity"
+            android:exported="false"
+            android:label="変換エンジン・辞書"
+            android:parentActivityName=".settings.SettingsActivity" />
+
+        <activity
+            android:name=".settings.InputSettingsActivity"
+            android:exported="false"
+            android:label="入力方式"
+            android:parentActivityName=".settings.SettingsActivity" />
+
+        <activity
+            android:name=".settings.AppearanceActivity"
+            android:exported="false"
+            android:label="外観"
+            android:parentActivityName=".settings.SettingsActivity" />
+
+        <activity
+            android:name=".settings.LearningActivity"
+            android:exported="false"
+            android:label="変換学習"
+            android:parentActivityName=".settings.SettingsActivity" />
+
+        <activity
+            android:name=".settings.AboutActivity"
+            android:exported="false"
+            android:label="Komorebi IME について"
+            android:parentActivityName=".settings.SettingsActivity" />
+
+        <activity
             android:name=".settings.VisualLayoutEditorActivity"
             android:exported="false"
             android:label="視覚的な配列エディタ"
