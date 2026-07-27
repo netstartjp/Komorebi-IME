@@ -24,7 +24,11 @@ import me.zssu.ime.settings.ImeSettings
  * phone (no mobile prediction, wrong segment sizing), so it is set once at session creation and
  * refreshed whenever the layout's [InputStyle] changes.
  */
-class MozcSession(context: Context) {
+class MozcSession(
+    context: Context,
+    private val priorityLookup: (reading: String, value: String) -> PriorityMatch =
+        { _, _ -> PriorityMatch.NONE },
+) {
 
     private val engine: MozcEngine? = MozcEngine.get(context)
 
@@ -62,6 +66,14 @@ class MozcSession(context: Context) {
         val deletable: Boolean = false,
         /** Used to keep supplementary user dictionaries from overwhelming live suggestions. */
         internal val fromUserDictionary: Boolean = false,
+        /** Reading currently present in the composition, used when explicitly pinning this value. */
+        val inputReading: String = "",
+        /** True only for candidates produced by Mozc's typo/spelling correction paths. */
+        internal val correction: Boolean = false,
+        /** True for a prediction whose reading differs from the current composition. */
+        internal val prediction: Boolean = false,
+        /** Explicit user priority; exact pins outrank fuzzy recovery matches. */
+        val priorityMatch: PriorityMatch = PriorityMatch.NONE,
     )
     data class Segment(val text: String, val highlighted: Boolean)
 
@@ -71,6 +83,8 @@ class MozcSession(context: Context) {
     private var incognito = false
     private var phoneToggleEnabled = false
     private var deletableCandidateIds: Set<Int> = emptySet()
+    /** Last literal composition reading, retained while conversion preedit displays kanji. */
+    private var lastInputReading = ""
 
     fun applyInputStyle(style: InputStyle) {
         requestedStyle = style
@@ -278,37 +292,11 @@ class MozcSession(context: Context) {
         engine?.deleteSession()
         requestedStyle = null
         currentStyle = null
+        lastInputReading = ""
     }
 
     private fun sendSessionCommand(type: SessionCommand.CommandType): State? =
         engine?.sendCommand(SessionCommand.newBuilder().setType(type).build())?.toState()
-
-    /**
-     * Whether candidate [id] is for a reading other than the one being typed.
-     *
-     * See [exactReadingFirst] for what is done with the answer.
-     *
-     * mozc's mobile prediction mixes two kinds of candidate into one list: conversions of exactly
-     * what was typed, and predictions that assume more typing to come. It ranks them together by
-     * cost, so a prediction routinely outranks the plain conversion — typing でんわ offers 電話番号
-     * above 電話, and あり offers ありだと above あり. That is useful when it guesses right and a
-     * nuisance when the word was already finished, which is the common case.
-     *
-     * `CandidateWord.key` is set exactly when the candidate's reading differs from the composition
-     * (it covers both longer readings like でんわばんごう and shorter partial ones like こんにち),
-     * so it is the signal for pushing those below the exact matches.
-     */
-    private fun Output.idsExtendingReading(reading: String): Set<Int> {
-        if (!hasAllCandidateWords()) return emptySet()
-        val metadata = allCandidateWords.candidatesList.take(CandidateRanking.MAX_LIVE_POOL_SIZE)
-        var ids: MutableSet<Int>? = null
-        for (word in metadata) {
-            if (word.hasKey() && word.key != reading) {
-                (ids ?: HashSet<Int>().also { ids = it }).add(word.id)
-            }
-        }
-        return ids ?: emptySet()
-    }
 
     private fun Output.toState(): State {
         val preeditText = StringBuilder()
@@ -318,11 +306,22 @@ class MozcSession(context: Context) {
             cursor = preedit.cursor
         }
 
+        val displayedPreedit = preeditText.toString()
+        val convertingOutput = hasCandidateWindow() &&
+            candidateWindow.category == Category.CONVERSION &&
+            candidateWindow.hasFocusedIndex()
+        if (displayedPreedit.isNotEmpty() && !convertingOutput) {
+            lastInputReading = displayedPreedit
+        }
+        val reading =
+            if (convertingOutput && lastInputReading.isNotEmpty()) lastInputReading
+            else displayedPreedit
         val candidateMetadata = if (hasAllCandidateWords()) {
             allCandidateWords.candidatesList.take(CandidateRanking.MAX_LIVE_POOL_SIZE)
         } else {
             emptyList()
         }
+        val metadataById = candidateMetadata.associateBy { it.id }
         if (hasAllCandidateWords()) {
             // The toolbar can display only a handful of candidates. Scanning and allocating
             // metadata for Mozc's entire result on every keystroke adds latency without changing
@@ -334,22 +333,33 @@ class MozcSession(context: Context) {
         } else if (!hasCandidateWindow()) {
             deletableCandidateIds = emptySet()
         }
-        val userDictionaryCandidateIds = if (candidateMetadata.isNotEmpty()) {
-            candidateMetadata.asSequence()
-                .filter { CandidateAttribute.USER_DICTIONARY in it.attributesList }
-                .map { it.id }
-                .toHashSet()
-        } else {
-            emptySet()
+        fun candidate(
+            id: Int,
+            value: String,
+            fallbackDeletable: Boolean = false,
+        ): Candidate {
+            val metadata = metadataById[id]
+            val attributes = metadata?.attributesList.orEmpty()
+            val corrected =
+                CandidateAttribute.TYPING_CORRECTION in attributes ||
+                    CandidateAttribute.SPELLING_CORRECTION in attributes
+            val differentReading = metadata?.hasKey() == true && metadata.key != reading
+            return Candidate(
+                id = id,
+                text = value,
+                deletable = fallbackDeletable ||
+                    CandidateAttribute.DELETABLE in attributes ||
+                    id in deletableCandidateIds,
+                fromUserDictionary = CandidateAttribute.USER_DICTIONARY in attributes,
+                inputReading = reading,
+                correction = corrected,
+                prediction = differentReading && !corrected,
+                priorityMatch = priorityLookup(reading, value),
+            )
         }
         val candidates = if (hasCandidateWindow()) {
             val visible = candidateWindow.candidateList.map {
-                Candidate(
-                    id = it.id,
-                    text = it.value,
-                    deletable = it.id in deletableCandidateIds,
-                    fromUserDictionary = it.id in userDictionaryCandidateIds,
-                )
+                candidate(it.id, it.value)
             }
 
             // User dictionaries intentionally receive a strong native ranking boost. That is right
@@ -367,12 +377,13 @@ class MozcSession(context: Context) {
                 val complete = if (hasAllCandidateWords()) {
                     allCandidateWords.candidatesList.asSequence()
                         .take(CandidateRanking.MAX_LIVE_POOL_SIZE)
+                        .filter { it.value.isNotEmpty() }
                         .map {
-                            Candidate(
+                            candidate(
                                 id = it.id,
-                                text = it.value,
-                                deletable = CandidateAttribute.DELETABLE in it.attributesList,
-                                fromUserDictionary = it.id in userDictionaryCandidateIds,
+                                value = it.value,
+                                fallbackDeletable =
+                                    CandidateAttribute.DELETABLE in it.attributesList,
                             )
                         }
                         .toList()
@@ -402,29 +413,19 @@ class MozcSession(context: Context) {
             emptyList()
         }
 
-        val reading = preeditText.toString()
-        val extending = idsExtendingReading(reading)
         val focusedId = if (hasCandidateWindow() && candidateWindow.hasFocusedIndex()) {
             candidates.getOrNull(candidateWindow.focusedIndex)?.id
         } else {
             null
         }
-        // exactReadingFirst is for live suggestions only — during explicit conversion or prediction
-        // with a focused item, mozc's own ranking order is intentional and should not be reordered.
-        val isLiveUnfocusedSuggestion = hasCandidateWindow() &&
-            candidateWindow.category == Category.SUGGESTION &&
-            !candidateWindow.hasFocusedIndex()
-        val (reordered, reorderedFocused) = if (isLiveUnfocusedSuggestion) {
-            exactReadingFirst(candidates, focusedId, extending::contains)
-        } else {
-            candidates to (focusedId?.let { id -> candidates.indexOfFirst { it.id == id } } ?: -1)
-        }
+        val reorderedFocused =
+            focusedId?.let { id -> candidates.indexOfFirst { it.id == id } } ?: -1
 
         return State(
             committedText = if (hasResult()) result.value else "",
-            preedit = preeditText.toString(),
+            preedit = displayedPreedit,
             preeditCursor = cursor.coerceIn(0, preeditText.length),
-            candidates = reordered,
+            candidates = candidates,
             focusedCandidateIndex = reorderedFocused,
             segments = segments,
             isConverting = hasCandidateWindow() &&
@@ -451,26 +452,28 @@ internal object FlickTableInput {
 }
 
 /**
- * Conservative client-side adjustment for the unfocused toolbar.
+ * Provenance-aware client-side adjustment for the unfocused Japanese toolbar.
  *
- * Native order is retained as a score and English user-dictionary entries receive only a bounded
- * delay. They are still available, but cannot displace every normal Japanese candidate merely
- * because supplemental dictionaries use Mozc's high-priority user-dictionary path.
+ * Explicit pins come first, followed by literal conversions, typo corrections, and predictions of
+ * text the user has not typed yet. Native order is stable within each lane. This prevents a more
+ * aggressive corrector from hiding intentional input while keeping genuine recovery candidates
+ * ahead of speculative completions.
  */
 internal object CandidateRanking {
     const val MAX_LIVE_POOL_SIZE = 32
     private const val LATIN_USER_DICTIONARY_PENALTY = 6
+    private const val LANE_STRIDE = 1_000
 
     fun rankLiveJapaneseSuggestions(
         candidates: List<MozcSession.Candidate>,
         limit: Int,
     ): List<MozcSession.Candidate> {
         if (limit <= 0 || candidates.isEmpty()) return emptyList()
-        if (candidates.none { containsJapaneseScript(it.text) }) return candidates.take(limit)
 
         return candidates.withIndex()
             .sortedBy { indexed ->
-                indexed.index + if (isLatinUserDictionaryEntry(indexed.value)) {
+                lane(indexed.value) * LANE_STRIDE +
+                    indexed.index + if (isLatinUserDictionaryEntry(indexed.value)) {
                     LATIN_USER_DICTIONARY_PENALTY
                 } else {
                     0
@@ -478,6 +481,14 @@ internal object CandidateRanking {
             }
             .map { it.value }
             .take(limit)
+    }
+
+    private fun lane(candidate: MozcSession.Candidate): Int = when {
+        candidate.priorityMatch == PriorityMatch.EXACT -> 0
+        candidate.priorityMatch == PriorityMatch.SIMILAR -> 1
+        !candidate.correction && !candidate.prediction -> 2
+        candidate.correction -> 3
+        else -> 4
     }
 
     private fun isLatinUserDictionaryEntry(candidate: MozcSession.Candidate): Boolean =
@@ -491,29 +502,4 @@ internal object CandidateRanking {
             ch in '\u4e00'..'\u9fff' || // CJK Unified Ideographs
             ch == '\u3005' || ch == '\u3006' || ch == '\u303b'
     }
-}
-
-/**
- * Moves the candidates that convert exactly what was typed ahead of the predictions.
- *
- * A stable partition, not a re-ranking: mozc's order within each group is left alone, because it
- * is the product of a language model this has no business second-guessing. All this decides is
- * that a finished word beats a guess about an unfinished one.
- *
- * Split out from the proto handling so the focus arithmetic can be tested — the focused index
- * points at a slot, and once the list is reordered that slot holds something else.
- *
- * @param focusedId the id of the focused candidate, or null when nothing is focused
- * @return the reordered list and the index the focus moved to, or -1 for none
- */
-internal fun exactReadingFirst(
-    candidates: List<MozcSession.Candidate>,
-    focusedId: Int?,
-    extendsReading: (Int) -> Boolean,
-): Pair<List<MozcSession.Candidate>, Int> {
-    val ordered =
-        if (candidates.none { extendsReading(it.id) }) candidates
-        else candidates.sortedBy { if (extendsReading(it.id)) 1 else 0 }
-    val focused = focusedId?.let { id -> ordered.indexOfFirst { it.id == id } } ?: -1
-    return ordered to focused
 }

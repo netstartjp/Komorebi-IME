@@ -81,6 +81,9 @@ class MeaningPopupView(context: Context) : FrameLayout(context) {
         definitions: List<String>,
         canDelete: Boolean,
         onDelete: (() -> Unit)?,
+        canPrioritize: Boolean,
+        isPrioritized: Boolean,
+        onTogglePriority: (() -> Unit)?,
     ) {
         card.removeAllViews()
         val pad = (12 * resources.displayMetrics.density).toInt()
@@ -141,9 +144,11 @@ class MeaningPopupView(context: Context) : FrameLayout(context) {
             orientation = LinearLayout.VERTICAL
         }
 
-        definitions.forEachIndexed { index, def ->
+        val displayedDefinitions =
+            definitions.ifEmpty { listOf("意味辞書には登録されていません") }
+        displayedDefinitions.forEachIndexed { index, def ->
             meaningsList.addView(TextView(context).apply {
-                text = "${index + 1}. $def"
+                text = if (definitions.isEmpty()) def else "${index + 1}. $def"
                 setTextColor(primaryTextColor)
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f)
                 setPadding(pad, pad / 3, pad, pad / 3)
@@ -152,6 +157,20 @@ class MeaningPopupView(context: Context) : FrameLayout(context) {
 
         scroll.addView(meaningsList)
         card.addView(scroll)
+
+        if (canPrioritize) {
+            card.addView(TextView(context).apply {
+                text = if (isPrioritized) "★ 最優先を解除" else "★ 最優先にする"
+                setTextColor(primaryTextColor)
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f)
+                setPadding(pad, pad, pad, pad / 2)
+                gravity = Gravity.CENTER
+                setOnClickListener {
+                    onTogglePriority?.invoke()
+                    hide()
+                }
+            })
+        }
 
         if (canDelete) {
             card.addView(TextView(context).apply {

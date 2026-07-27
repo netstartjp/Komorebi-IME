@@ -55,6 +55,7 @@ class ZinnaImeService : InputMethodService() {
     private lateinit var appProfiles: AppProfileStore
     private lateinit var emojiRepository: EmojiRepository
     private lateinit var meaningDictionaries: MeaningDictionaryRepository
+    private lateinit var priorityCandidates: PriorityCandidateRepository
     private lateinit var session: MozcSession
 
     private var keyboardView: FlickKeyboardView? = null
@@ -111,7 +112,8 @@ class ZinnaImeService : InputMethodService() {
         appProfiles = AppProfileStore(this)
         emojiRepository = EmojiRepository(this)
         meaningDictionaries = MeaningDictionaryRepository(this)
-        session = MozcSession(this)
+        priorityCandidates = PriorityCandidateRepository(this)
+        session = MozcSession(this, priorityCandidates::match)
         if (!session.isAvailable) {
             // Without the native engine there is nothing useful to do; the keyboard still renders
             // so the user can switch away rather than being stuck with a dead input field.
@@ -183,38 +185,57 @@ class ZinnaImeService : InputMethodService() {
             }
             onCandidateLongPressed = { candidate ->
                 val entries = meaningDictionaries.lookup(candidate.text)
-                if (entries.isEmpty()) {
-                    Toast.makeText(
-                        this@ZinnaImeService,
-                        "「${candidate.text}」は意味辞書に登録されていません",
-                        Toast.LENGTH_SHORT,
-                    ).show()
-                } else {
-                    val definitions = entries.flatMap { entry ->
-                        entry.meanings.map { meaning ->
-                            buildString {
-                                if (entry.tags.isNotEmpty()) append("[${entry.tags.joinToString("・")}] ")
-                                append(meaning)
-                                entry.source?.let { append(" — $it") }
-                            }
+                val definitions = entries.flatMap { entry ->
+                    entry.meanings.map { meaning ->
+                        buildString {
+                            if (entry.tags.isNotEmpty()) append("[${entry.tags.joinToString("・")}] ")
+                            append(meaning)
+                            entry.source?.let { append(" — $it") }
                         }
                     }
-                    val primaryReading = entries.firstOrNull()?.reading
-                    popupView.show(
-                        term = candidate.text,
-                        reading = primaryReading,
-                        definitions = definitions,
-                        canDelete = candidate.deletable,
-                        onDelete = {
-                            render(session.deleteCandidateFromHistory(candidate.id))
+                }
+                val exactPriority = candidate.priorityMatch == PriorityMatch.EXACT
+                popupView.show(
+                    term = candidate.text,
+                    reading = entries.firstOrNull()?.reading ?: candidate.inputReading,
+                    definitions = definitions,
+                    canDelete = candidate.deletable,
+                    onDelete = {
+                        render(session.deleteCandidateFromHistory(candidate.id))
+                        Toast.makeText(
+                            this@ZinnaImeService,
+                            "「${candidate.text}」を学習候補から削除しました",
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    },
+                    canPrioritize = candidate.inputReading.isNotEmpty(),
+                    isPrioritized = exactPriority,
+                    onTogglePriority = {
+                        val saved = if (exactPriority) {
+                            priorityCandidates.unpin(candidate.inputReading, candidate.text)
+                        } else {
+                            priorityCandidates.pin(candidate.inputReading, candidate.text)
+                        }
+                        if (saved) {
+                            refreshCandidatePriorities()
                             Toast.makeText(
                                 this@ZinnaImeService,
-                                "「${candidate.text}」を学習候補から削除しました",
+                                if (exactPriority) {
+                                    "「${candidate.text}」の最優先を解除しました"
+                                } else {
+                                    "「${candidate.text}」を最優先にしました"
+                                },
                                 Toast.LENGTH_SHORT,
                             ).show()
-                        },
-                    )
-                }
+                        } else {
+                            Toast.makeText(
+                                this@ZinnaImeService,
+                                "最優先設定を保存できませんでした",
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                        }
+                    },
+                )
             }
             onCandidateDeleteRequested = { candidate ->
                 render(session.deleteCandidateFromHistory(candidate.id))
@@ -763,6 +784,32 @@ class ZinnaImeService : InputMethodService() {
         lastCandidates = state.candidates
         lastFocusedCandidateIndex = state.focusedCandidateIndex
         candidateView?.setCandidates(state.candidates, state.focusedCandidateIndex)
+    }
+
+    /** Refreshes only explicit priority state; candidate ids and Mozc's conversion state stay put. */
+    private fun refreshCandidatePriorities() {
+        val focusedId = lastCandidates.getOrNull(lastFocusedCandidateIndex)?.id
+        lastCandidates = lastCandidates.map { candidate ->
+            candidate.copy(
+                priorityMatch = priorityCandidates.match(
+                    candidate.inputReading,
+                    candidate.text,
+                )
+            )
+        }.withIndex()
+            .sortedWith(
+                compareBy<IndexedValue<MozcSession.Candidate>> {
+                    when (it.value.priorityMatch) {
+                        PriorityMatch.EXACT -> 0
+                        PriorityMatch.SIMILAR -> 1
+                        PriorityMatch.NONE -> 2
+                    }
+                }.thenBy { it.index }
+            )
+            .map { it.value }
+        lastFocusedCandidateIndex =
+            focusedId?.let { id -> lastCandidates.indexOfFirst { it.id == id } } ?: -1
+        candidateView?.setCandidates(lastCandidates, lastFocusedCandidateIndex)
     }
 
     private fun effectiveKeyboardStyle() =

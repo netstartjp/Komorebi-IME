@@ -105,7 +105,13 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
         candidates.forEachIndexed { index, candidate ->
             val view = container.getChildAt(index) as TextView
             view.tag = candidate
-            if (view.text != candidate.text) view.text = candidate.text
+            val label = when {
+                candidate.priorityMatch != me.zssu.ime.ime.PriorityMatch.NONE ->
+                    "★ ${candidate.text}"
+                candidate.correction -> "補正 ${candidate.text}"
+                else -> candidate.text
+            }
+            if (view.text != label) view.text = label
         }
 
         if (focusedChild != focusedIndex) {
