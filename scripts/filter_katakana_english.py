@@ -69,7 +69,11 @@ PAREN = re.compile(r"\([^)]*\)")
 # What a plausible English spelling may contain once the annotations are gone.
 SPELLING = re.compile(r"[A-Za-z0-9][A-Za-z0-9 '\-.&/]*")
 
-THRESHOLD = 0.55
+# The gap observed in the source is fairly sharp: real loanword spellings normally score 0.67 or
+# better, while translations/glosses are generally 0.50 or worse. 0.55 admitted thousands of
+# semantically related English translations (e.g. あざらし -> "true seal"), which are especially
+# disruptive because this file is imported as a high-priority user dictionary.
+THRESHOLD = 0.67
 
 
 def romanize(kana):

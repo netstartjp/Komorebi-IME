@@ -72,8 +72,10 @@ KANA_KEYS = {
     "punc": ("#", ",", "?", "!", ">"),
 }
 
-# Same shape for toggle_flick-halfwidthascii. Down is the digit, matching the small numeral Gboard
-# prints under each letter group.
+# Same shape as Mozc's toggle_flick-halfwidthascii source table. The client closes Mozc's toggle
+# state after every resolved output, so the shipped keyboard is flick-only even though this table
+# supplies its characters. Down is the digit, matching the small numeral Gboard prints under each
+# letter group.
 ASCII_KEYS = {
     "at":   ("1", "-", "_", "/", "@"),
     "abc":  ("2", "b", "c", None, "|"),
@@ -88,8 +90,9 @@ ASCII_KEYS = {
     "punc": (".", ",", "?", "!", None),
 }
 
-# Symbol plane, as mozc's toggle_flick-number table keys. Every symbol is its own key there, so
-# these go through the table like any other character.
+# Symbol plane, using Mozc's toggle_flick-number table keys as a character source. The client closes
+# the toggle state after every output; every symbol is therefore selected only by its explicit
+# tap/flick direction.
 #
 # Gboard reaches this plane from the ☺記 key and nothing else — it does not scatter symbols across
 # the latin plane's spare flick directions. Following that keeps the latin keys predictable and

@@ -33,6 +33,11 @@ class MozcEngine private constructor() {
     fun installedDictionaries(context: Context): List<BundledDictionaries.Status> =
         BundledDictionaries.installed(context)
 
+    /** Enables or disables a named bundled dictionary. Safe to call on any thread. */
+    fun setBundledDictionaryActive(context: Context, assetName: String, active: Boolean) {
+        BundledDictionaries.setDictionaryActive(context, this, assetName, active)
+    }
+
     /** Creates a mozc session. Safe to call repeatedly; a live session is reused. */
     fun ensureSession(): Boolean = synchronized(lock) { ensureSessionLocked() }
 

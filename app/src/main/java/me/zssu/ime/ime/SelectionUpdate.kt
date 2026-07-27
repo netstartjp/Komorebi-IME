@@ -7,6 +7,20 @@ package me.zssu.ime.ime
 internal object SelectionUpdate {
 
     /**
+     * Resolves Mozc's cursor offset to an absolute editor position after [setComposingText] has
+     * temporarily placed the caret at the end of the composing span.
+     */
+    fun absolutePreeditCursor(
+        composingEnd: Int,
+        preeditLength: Int,
+        preeditCursor: Int,
+    ): Int {
+        val length = preeditLength.coerceAtLeast(0)
+        val cursor = preeditCursor.coerceIn(0, length)
+        return composingEnd - length + cursor
+    }
+
+    /**
      * A composing editor normally reports a collapsed selection at Mozc's cursor inside its
      * composing span. A different caret, a range selection, or a missing span means the editor
      * changed independently.

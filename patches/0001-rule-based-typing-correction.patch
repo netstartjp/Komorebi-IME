@@ -67,7 +67,7 @@ new file mode 100644
 index 000000000..171ceda4a
 --- /dev/null
 +++ b/src/engine/typing_correction_model.cc
-@@ -0,0 +1,239 @@
+@@ -0,0 +1,266 @@
 +#include "engine/typing_correction_model.h"
 +
 +#include <algorithm>
@@ -98,11 +98,11 @@ index 000000000..171ceda4a
 +// Long readings are usually deliberate, and each extra kana multiplies the candidate count.
 +constexpr size_t kMaxReadingLen = 12;
 +
-+// Every candidate costs the caller a full dictionary lookup — unigram, realtime, bigram and
-+// number aggregation — which measures at roughly 5 ms each on a desktop and several times that on
-+// a phone. Since prediction runs on every keystroke, this ceiling is a latency budget, and a tight
-+// one: 12 candidates made prediction six times slower.
-+constexpr size_t kMaxCandidates = 18;
++// Every candidate costs a full dictionary lookup. Keep the live suggestion path deliberately
++// smaller than explicit conversion: the former runs on every key, while the latter can spend more
++// work after the user asks for it.
++constexpr size_t kMaxRealtimeCandidates = 10;
++constexpr size_t kMaxConversionCandidates = 18;
 +
 +// Substitutions are only considered on the last few kana. A mistake further back has usually already
 +// been noticed and fixed by the user, and every extra position costs four candidates out of four.
@@ -123,6 +123,8 @@ index 000000000..171ceda4a
 +constexpr float kDistanceBiasScale = 0.04f;
 +constexpr float kTranspositionBias = -0.55f;
 +constexpr float kDroppedGeminateBias = -0.45f;
++constexpr float kDuplicateKanaBias = -0.35f;
++constexpr float kDroppedNasalBias = -0.65f;
 +
 +// Where each kana sits: which key, and which flick direction reaches it. Generated from the layout
 +// that actually ships (scripts/gen_flick_layout.py), so this cannot drift away from the keys.
@@ -207,6 +209,8 @@ index 000000000..171ceda4a
 +// whole point: a slip inside one key (0.5–1.0) outranks a hit on the neighbouring key (1.0), and
 +// both outrank the guesses below.
 +constexpr float kDroppedSokuonRank = 0.9f;
++constexpr float kDuplicateKanaRank = 0.65f;
++constexpr float kDroppedNasalRank = 1.15f;
 +constexpr float kTranspositionRank = 1.3f;
 +
 +// Added per kana of distance from the end of the reading. A mistake further back has usually been
@@ -275,6 +279,25 @@ index 000000000..171ceda4a
 +                 &seen, &hypotheses);
 +  }
 +
++  // An accidental double tap is both common and cheap to recognize: only equal adjacent kana are
++  // collapsed, so this does not spray arbitrary deletion hypotheses into the dictionary.
++  for (size_t i = 1; i < chars.size(); ++i) {
++    if (chars[i - 1] != chars[i]) continue;
++    std::vector<std::string> variant = chars;
++    variant.erase(variant.begin() + i);
++    AddCandidate(std::move(variant), kDuplicateKanaBias, kDuplicateKanaRank, key,
++                 &seen, &hypotheses);
++  }
++
++  // A missing ん is the other high-frequency one-kana omission. Restrict it to the recent window;
++  // dictionary and language-model lookup discard placements that do not form a real reading.
++  for (size_t i = slip_from; i < chars.size(); ++i) {
++    std::vector<std::string> variant = chars;
++    variant.insert(variant.begin() + i, "ん");
++    AddCandidate(std::move(variant), kDroppedNasalBias, kDroppedNasalRank, key,
++                 &seen, &hypotheses);
++  }
++
 +  // Adjacent transposition — two thumbs racing each other.
 +  for (size_t i = 0; i + 1 < chars.size(); ++i) {
 +    if (chars[i] == chars[i + 1]) continue;
@@ -291,7 +314,11 @@ index 000000000..171ceda4a
 +                   [](const Hypothesis &lhs, const Hypothesis &rhs) {
 +                     return lhs.rank < rhs.rank;
 +                   });
-+  if (hypotheses.size() > kMaxCandidates) hypotheses.resize(kMaxCandidates);
++  const size_t budget =
++      request.request_type() == ConversionRequest::CONVERSION
++          ? kMaxConversionCandidates
++          : kMaxRealtimeCandidates;
++  if (hypotheses.size() > budget) hypotheses.resize(budget);
 +
 +  std::vector<TypeCorrectedQuery> candidates;
 +  candidates.reserve(hypotheses.size());

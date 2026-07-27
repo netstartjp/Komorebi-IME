@@ -189,8 +189,10 @@ enum class InputStyle(
     FLICK_HALFWIDTH_ASCII(14, HALF_ASCII, fullWidthSpace = false),
 
     /**
-     * The Gboard-equivalent latin plane: one key per letter group, tapping repeatedly walks
-     * a→b→c and the '*' key walks case. Digits live on the down flick.
+     * The Gboard-equivalent latin plane: one key per letter group, with each letter assigned to an
+     * explicit flick direction. The underlying Mozc table also supports toggle input, but
+     * [me.zssu.ime.ime.MozcSession] closes that state after every key so repeated taps produce the
+     * centre letter repeatedly rather than walking a→b→c. Digits live on the down flick.
      */
     TOGGLE_FLICK_HALFWIDTH_ASCII(17, HALF_ASCII, fullWidthSpace = false),
 

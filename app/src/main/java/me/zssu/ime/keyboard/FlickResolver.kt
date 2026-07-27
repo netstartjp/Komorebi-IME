@@ -13,6 +13,35 @@ import kotlin.math.max
 object FlickResolver {
 
     /**
+     * Retains the farthest point of a gesture instead of only its release point.
+     *
+     * A thumb commonly travels in a shallow arc and may curl back toward the key before release.
+     * Keeping the peak excursion makes that curved motion resolve like the straight flick it was
+     * aiming for, without allocating a list of every MotionEvent sample.
+     */
+    class PathTracker(
+        private val originX: Float,
+        private val originY: Float,
+    ) {
+        var peakDx: Float = 0f
+            private set
+        var peakDy: Float = 0f
+            private set
+        private var peakDistanceSquared: Float = 0f
+
+        fun record(x: Float, y: Float) {
+            val dx = x - originX
+            val dy = y - originY
+            val distanceSquared = dx * dx + dy * dy
+            if (distanceSquared > peakDistanceSquared) {
+                peakDistanceSquared = distanceSquared
+                peakDx = dx
+                peakDy = dy
+            }
+        }
+    }
+
+    /**
      * @param key the key under the finger, used to reject directions it has nothing assigned to
      * @param dx horizontal travel from the touch-down point, in pixels
      * @param dy vertical travel, in pixels (screen coordinates: positive is down)

@@ -87,6 +87,7 @@ class FlickKeyboardView @JvmOverloads constructor(
         val key: PlacedKey,
         val downX: Float,
         val downY: Float,
+        val path: FlickResolver.PathTracker = FlickResolver.PathTracker(downX, downY),
         var direction: FlickDirection = FlickDirection.CENTER,
         /** Set for repeatable keys, which emit on press instead of on release. */
         var firedOnPress: Boolean = false,
@@ -109,6 +110,9 @@ class FlickKeyboardView @JvmOverloads constructor(
     }
     private val guideBackgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val guideLabelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
+    private val guideHitAreaPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+    }
 
     private val handler = Handler(Looper.getMainLooper())
     private var repeatRunnable: Runnable? = null
@@ -131,6 +135,7 @@ class FlickKeyboardView @JvmOverloads constructor(
         longPressPaint.color = theme.labelColor
         guideBackgroundPaint.color = theme.flickGuideColor
         guideLabelPaint.color = theme.flickGuideLabelColor
+        guideHitAreaPaint.color = theme.flickGuideSelectedLabelColor
         // The parent paints the panel — a colour, or the user's background image. Painting it here
         // too would cover that image with an opaque rectangle.
     }
@@ -185,13 +190,11 @@ class FlickKeyboardView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         val radius = theme.keyCornerRadiusDp * resources.displayMetrics.density
-        val pressedKeys = activeTouches.values.map { it.key }.toSet()
-
         for (placed in placedKeys) {
             // With flat keys only the pressed one gets a shape: the resting keys are their labels
             // and nothing else, so the panel (or the user's background image) shows through.
             val paint = when {
-                placed in pressedKeys -> keyPressedPaint
+                activeTouches.values.any { it.key === placed } -> keyPressedPaint
                 theme.flatKeys -> null
                 placed.spec.style == KeyStyle.CHARACTER -> keyPaint
                 else -> modifierPaint
@@ -226,18 +229,42 @@ class FlickKeyboardView @JvmOverloads constructor(
         // invisible, which is the one guide a user most needs to see.
         val shift = fitShift(cells.values)
 
+        for (rect in cells.values) rect.offset(shift.x, shift.y)
+
         for ((direction, rect) in cells) {
-            val output = touch.key.spec.output(direction) ?: continue
-            rect.offset(shift.x, shift.y)
+            if (touch.key.spec.output(direction) == null) continue
             val selected = direction == touch.direction
             guideBackgroundPaint.alpha = if (selected) 255 else 200
             canvas.drawRoundRect(rect, radius, radius, guideBackgroundPaint)
+        }
+
+        drawCharacterHitAreas(canvas, cells, touch.direction, radius)
+
+        for ((direction, rect) in cells) {
+            val output = touch.key.spec.output(direction) ?: continue
+            val selected = direction == touch.direction
             guideLabelPaint.color =
                 if (selected) theme.flickGuideSelectedLabelColor else theme.flickGuideLabelColor
             val baseline = rect.centerY() - (guideLabelPaint.descent() + guideLabelPaint.ascent()) / 2f
             canvas.drawText(output.label, rect.centerX(), baseline, guideLabelPaint)
         }
         guideBackgroundPaint.alpha = 255
+    }
+
+    /** Draws the selectable area around each actual character instead of abstract geometry. */
+    private fun drawCharacterHitAreas(
+        canvas: Canvas,
+        cells: Map<FlickDirection, RectF>,
+        selectedDirection: FlickDirection,
+        radius: Float,
+    ) {
+        val density = resources.displayMetrics.density
+        for ((direction, rect) in cells) {
+            guideHitAreaPaint.alpha = if (direction == selectedDirection) 230 else 120
+            guideHitAreaPaint.strokeWidth =
+                if (direction == selectedDirection) 2f * density else density
+            canvas.drawRoundRect(rect, radius, radius, guideHitAreaPaint)
+        }
     }
 
     private fun guideCells(touch: Touch): Map<FlickDirection, RectF> {
@@ -301,6 +328,12 @@ class FlickKeyboardView @JvmOverloads constructor(
 
             MotionEvent.ACTION_MOVE -> {
                 for (index in 0 until event.pointerCount) {
+                    for (historyIndex in 0 until event.historySize) {
+                        activeTouches[event.getPointerId(index)]?.path?.record(
+                            event.getHistoricalX(index, historyIndex),
+                            event.getHistoricalY(index, historyIndex),
+                        )
+                    }
                     onPointerMove(event.getPointerId(index), event.getX(index), event.getY(index))
                 }
             }
@@ -359,12 +392,16 @@ class FlickKeyboardView @JvmOverloads constructor(
 
     private fun onPointerMove(pointerId: Int, x: Float, y: Float) {
         val touch = activeTouches[pointerId] ?: return
-        val direction = resolveDirection(touch, x, y)
+        touch.path.record(x, y)
+        val direction = resolveDirection(touch)
         if (direction != touch.direction) {
             touch.direction = direction
-            // Once the finger leaves the centre the key is no longer a hold-to-repeat candidate.
-            cancelTimers()
+            cancelRepeat()
             invalidate()
+            if (touch.key.spec.repeatable && direction != FlickDirection.CENTER && !touch.longPressed) {
+                // Swiped to a flick direction on a repeatable key: keep repeating in that direction.
+                scheduleRepeat(touch, direction, skipInitialDelay = true)
+            }
         }
     }
 
@@ -375,19 +412,18 @@ class FlickKeyboardView @JvmOverloads constructor(
         invalidate()
     }
 
-    private fun resolveDirection(touch: Touch, x: Float, y: Float): FlickDirection =
+    private fun resolveDirection(touch: Touch): FlickDirection =
         FlickResolver.resolve(
             key = touch.key.spec,
-            dx = x - touch.downX,
-            dy = y - touch.downY,
+            dx = touch.path.peakDx,
+            dy = touch.path.peakDy,
             thresholdPx = flickThresholdPx,
         )
 
     private fun commit(touch: Touch) {
         if (touch.firedOnPress || touch.longPressed) return
-        // A flickable repeatable key that already repeated its centre on hold must not add one
-        // more on release; a resolved flick (non-centre) still emits normally.
-        if (touch.repeated && touch.direction == FlickDirection.CENTER) return
+        // A flickable repeatable key that already repeated on hold must not add one more on release.
+        if (touch.repeated) return
         emit(touch)
     }
 
@@ -442,20 +478,22 @@ class FlickKeyboardView @JvmOverloads constructor(
         return output.copy(label = upper, action = KeyAction.Input(upper))
     }
 
-    private fun scheduleRepeat(touch: Touch) {
+    private fun scheduleRepeat(touch: Touch, direction: FlickDirection = FlickDirection.CENTER, skipInitialDelay: Boolean = false) {
         val key = touch.key.spec
+        val output = key.output(direction) ?: return
+        val initialDelay = if (skipInitialDelay) REPEAT_INTERVAL_MS else REPEAT_DELAY_MS
         val runnable = object : Runnable {
             override fun run() {
                 touch.repeated = true
-                listener?.onKeyOutput(key.center, key, FlickDirection.CENTER)
                 if (theme.hapticFeedback) {
                     performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
                 }
+                emitOutput(output, key, direction)
                 handler.postDelayed(this, REPEAT_INTERVAL_MS)
             }
         }
         repeatRunnable = runnable
-        handler.postDelayed(runnable, REPEAT_DELAY_MS)
+        handler.postDelayed(runnable, initialDelay)
     }
 
     private fun scheduleLongPress(touch: Touch) {

@@ -1,7 +1,18 @@
 {
   "id": "basic_ja",
-  "label": "Komorebi 基本語彙",
+  "label": "難読漢字・熟語",
   "entries": [
+    {
+      "term": "IME",
+      "reading": "アイエムイー",
+      "meanings": [
+        "文字入力を補助し、読みを漢字などへ変換する入力方式エディタ。"
+      ],
+      "tags": [
+        "情報技術"
+      ],
+      "source": "Komorebi IME"
+    },
     {
       "term": "木漏れ日",
       "reading": "こもれび",
@@ -14,13 +25,6460 @@
       "source": "Komorebi IME"
     },
     {
-      "term": "IME",
-      "reading": "アイエムイー",
+      "term": "斎藤",
+      "reading": "さいとう",
       "meanings": [
-        "文字入力を補助し、読みを漢字などへ変換する入力方式エディタ。"
+        "日本の姓。"
       ],
       "tags": [
-        "情報技術"
+        "固有名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斉藤",
+      "reading": "さいとう",
+      "meanings": [
+        "日本の姓。「斎藤」の異体字表記。"
+      ],
+      "tags": [
+        "固有名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齋藤",
+      "reading": "さいとう",
+      "meanings": [
+        "日本の姓。「斎藤」の旧字体表記。"
+      ],
+      "tags": [
+        "固有名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎す",
+      "reading": "もたらす",
+      "meanings": [
+        "ある状態や結果を引き起こす。持ってくる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬",
+      "reading": "そご",
+      "meanings": [
+        "物事がうまくかみ合わないこと。食い違い。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "邂逅",
+      "reading": "かいこう",
+      "meanings": [
+        "思いがけなく出会うこと。巡り合い。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "忖度",
+      "reading": "そんたく",
+      "meanings": [
+        "他人の気持ちを推し量ること。おもんぱかり。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慇懃",
+      "reading": "いんぎん",
+      "meanings": [
+        "礼儀正しく丁寧なさま。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "無慙",
+      "reading": "むざん",
+      "meanings": [
+        "哀れで見るに忍びないさま。むごい。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斡旋",
+      "reading": "あっせん",
+      "meanings": [
+        "間に入って物事をとりもつこと。仲介。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "敷衍",
+      "reading": "ふえん",
+      "meanings": [
+        "意味を広げて詳しく説明すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "劈頭",
+      "reading": "へきとう",
+      "meanings": [
+        "物事の最初。冒頭。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹂躙",
+      "reading": "じゅうりん",
+      "meanings": [
+        "踏みにじること。他人の権利や尊厳を踏みにじる。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "顰蹙",
+      "reading": "ひんしゅく",
+      "meanings": [
+        "不快に思って眉をひそめること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜持",
+      "reading": "きょうじ",
+      "meanings": [
+        "自分の能力や価値を信じて持つ誇り。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜恃",
+      "reading": "きょうじ",
+      "meanings": [
+        "「矜持」に同じ。自分の能力や価値を信じる誇り。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蒙昧",
+      "reading": "もうまい",
+      "meanings": [
+        "知識がなく愚かなこと。無知。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "凱旋",
+      "reading": "がいせん",
+      "meanings": [
+        "戦いに勝って帰ること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "喧伝",
+      "reading": "けんでん",
+      "meanings": [
+        "大げさに言いふらすこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "喧噪",
+      "reading": "けんそう",
+      "meanings": [
+        "やかましく騒がしいこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "喧嘩",
+      "reading": "けんか",
+      "meanings": [
+        "言い争いや殴り合いをすること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦観",
+      "reading": "ていかん",
+      "meanings": [
+        "物事の本質を見極め、悟ること。あきらめ。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦念",
+      "reading": "ていねん",
+      "meanings": [
+        "あきらめの気持ち。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慚愧",
+      "reading": "ざんき",
+      "meanings": [
+        "自分の行いを恥じること。深く恥じ入る気持ち。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "愧死",
+      "reading": "きし",
+      "meanings": [
+        "恥じて死ぬこと。強い羞恥の表現。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "羞恥",
+      "reading": "しゅうち",
+      "meanings": [
+        "恥ずかしく思うこと。恥じらい。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "羞明",
+      "reading": "しゅうめい",
+      "meanings": [
+        "光を異常にまぶしく感じる症状。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慟哭",
+      "reading": "どうこく",
+      "meanings": [
+        "声をあげて激しく泣くこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "号泣",
+      "reading": "ごうきゅう",
+      "meanings": [
+        "大声をあげて泣くこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慇懃無礼",
+      "reading": "いんぎんぶれい",
+      "meanings": [
+        "表面的には丁寧だが、内心では見下している態度。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慇懃膠漆",
+      "reading": "いんぎんこうしつ",
+      "meanings": [
+        "男女の仲がきわめて親密なことのたとえ。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪",
+      "reading": "あくせく",
+      "meanings": [
+        "目先のことに追われて落ち着かないさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "軋轢",
+      "reading": "あつれき",
+      "meanings": [
+        "人と人との間の不和や摩擦。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "軋む",
+      "reading": "きしむ",
+      "meanings": [
+        "物と物がすれて音を立てる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齧る",
+      "reading": "かじる",
+      "meanings": [
+        "歯で少しずつかみとる。少しだけ学ぶ。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齧歯類",
+      "reading": "げっしるい",
+      "meanings": [
+        "ネズミやリスなど、前歯が伸び続ける哺乳類の一群。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎らす",
+      "reading": "もたらす",
+      "meanings": [
+        "「齎す」に同じ。ある結果を引き起こす。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斃れる",
+      "reading": "たおれる",
+      "meanings": [
+        "死ぬ。倒れる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斃死",
+      "reading": "へいし",
+      "meanings": [
+        "倒れて死ぬこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斃す",
+      "reading": "たおす",
+      "meanings": [
+        "倒す。殺す。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斃れる",
+      "reading": "たおれる",
+      "meanings": [
+        "倒れる。死ぬ。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斃仆",
+      "reading": "へいふ",
+      "meanings": [
+        "倒れること。転倒。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "彷彿",
+      "reading": "ほうふつ",
+      "meanings": [
+        "よく似ている様子がありありと浮かぶさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "髣髴",
+      "reading": "ほうふつ",
+      "meanings": [
+        "「彷彿」の別表記。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬",
+      "reading": "そご",
+      "meanings": [
+        "物事がかみ合わず食い違うこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬する",
+      "reading": "そごする",
+      "meanings": [
+        "食い違う。かみ合わない。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "颯爽",
+      "reading": "さっそう",
+      "meanings": [
+        "姿や態度がきりっとして気持ちよいさま。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "颯と",
+      "reading": "さっと",
+      "meanings": [
+        "動作がすばやいさま。風がさっと吹くさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "颯颯",
+      "reading": "さっさつ",
+      "meanings": [
+        "風の吹く音や、きびきびしたさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "軣々",
+      "reading": "ごうごう",
+      "meanings": [
+        "音がとどろき響くさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "軣音",
+      "reading": "ごうおん",
+      "meanings": [
+        "轟く大きな音。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齲歯",
+      "reading": "うし",
+      "meanings": [
+        "虫歯。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齲蝕",
+      "reading": "うしょく",
+      "meanings": [
+        "歯が溶けて虫歯になること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "澎湃",
+      "reading": "ほうはい",
+      "meanings": [
+        "水が勢いよくわきあがるさま。物事が盛んに起こるさま。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "瀟洒",
+      "reading": "しょうしゃ",
+      "meanings": [
+        "すっきりとあか抜けしているさま。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "瀟湘",
+      "reading": "しょうしょう",
+      "meanings": [
+        "中国湖南省の瀟水と湘江。転じて風光明媚な地。"
+      ],
+      "tags": [
+        "固有名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "瀟々",
+      "reading": "しょうしょう",
+      "meanings": [
+        "風雨の音がものさびしいさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "澎湃",
+      "reading": "ほうはい",
+      "meanings": [
+        "勢いよく湧き上がるさま。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "澎湖",
+      "reading": "ほうこ",
+      "meanings": [
+        "台湾海峡にある澎湖諸島。"
+      ],
+      "tags": [
+        "固有名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "澎湃",
+      "reading": "ほうはい",
+      "meanings": [
+        "水が激しく湧き上がる様子。勢いが盛んなこと。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠢く",
+      "reading": "うごめく",
+      "meanings": [
+        "虫などがもぞもぞ動く。陰で悪巧みする。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠢動",
+      "reading": "しゅんどう",
+      "meanings": [
+        "虫などがうごめくこと。不穏な動き。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑",
+      "reading": "こわく",
+      "meanings": [
+        "人の心を惑わし魅了すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑的",
+      "reading": "こわくてき",
+      "meanings": [
+        "人の心を惑わすほど魅力的なさま。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱毒",
+      "reading": "こどく",
+      "meanings": [
+        "虫を使った呪術の一種。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱る",
+      "reading": "まじる",
+      "meanings": [
+        "まじないをする。人を惑わす。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷く",
+      "reading": "あく",
+      "meanings": [
+        "歯を食いしばる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪",
+      "reading": "あくせく",
+      "meanings": [
+        "目先のことに追われて心が狭くなるさま。せかせかと動き回るさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪する",
+      "reading": "あくせくする",
+      "meanings": [
+        "せかせかと気ぜわしく働く。小事にこだわる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪と",
+      "reading": "あくせくと",
+      "meanings": [
+        "せかせかと。目先のことに追われて。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱",
+      "reading": "うつ",
+      "meanings": [
+        "気分が晴れず沈み込んだ状態。うつ病。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱病",
+      "reading": "うつびょう",
+      "meanings": [
+        "抑うつ気分や意欲低下が続く精神疾患。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱陶しい",
+      "reading": "うっとうしい",
+      "meanings": [
+        "気分が重くて晴れない。煩わしい。"
+      ],
+      "tags": [
+        "形容詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱蒼",
+      "reading": "うっそう",
+      "meanings": [
+        "樹木が生い茂って暗いさま。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱々",
+      "reading": "うつうつ",
+      "meanings": [
+        "心が晴れずふさぎこむさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱金",
+      "reading": "うこん",
+      "meanings": [
+        "ショウガ科の植物。カレーの黄色い色素。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱散",
+      "reading": "うっさん",
+      "meanings": [
+        "憂鬱な気分を晴らすこと。気晴らし。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎す",
+      "reading": "もたらす",
+      "meanings": [
+        "ある状態や結果を引き起こす。持ってくる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斃す",
+      "reading": "たおす",
+      "meanings": [
+        "ころす。倒す。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斃れ",
+      "reading": "たおれ",
+      "meanings": [
+        "倒れること。死ぬこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "朦朧",
+      "reading": "もうろう",
+      "meanings": [
+        "意識がはっきりしないさま。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "朦気",
+      "reading": "もうき",
+      "meanings": [
+        "かすみがかかったような大気の状態。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "朦朧体",
+      "reading": "もうろうたい",
+      "meanings": [
+        "ぼんやりした作風の文章の様式。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "朦朧とする",
+      "reading": "もうろうとする",
+      "meanings": [
+        "意識がぼんやりする。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "朦々",
+      "reading": "もうもう",
+      "meanings": [
+        "けむりやほこりが立ちこめてぼんやりしているさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "髣髴",
+      "reading": "ほうふつ",
+      "meanings": [
+        "「彷彿」の別表記。ありありと思い浮かぶさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "髣髴たる",
+      "reading": "ほうふつたる",
+      "meanings": [
+        "よく似ていてありありと思い浮かぶ。"
+      ],
+      "tags": [
+        "連体詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぎ合い",
+      "reading": "せめぎあい",
+      "meanings": [
+        "互いに激しく争うこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぐ",
+      "reading": "せめぐ",
+      "meanings": [
+        "互いに争う。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぎ",
+      "reading": "せめぎ",
+      "meanings": [
+        "互いに激しく争うこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩合う",
+      "reading": "せめぎあう",
+      "meanings": [
+        "互いに激しく競り合う。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魑魅魍魎",
+      "reading": "ちみもうりょう",
+      "meanings": [
+        "さまざまな化け物。私欲のために悪事を働く者たちのたとえ。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魑魅",
+      "reading": "ちみ",
+      "meanings": [
+        "山林の化け物。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魍魎",
+      "reading": "もうりょう",
+      "meanings": [
+        "山川の化け物。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘される",
+      "reading": "うなされる",
+      "meanings": [
+        "悪夢に襲われて苦しむ。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘夢",
+      "reading": "えんむ",
+      "meanings": [
+        "恐ろしい夢。悪夢。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘される",
+      "reading": "おそわれる",
+      "meanings": [
+        "夢に襲われて苦しむ。うなされる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘い",
+      "reading": "うなさい",
+      "meanings": [
+        "うなされるような。"
+      ],
+      "tags": [
+        "形容詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "贔屓",
+      "reading": "ひいき",
+      "meanings": [
+        "特定の人や物を特に引き立てること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "贔屓目",
+      "reading": "ひいきめ",
+      "meanings": [
+        "ひいきによって偏った見方。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "贔屓贔屓",
+      "reading": "ひいきびいき",
+      "meanings": [
+        "それぞれが自分のひいきを主張すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "贔屓筋",
+      "reading": "ひいきすじ",
+      "meanings": [
+        "ひいきにしてくれる人や方面。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "贔屓にする",
+      "reading": "ひいきにする",
+      "meanings": [
+        "特別に引き立てる。目をかける。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "贔負",
+      "reading": "ひいき",
+      "meanings": [
+        "「贔屓」に同じ。特定の者を引き立てること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齲く",
+      "reading": "うく",
+      "meanings": [
+        "歯が腐る。虫歯になる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齲歯",
+      "reading": "うし",
+      "meanings": [
+        "虫歯。むしば。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齲蝕",
+      "reading": "うしょく",
+      "meanings": [
+        "歯が酸などで溶かされて虫歯になる現象。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齲歯菌",
+      "reading": "うしきん",
+      "meanings": [
+        "虫歯の原因となる細菌。ミュータンス菌など。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齲歯予防",
+      "reading": "うしようぼう",
+      "meanings": [
+        "虫歯にならないように予防すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齲歯治療",
+      "reading": "うしちりょう",
+      "meanings": [
+        "虫歯の治療。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘われる",
+      "reading": "うなされる",
+      "meanings": [
+        "「魘される」に同じ。悪夢にうなされる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷く",
+      "reading": "くく",
+      "meanings": [
+        "歯を食いしばる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹌踉",
+      "reading": "そうろう",
+      "meanings": [
+        "足元がおぼつかずよろめくさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹌踉めく",
+      "reading": "よろめく",
+      "meanings": [
+        "足元がふらつく。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹌踉と",
+      "reading": "そうろうと",
+      "meanings": [
+        "ふらふらと。よろよろと。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躊躇",
+      "reading": "ちゅうちょ",
+      "meanings": [
+        "あれこれ迷って決心がつかないこと。ためらい。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躊躇う",
+      "reading": "ためらう",
+      "meanings": [
+        "決心がつかず迷う。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躊躇なく",
+      "reading": "ちゅうちょなく",
+      "meanings": [
+        "ためらうことなく。迷わず。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躊躇い",
+      "reading": "ためらい",
+      "meanings": [
+        "心が決まらず迷う気持ち。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躊躇わしい",
+      "reading": "ためらわしい",
+      "meanings": [
+        "ためらいを感じさせるさま。"
+      ],
+      "tags": [
+        "形容詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躊躇躊躇",
+      "reading": "ちゅうちょちゅうちょ",
+      "meanings": [
+        "何度もためらうさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躊躇する",
+      "reading": "ちゅうちょする",
+      "meanings": [
+        "決心がつかず迷う。ためらう。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躓く",
+      "reading": "つまずく",
+      "meanings": [
+        "歩いていて足をとられてよろける。途中で失敗する。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躓き",
+      "reading": "つまずき",
+      "meanings": [
+        "つまずくこと。失敗や挫折。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躓く石",
+      "reading": "つまずくいし",
+      "meanings": [
+        "つまずきの原因となる障害物。失敗のもと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躓きの石",
+      "reading": "つまずきのいし",
+      "meanings": [
+        "進行を妨げる障害。つまずきの原因。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躓き転ぶ",
+      "reading": "つまずきころぶ",
+      "meanings": [
+        "つまずいて転倒する。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躓くこと",
+      "reading": "つまずくこと",
+      "meanings": [
+        "進行上の障害や失敗。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躓き躓き",
+      "reading": "つまずきつまずき",
+      "meanings": [
+        "何度もつまずきながら進むさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躙る",
+      "reading": "にじる",
+      "meanings": [
+        "ひざまずいて少しずつ前に進む。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹂躙",
+      "reading": "じゅうりん",
+      "meanings": [
+        "踏みにじること。他者の権利や尊厳を侵害すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹂躙する",
+      "reading": "じゅうりんする",
+      "meanings": [
+        "踏みにじる。力で押さえつけて侵害する。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹂躙される",
+      "reading": "じゅうりんされる",
+      "meanings": [
+        "踏みにじられる。権利を侵害される。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹂躙者",
+      "reading": "じゅうりんしゃ",
+      "meanings": [
+        "他者を踏みにじる者。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹂躙的",
+      "reading": "じゅうりんてき",
+      "meanings": [
+        "踏みにじるような。暴力的な。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躙り寄る",
+      "reading": "にじりよる",
+      "meanings": [
+        "ひざまずいて少しずつ近づく。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躙り口",
+      "reading": "にじりぐち",
+      "meanings": [
+        "茶室の小さな入口。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躙り出る",
+      "reading": "にじりでる",
+      "meanings": [
+        "ひざまずいたまま出る。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬する",
+      "reading": "そごする",
+      "meanings": [
+        "食い違う。かみ合わない。矛盾する。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬を来す",
+      "reading": "そごをきたす",
+      "meanings": [
+        "食い違いが生じる。不具合が起こる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬なく",
+      "reading": "そごなく",
+      "meanings": [
+        "食い違いなく。問題なく。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬感",
+      "reading": "そごかん",
+      "meanings": [
+        "かみ合わない感じ。違和感。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬のない",
+      "reading": "そごのない",
+      "meanings": [
+        "食い違いのない。矛盾のない。"
+      ],
+      "tags": [
+        "連体詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬の有無",
+      "reading": "そごのうむ",
+      "meanings": [
+        "食い違いがあるかどうか。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬箇所",
+      "reading": "そごかしょ",
+      "meanings": [
+        "食い違いのある部分。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬点",
+      "reading": "そごてん",
+      "meanings": [
+        "食い違いのある点。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺",
+      "reading": "めん",
+      "meanings": [
+        "小麦粉などをこねて細長く切った食品。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺類",
+      "reading": "めんるい",
+      "meanings": [
+        "うどん・そば・ラーメンなど麺の総称。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺棒",
+      "reading": "めんぼう",
+      "meanings": [
+        "生地をのばすための棒。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺麭",
+      "reading": "めんぽう",
+      "meanings": [
+        "麺を炒めて焼いた中国の点心。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺屋",
+      "reading": "めんや",
+      "meanings": [
+        "麺料理を出す店。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺つゆ",
+      "reading": "めんつゆ",
+      "meanings": [
+        "麺類にかけるつゆ。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺料理",
+      "reading": "めんりょうり",
+      "meanings": [
+        "麺を使った料理の総称。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺打ち",
+      "reading": "めんうち",
+      "meanings": [
+        "麺を手作りすること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺生地",
+      "reading": "めんきじ",
+      "meanings": [
+        "麺を作るためのこねた生地。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎し",
+      "reading": "もたらし",
+      "meanings": [
+        "齎すこと。もたらすこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎し手",
+      "reading": "もたらして",
+      "meanings": [
+        "何かをもたらす人や物。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎す者",
+      "reading": "もたらすもの",
+      "meanings": [
+        "何かを引き起こす者。もたらす存在。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎される",
+      "reading": "もたらされる",
+      "meanings": [
+        "ある結果などが引き起こされる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎し得る",
+      "reading": "もたらしうる",
+      "meanings": [
+        "もたらすことができる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎される結果",
+      "reading": "もたらされるけっか",
+      "meanings": [
+        "引き起こされる結果。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎し得ない",
+      "reading": "もたらしえない",
+      "meanings": [
+        "もたらすことができない。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎すべき",
+      "reading": "もたらすべき",
+      "meanings": [
+        "もたらすのが当然である。引き起こすべき。"
+      ],
+      "tags": [
+        "連体詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘夢",
+      "reading": "えんむ",
+      "meanings": [
+        "恐ろしい夢。悪夢。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘される夜",
+      "reading": "うなされるよる",
+      "meanings": [
+        "悪夢にうなされる夜。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘される夢",
+      "reading": "うなされるゆめ",
+      "meanings": [
+        "うなされてしまう悪い夢。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘す",
+      "reading": "えんす",
+      "meanings": [
+        "おそわれる。悪夢を見せる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱金色",
+      "reading": "うこんいろ",
+      "meanings": [
+        "ターメリックのような黄色。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱金香",
+      "reading": "うこんこう",
+      "meanings": [
+        "鬱金の香り。ウコンの芳香。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱金粉",
+      "reading": "うこんこ",
+      "meanings": [
+        "ウコンを粉末にした香辛料。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱金染め",
+      "reading": "うこんぞめ",
+      "meanings": [
+        "ウコンで黄色く染めること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱金茶",
+      "reading": "うこんちゃ",
+      "meanings": [
+        "ウコンを入れたお茶。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱金飯",
+      "reading": "うこんめし",
+      "meanings": [
+        "ウコンで黄色く色付けしたご飯。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷く",
+      "reading": "くく",
+      "meanings": [
+        "歯を食いしばる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷い",
+      "reading": "くい",
+      "meanings": [
+        "歯を食いしばるさま。"
+      ],
+      "tags": [
+        "形容詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪感",
+      "reading": "あくせくかん",
+      "meanings": [
+        "あくせくしている感じ。落ち着かない雰囲気。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪と働く",
+      "reading": "あくせくとはたらく",
+      "meanings": [
+        "目先のことに追われてせかせかと働く。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪した",
+      "reading": "あくせくした",
+      "meanings": [
+        "あくせくしていた。せかせかと気ぜわしかった。"
+      ],
+      "tags": [
+        "連体詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪しない",
+      "reading": "あくせくしない",
+      "meanings": [
+        "あくせくしない。のんびりしている。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘される子ども",
+      "reading": "うなされるこども",
+      "meanings": [
+        "悪夢にうなされている子ども。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘される声",
+      "reading": "うなされるこえ",
+      "meanings": [
+        "悪夢を見て苦しそうに発する声。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘されて",
+      "reading": "うなされて",
+      "meanings": [
+        "悪夢に苦しめられて。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘されない",
+      "reading": "うなされない",
+      "meanings": [
+        "悪夢にうなされない。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぎ合う",
+      "reading": "せめぎあう",
+      "meanings": [
+        "互いに激しく争う。競り合う。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぎ合いの末",
+      "reading": "せめぎあいのすえ",
+      "meanings": [
+        "激しい競り合いの結果。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぎ合いを続ける",
+      "reading": "せめぎあいをつづける",
+      "meanings": [
+        "互いの争いや競争を続ける。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぎ合う両者",
+      "reading": "せめぎあうりょうしゃ",
+      "meanings": [
+        "互いに激しく争う二者。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぎ合う関係",
+      "reading": "せめぎあうかんけい",
+      "meanings": [
+        "互いに競り合う関係。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱の症状",
+      "reading": "うつのしょうじょう",
+      "meanings": [
+        "うつ病による症状。気分の落ち込み、意欲低下など。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱状態",
+      "reading": "うつじょうたい",
+      "meanings": [
+        "抑うつ気分が強く活動が低下した状態。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱が晴れる",
+      "reading": "うつがはれる",
+      "meanings": [
+        "憂鬱な気分がなくなる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱傾向",
+      "reading": "うつけいこう",
+      "meanings": [
+        "うつ状態になりやすい傾向。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱改善",
+      "reading": "うつかいぜん",
+      "meanings": [
+        "うつ症状が良くなること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱予防",
+      "reading": "うつよぼう",
+      "meanings": [
+        "うつ病にならないように予防すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱感",
+      "reading": "うつかん",
+      "meanings": [
+        "憂鬱な感じ。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱的",
+      "reading": "うつてき",
+      "meanings": [
+        "憂鬱なさま。鬱の傾向がある。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑的",
+      "reading": "こわくてき",
+      "meanings": [
+        "人の心を惑わすほど魅力的なさま。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑的だ",
+      "reading": "こわくてきだ",
+      "meanings": [
+        "人の心を惑わすほど魅力的である。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑的な笑み",
+      "reading": "こわくてきなえみ",
+      "meanings": [
+        "人を惑わすような魅惑的な笑顔。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑的な瞳",
+      "reading": "こわくてきなひとみ",
+      "meanings": [
+        "人を惑わすような魅力的な目。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑的な声",
+      "reading": "こわくてきなこえ",
+      "meanings": [
+        "人を魅了するような声。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑的な香り",
+      "reading": "こわくてきなかおり",
+      "meanings": [
+        "人を惑わすような魅力的な香り。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑される",
+      "reading": "こわくされる",
+      "meanings": [
+        "魅了されて惑わされる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑に満ちた",
+      "reading": "こわくにみちた",
+      "meanings": [
+        "魅了する力に満ちている。"
+      ],
+      "tags": [
+        "連体詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪しないで",
+      "reading": "あくせくしないで",
+      "meanings": [
+        "せかせかせずに。ゆったりと。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪せずに",
+      "reading": "あくせくせずに",
+      "meanings": [
+        "あせらず落ち着いて。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪し過ぎる",
+      "reading": "あくせくしすぎる",
+      "meanings": [
+        "目先のことに追われ過ぎる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪しなくても",
+      "reading": "あくせくしなくても",
+      "meanings": [
+        "せかせかしなくても問題ないさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魑魅魍魎の世界",
+      "reading": "ちみもうりょうのせかい",
+      "meanings": [
+        "さまざまな悪者や化け物が跳梁する世界。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魑魅魍魎が跋扈する",
+      "reading": "ちみもうりょうがばっこする",
+      "meanings": [
+        "悪人や怪物がのさばる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魑魅の森",
+      "reading": "ちみのもり",
+      "meanings": [
+        "化け物が潜む森。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魍魎の淵",
+      "reading": "もうりょうのふち",
+      "meanings": [
+        "怪物が潜む深い淵。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魑魅退治",
+      "reading": "ちみたいじ",
+      "meanings": [
+        "化け物を退治すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魍魎退散",
+      "reading": "もうりょうたいさん",
+      "meanings": [
+        "怪物が退散すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魑魅魍魎の跋扈",
+      "reading": "ちみもうりょうのばっこ",
+      "meanings": [
+        "悪人がのさばり振る舞うこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷く",
+      "reading": "くく",
+      "meanings": [
+        "歯を食いしばる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱毒の術",
+      "reading": "こどくのじゅつ",
+      "meanings": [
+        "虫を使った呪いの術。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱毒師",
+      "reading": "こどくし",
+      "meanings": [
+        "蠱毒を使う呪術師。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱毒を用いる",
+      "reading": "こどくをもちいる",
+      "meanings": [
+        "虫を使った呪術を使う。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱毒に倒れる",
+      "reading": "こどくにたおれる",
+      "meanings": [
+        "蠱毒の呪いで倒れる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱毒封じ",
+      "reading": "こどくふうじ",
+      "meanings": [
+        "蠱毒の呪いを封じること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱毒返し",
+      "reading": "こどくがえし",
+      "meanings": [
+        "蠱毒の呪いを術者に跳ね返すこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱毒の鉢",
+      "reading": "こどくのはち",
+      "meanings": [
+        "蠱毒を作るための虫を入れる鉢。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱毒虫",
+      "reading": "こどくちゅう",
+      "meanings": [
+        "蠱毒に使われる虫。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺打ち名人",
+      "reading": "めんうちめいじん",
+      "meanings": [
+        "麺を手作りするのが非常に上手い人。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺打ち修行",
+      "reading": "めんうちしゅぎょう",
+      "meanings": [
+        "麺作りの技術を修行すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺打ち道具",
+      "reading": "めんうちどうぐ",
+      "meanings": [
+        "麺を手作りするための道具一式。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺打ち台",
+      "reading": "めんうちだい",
+      "meanings": [
+        "麺を打つための作業台。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺打ち教室",
+      "reading": "めんうちきょうしつ",
+      "meanings": [
+        "麺の手作りを教える教室。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺打ち体験",
+      "reading": "めんうちたいけん",
+      "meanings": [
+        "麺の手作りを体験すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹂躙の跡",
+      "reading": "じゅうりんのあと",
+      "meanings": [
+        "踏み荒らされた跡。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹂躙される土地",
+      "reading": "じゅうりんされるとち",
+      "meanings": [
+        "踏み荒らされる土地。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹂躙国家",
+      "reading": "じゅうりんこっか",
+      "meanings": [
+        "他国を踏みにじる国家。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹂躙戦術",
+      "reading": "じゅうりんせんじゅつ",
+      "meanings": [
+        "相手を徹底的に踏みにじる戦術。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹂躙行為",
+      "reading": "じゅうりんこうい",
+      "meanings": [
+        "踏みにじるような行為。他者の権利を侵害する行為。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹂躙され尽くす",
+      "reading": "じゅうりんされつくす",
+      "meanings": [
+        "完全に踏みにじられる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蹂躙に遭う",
+      "reading": "じゅうりんにあう",
+      "meanings": [
+        "踏みにじられる被害に遭う。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬を生じる",
+      "reading": "そごをしょうじる",
+      "meanings": [
+        "食い違いが生まれる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬が生じる",
+      "reading": "そごがしょうじる",
+      "meanings": [
+        "食い違いが起こる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬を解消する",
+      "reading": "そごをかいしょうする",
+      "meanings": [
+        "食い違いをなくす。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬が残る",
+      "reading": "そごがのこる",
+      "meanings": [
+        "食い違いが解消されずに残る。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬を確認する",
+      "reading": "そごをかくにんする",
+      "meanings": [
+        "食い違いがないか確認する。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬を起こす",
+      "reading": "そごをおこす",
+      "meanings": [
+        "食い違いを引き起こす。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬の修正",
+      "reading": "そごのしゅうせい",
+      "meanings": [
+        "食い違いを修正すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齟齬管理",
+      "reading": "そごかんり",
+      "meanings": [
+        "食い違いを管理し解消する業務。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺活",
+      "reading": "めんかつ",
+      "meanings": [
+        "麺料理を楽しむ活動。ラーメン巡りなど。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺バカ",
+      "reading": "めんばか",
+      "meanings": [
+        "麺料理に異常にこだわる人。麺マニア。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺マニア",
+      "reading": "めんまにあ",
+      "meanings": [
+        "麺料理に強いこだわりを持つ愛好家。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺テイスト",
+      "reading": "めんていすと",
+      "meanings": [
+        "麺料理の味わいを探求する人。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺道",
+      "reading": "めんどう",
+      "meanings": [
+        "麺料理を極める道。麺作りの道。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺食い",
+      "reading": "めんくい",
+      "meanings": [
+        "麺料理が大好きな人。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺好き",
+      "reading": "めんずき",
+      "meanings": [
+        "麺料理が好きな人。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "麺フェチ",
+      "reading": "めんふぇち",
+      "meanings": [
+        "麺料理に強い執着を持つ人。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱気味",
+      "reading": "うつぎみ",
+      "meanings": [
+        "やや鬱の傾向があること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱気分",
+      "reading": "うつきぶん",
+      "meanings": [
+        "憂鬱な気分。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱転",
+      "reading": "うつてん",
+      "meanings": [
+        "気分が憂鬱な方向に転じること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱発作",
+      "reading": "うつほっさ",
+      "meanings": [
+        "突然に鬱症状が強く現れること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱ケア",
+      "reading": "うつけあ",
+      "meanings": [
+        "鬱症状に対するケアや対応。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱日記",
+      "reading": "うつにっき",
+      "meanings": [
+        "鬱症状の経過を記録する日記。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱抜け",
+      "reading": "うつぬけ",
+      "meanings": [
+        "鬱状態から抜け出すこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱リハビリ",
+      "reading": "うつりはびり",
+      "meanings": [
+        "鬱からの回復を目指すリハビリテーション。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪しがち",
+      "reading": "あくせくしがち",
+      "meanings": [
+        "せかせかしやすい傾向がある。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪ぐせ",
+      "reading": "あくせくぐせ",
+      "meanings": [
+        "せかせかしてしまう癖。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪しやすい",
+      "reading": "あくせくしやすい",
+      "meanings": [
+        "せかせかしがちである。"
+      ],
+      "tags": [
+        "形容詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斃れる",
+      "reading": "たおれる",
+      "meanings": [
+        "倒れる。死ぬ。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斃死体",
+      "reading": "へいしたい",
+      "meanings": [
+        "倒れて死んだ体。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斃れ伏す",
+      "reading": "たおれふす",
+      "meanings": [
+        "倒れて伏せる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斃れ込む",
+      "reading": "たおれこむ",
+      "meanings": [
+        "倒れてそのまま動けなくなる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斃死する",
+      "reading": "へいしする",
+      "meanings": [
+        "倒れて死ぬ。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斃死者",
+      "reading": "へいししゃ",
+      "meanings": [
+        "倒れて死んだ者。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斃死数",
+      "reading": "へいしすう",
+      "meanings": [
+        "倒れて死んだ者の数。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "斃死率",
+      "reading": "へいしりつ",
+      "meanings": [
+        "倒れて死ぬ割合。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎す力",
+      "reading": "もたらすちから",
+      "meanings": [
+        "何かを引き起こす力。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎す変化",
+      "reading": "もたらすへんか",
+      "meanings": [
+        "引き起こされる変化。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎す恩恵",
+      "reading": "もたらすおんけい",
+      "meanings": [
+        "もたらされる恵みや利益。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎す影響",
+      "reading": "もたらすえいきょう",
+      "meanings": [
+        "引き起こされる影響。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎す結果",
+      "reading": "もたらすけっか",
+      "meanings": [
+        "引き起こされる結果。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎す災い",
+      "reading": "もたらすわざわい",
+      "meanings": [
+        "引き起こされる災難。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎す価値",
+      "reading": "もたらすかち",
+      "meanings": [
+        "生み出される価値。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎す幸福",
+      "reading": "もたらすこうふく",
+      "meanings": [
+        "もたらされる幸福。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躊躇なく進む",
+      "reading": "ちゅうちょなくすすむ",
+      "meanings": [
+        "迷わずに前進する。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躊躇わずに",
+      "reading": "ためらわずに",
+      "meanings": [
+        "迷うことなく。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躊躇いながら",
+      "reading": "ためらいながら",
+      "meanings": [
+        "迷いつつも。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躊躇の末に",
+      "reading": "ちゅうちょのすえに",
+      "meanings": [
+        "迷ったあげくに。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躊躇の色",
+      "reading": "ちゅうちょのいろ",
+      "meanings": [
+        "迷いの表情や様子。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躊躇を見せる",
+      "reading": "ちゅうちょをみせる",
+      "meanings": [
+        "迷っている態度を見せる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躊躇が消える",
+      "reading": "ちゅうちょがきえる",
+      "meanings": [
+        "迷いがなくなる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躊躇なく決断する",
+      "reading": "ちゅうちょなくけつだんする",
+      "meanings": [
+        "迷わずに決める。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躓きから学ぶ",
+      "reading": "つまずきからまなぶ",
+      "meanings": [
+        "失敗や挫折から教訓を得る。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躓きを乗り越える",
+      "reading": "つまずきをのりこえる",
+      "meanings": [
+        "失敗や挫折を克服する。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躓きを恐れない",
+      "reading": "つまずきをおそれない",
+      "meanings": [
+        "失敗を怖がらない。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躓きのない道",
+      "reading": "つまずきのないみち",
+      "meanings": [
+        "障害のない平坦な道。順調な道のり。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躓きの多い人生",
+      "reading": "つまずきのおおいじんせい",
+      "meanings": [
+        "失敗や挫折の多い人生。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躓きながらも",
+      "reading": "つまずきながらも",
+      "meanings": [
+        "失敗を繰り返しながらも。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躓きの連続",
+      "reading": "つまずきのれんぞく",
+      "meanings": [
+        "失敗が続くこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躓きのたびに",
+      "reading": "つまずきのたびに",
+      "meanings": [
+        "失敗するごとに。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躙り寄る敵",
+      "reading": "にじりよるてき",
+      "meanings": [
+        "少しずつ近づいてくる敵。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躙り寄る影",
+      "reading": "にじりよるかげ",
+      "meanings": [
+        "忍び寄る不気味な影。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躙り寄られる",
+      "reading": "にじりよられる",
+      "meanings": [
+        "少しずつ近づかれる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躙り寄せて",
+      "reading": "にじりよせて",
+      "meanings": [
+        "にじり寄って。ひざで進ませて。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躙り込み",
+      "reading": "にじりこみ",
+      "meanings": [
+        "ひざでにじり入ること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躙り込む",
+      "reading": "にじりこむ",
+      "meanings": [
+        "ひざでにじって中に入る。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躙り座る",
+      "reading": "にじりすわる",
+      "meanings": [
+        "にじって座り込む。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "躙りつく",
+      "reading": "にじりつく",
+      "meanings": [
+        "ひざでにじってぴったり近づく。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪人生",
+      "reading": "あくせくじんせい",
+      "meanings": [
+        "目先のことでせかせかしている人生。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪気質",
+      "reading": "あくせくきしつ",
+      "meanings": [
+        "せかせかしやすい性格。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪体質",
+      "reading": "あくせくたいしつ",
+      "meanings": [
+        "あくせくしやすい体質や傾向。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪気味",
+      "reading": "あくせくぎみ",
+      "meanings": [
+        "ややあくせくしている傾向。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪せず",
+      "reading": "あくせくせず",
+      "meanings": [
+        "せかせかしないで。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱気",
+      "reading": "うつき",
+      "meanings": [
+        "憂鬱な気配。どんよりした雰囲気。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱気候",
+      "reading": "うつきこう",
+      "meanings": [
+        "気分が滅入るような天候。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱気天気",
+      "reading": "うつきてんき",
+      "meanings": [
+        "憂鬱になるような天気。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱気空間",
+      "reading": "うつきくうかん",
+      "meanings": [
+        "憂鬱な雰囲気の空間。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱気ムード",
+      "reading": "うつきむーど",
+      "meanings": [
+        "憂鬱な雰囲気。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱気感",
+      "reading": "うつきかん",
+      "meanings": [
+        "憂鬱な感じ。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぐ",
+      "reading": "せめぐ",
+      "meanings": [
+        "互いに争う。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぎ",
+      "reading": "せめぎ",
+      "meanings": [
+        "互いに激しく争うこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩争",
+      "reading": "せめぎそう",
+      "meanings": [
+        "互いに激しく争うこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩み合い",
+      "reading": "せめぎあい",
+      "meanings": [
+        "激しい競り合い。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩合",
+      "reading": "せめぎあい",
+      "meanings": [
+        "互いに激しく争うこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩闘",
+      "reading": "せめぎとう",
+      "meanings": [
+        "互いに死力を尽くして争うこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩戦",
+      "reading": "せめぎせん",
+      "meanings": [
+        "互いに激しく戦うこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩乱",
+      "reading": "せめぎらん",
+      "meanings": [
+        "互いに争って混乱すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑的な魅力",
+      "reading": "こわくてきなみりょく",
+      "meanings": [
+        "人を惑わすほどの魅力。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑の微笑",
+      "reading": "こわくのびしょう",
+      "meanings": [
+        "人を魅了する微笑み。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑の術",
+      "reading": "こわくのじゅつ",
+      "meanings": [
+        "人を魅了し惑わす術。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑の罠",
+      "reading": "こわくのわな",
+      "meanings": [
+        "人を惑わす魅力ある罠。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑犯",
+      "reading": "こわくはん",
+      "meanings": [
+        "魅力で人を惑わす犯罪。魅惑による詐欺など。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑師",
+      "reading": "こわくし",
+      "meanings": [
+        "人を魅了し惑わす者。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑女",
+      "reading": "こわくじょ",
+      "meanings": [
+        "男を惑わす魅力的な女性。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蠱惑男",
+      "reading": "こわくだん",
+      "meanings": [
+        "女を惑わす魅力的な男性。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘され声",
+      "reading": "うなされごえ",
+      "meanings": [
+        "悪夢にうなされて出す苦しそうな声。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘され泣き",
+      "reading": "うなされなき",
+      "meanings": [
+        "うなされて泣くこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘され汗",
+      "reading": "うなされあせ",
+      "meanings": [
+        "悪夢にうなされてかく汗。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘され病",
+      "reading": "うなされびょう",
+      "meanings": [
+        "悪夢にうなされる症状が続く状態。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘され気味",
+      "reading": "うなされぎみ",
+      "meanings": [
+        "やや悪夢にうなされがちな状態。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘され防止",
+      "reading": "うなされぼうし",
+      "meanings": [
+        "悪夢にうなされないようにする対策。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘され安眠",
+      "reading": "うなされあんみん",
+      "meanings": [
+        "悪夢にうなされずに安らかに眠ること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘される",
+      "reading": "うなされる",
+      "meanings": [
+        "悪夢に襲われて苦しむ。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齎し",
+      "reading": "もたらし",
+      "meanings": [
+        "何かをもたらすこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魘す",
+      "reading": "おそわれす",
+      "meanings": [
+        "おそわれる。悪夢に襲われる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷く",
+      "reading": "しがむ",
+      "meanings": [
+        "歯を食いしばる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齲い",
+      "reading": "むしばい",
+      "meanings": [
+        "虫歯になったような。虫歯の。"
+      ],
+      "tags": [
+        "形容詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぎ合いの渦",
+      "reading": "せめぎあいのうず",
+      "meanings": [
+        "激しい争いが渦巻く状況。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぎ合いの場",
+      "reading": "せめぎあいのば",
+      "meanings": [
+        "互いに激しく争う場。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぎ合いの時代",
+      "reading": "せめぎあいのじだい",
+      "meanings": [
+        "激しい競争が繰り広げられる時代。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぎ合いの歴史",
+      "reading": "せめぎあいのれきし",
+      "meanings": [
+        "互いに争ってきた歴史。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぎ合いの中",
+      "reading": "せめぎあいのなか",
+      "meanings": [
+        "激しい競争の最中で。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬩ぎ合いを抜けて",
+      "reading": "せめぎあいをぬけて",
+      "meanings": [
+        "激しい競争を乗り越えて。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱蒼",
+      "reading": "うっそう",
+      "meanings": [
+        "樹木が生い茂って薄暗いさま。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鬱蒼とした",
+      "reading": "うっそうとした",
+      "meanings": [
+        "樹木が生い茂って暗い。"
+      ],
+      "tags": [
+        "連体詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齲歯検診",
+      "reading": "うしけんしん",
+      "meanings": [
+        "虫歯の有無を調べる検診。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齲蝕検出",
+      "reading": "うしょくけんしゅつ",
+      "meanings": [
+        "虫歯の進行を検出すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齲蝕抑制",
+      "reading": "うしょくよくせい",
+      "meanings": [
+        "虫歯の進行を抑えること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齲蝕リスク",
+      "reading": "うしょくりすく",
+      "meanings": [
+        "虫歯になる危険性。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齲蝕なし",
+      "reading": "うしょくなし",
+      "meanings": [
+        "虫歯がないこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齲蝕あり",
+      "reading": "うしょくあり",
+      "meanings": [
+        "虫歯があること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魑魅魍魎退治",
+      "reading": "ちみもうりょうたいじ",
+      "meanings": [
+        "さまざまな怪物や悪人を退治すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魑魅魍魎図",
+      "reading": "ちみもうりょうず",
+      "meanings": [
+        "魑魅魍魎を描いた図。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魑魅魍魎絵巻",
+      "reading": "ちみもうりょうえまき",
+      "meanings": [
+        "魑魅魍魎を描いた絵巻物。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魑魅魍魎百鬼",
+      "reading": "ちみもうりょうひゃっき",
+      "meanings": [
+        "さまざまな怪物たち。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魑魅魍魎横行",
+      "reading": "ちみもうりょうおうこう",
+      "meanings": [
+        "悪人がのさばり歩くこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "魑魅魍魎跳梁",
+      "reading": "ちみもうりょうちょうりょう",
+      "meanings": [
+        "悪人が好き放題にふるまうこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷く",
+      "reading": "くうく",
+      "meanings": [
+        "歯を食いしばる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齪く",
+      "reading": "せまく",
+      "meanings": [
+        "せかせかする。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷い",
+      "reading": "くい",
+      "meanings": [
+        "歯を食いしばるような。"
+      ],
+      "tags": [
+        "形容詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齪い",
+      "reading": "せまい",
+      "meanings": [
+        "せかせかした。"
+      ],
+      "tags": [
+        "形容詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪感満載",
+      "reading": "あくせくかんまんさい",
+      "meanings": [
+        "あくせくした感じがとても強いさま。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪感ゼロ",
+      "reading": "あくせくかんぜろ",
+      "meanings": [
+        "あくせくした感じが全くないさま。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "齷齪感半端ない",
+      "reading": "あくせくかんはんぱない",
+      "meanings": [
+        "あくせく感が非常に強い。"
+      ],
+      "tags": [
+        "形容詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "邂逅",
+      "reading": "かいこう",
+      "meanings": [
+        "思いがけなく出会うこと。巡り合い。",
+        "長い間離れていた人と偶然再会すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "邂逅する",
+      "reading": "かいこうする",
+      "meanings": [
+        "思いがけず出会う。偶然巡り合う。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "邂逅を果たす",
+      "reading": "かいこうをはたす",
+      "meanings": [
+        "運命的な再会を実現する。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "邂逅の瞬間",
+      "reading": "かいこうのしゅんかん",
+      "meanings": [
+        "思いがけず出会った瞬間。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "邂逅物語",
+      "reading": "かいこうものがたり",
+      "meanings": [
+        "偶然の出会いを描いた物語。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "奇蹟的邂逅",
+      "reading": "きせきてきかいこう",
+      "meanings": [
+        "奇跡のような偶然の出会い。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "邂逅せし",
+      "reading": "かいこうせし",
+      "meanings": [
+        "出会った。邂逅した（文語的表現）。"
+      ],
+      "tags": [
+        "連体詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "俯瞰",
+      "reading": "ふかん",
+      "meanings": [
+        "高い所から見下ろすこと。全体を大局的に見ること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "俯瞰する",
+      "reading": "ふかんする",
+      "meanings": [
+        "高い所から見下ろす。全体を見渡す。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "俯瞰図",
+      "reading": "ふかんず",
+      "meanings": [
+        "上空から見下ろしたように描いた図。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "俯瞰的",
+      "reading": "ふかんてき",
+      "meanings": [
+        "全体を見渡すような。大局的な。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "俯瞰視点",
+      "reading": "ふかんしてん",
+      "meanings": [
+        "高い所から見下ろすような視点。メタ的な視点。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "俯瞰力",
+      "reading": "ふかんりょく",
+      "meanings": [
+        "物事を大局的に捉える能力。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "俯瞰撮影",
+      "reading": "ふかんさつえい",
+      "meanings": [
+        "上空から見下ろすように撮影すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "俯瞰するように",
+      "reading": "ふかんするように",
+      "meanings": [
+        "高い所から見下ろすように。全体を見渡すように。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鳥瞰",
+      "reading": "ちょうかん",
+      "meanings": [
+        "鳥が空から見下ろすように全体を見渡すこと。俯瞰。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鳥瞰図",
+      "reading": "ちょうかんず",
+      "meanings": [
+        "上空から見たように描かれた地図や絵。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "鳥瞰的",
+      "reading": "ちょうかんてき",
+      "meanings": [
+        "鳥の目線で全体を見渡すような。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "俯瞰鳥瞰",
+      "reading": "ふかんちょうかん",
+      "meanings": [
+        "高い位置から全体を見渡すこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "敷衍",
+      "reading": "ふえん",
+      "meanings": [
+        "意味を押し広げて詳しく説明すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "敷衍する",
+      "reading": "ふえんする",
+      "meanings": [
+        "詳しく説明する。意味を広げて述べる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "敷衍して言えば",
+      "reading": "ふえんしていえば",
+      "meanings": [
+        "詳しく言い換えれば。かみ砕いて言うと。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "敷衍説明",
+      "reading": "ふえんせつめい",
+      "meanings": [
+        "意味を広げて詳しく行う説明。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "敷衍的",
+      "reading": "ふえんてき",
+      "meanings": [
+        "詳しく説明を加えるような。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "敷衍化",
+      "reading": "ふえんか",
+      "meanings": [
+        "内容を詳しく展開すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "敷衍可能",
+      "reading": "ふえんかのう",
+      "meanings": [
+        "さらに詳しく説明できること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "敷衍的解釈",
+      "reading": "ふえんてきかいしゃく",
+      "meanings": [
+        "意味を広げて行う解釈。拡大解釈。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "劈頭",
+      "reading": "へきとう",
+      "meanings": [
+        "物事の最初。冒頭。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "劈頭に",
+      "reading": "へきとうに",
+      "meanings": [
+        "最初に。真っ先に。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "劈頭から",
+      "reading": "へきとうから",
+      "meanings": [
+        "最初から。冒頭から。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "劈頭第一",
+      "reading": "へきとうだいいち",
+      "meanings": [
+        "何よりもまず第一に。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "劈頭言",
+      "reading": "へきとうげん",
+      "meanings": [
+        "最初に発する言葉。冒頭の言葉。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "劈頭の一句",
+      "reading": "へきとうのいっく",
+      "meanings": [
+        "最初の一言。話の出だしの一句。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "劈頭陳述",
+      "reading": "へきとうちんじゅつ",
+      "meanings": [
+        "冒頭で行う陳述。最初の主張。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "劈頭劈頭",
+      "reading": "へきとうへきとう",
+      "meanings": [
+        "次々と最初に。あれもこれも第一に。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "羞恥心",
+      "reading": "しゅうちしん",
+      "meanings": [
+        "恥ずかしいと感じる心。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "羞恥の念",
+      "reading": "しゅうちのねん",
+      "meanings": [
+        "恥ずかしく思う気持ち。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "羞恥に耐える",
+      "reading": "しゅうちにたえる",
+      "meanings": [
+        "恥ずかしさをこらえる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "羞恥で赤面する",
+      "reading": "しゅうちでせきめんする",
+      "meanings": [
+        "あまりの恥ずかしさに顔が赤くなる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "羞恥を感じる",
+      "reading": "しゅうちをかんじる",
+      "meanings": [
+        "恥ずかしい気持ちを抱く。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "羞恥文化",
+      "reading": "しゅうちぶんか",
+      "meanings": [
+        "恥を重視する文化。日本文化の特徴の一つとされる。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "羞恥の情",
+      "reading": "しゅうちのじょう",
+      "meanings": [
+        "恥ずかしく思う感情。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "羞恥を覚える",
+      "reading": "しゅうちをおぼえる",
+      "meanings": [
+        "恥ずかしさを感じる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慚愧に堪えない",
+      "reading": "ざんきにたえない",
+      "meanings": [
+        "非常に恥ずかしくてたまらない。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慚愧の念",
+      "reading": "ざんきのねん",
+      "meanings": [
+        "自分の行いを恥じる気持ち。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慚愧の涙",
+      "reading": "ざんきのなみだ",
+      "meanings": [
+        "自分の行いを恥じて流す涙。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慚愧汗顔",
+      "reading": "ざんきかんがん",
+      "meanings": [
+        "恥ずかしさで顔に汗をかくこと。非常に恥じ入る様子。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慚愧無地",
+      "reading": "ざんきむち",
+      "meanings": [
+        "恥ずかしさのあまり身の置き所がないこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慚愧羞恥",
+      "reading": "ざんきしゅうち",
+      "meanings": [
+        "深く恥じ入ること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慚愧感激",
+      "reading": "ざんきかんげき",
+      "meanings": [
+        "恥じ入るとともに深く感激すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "愧死に堪えない",
+      "reading": "きしにたえない",
+      "meanings": [
+        "非常に恥ずかしく死にたいほどである。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "愧死の思い",
+      "reading": "きしのおもい",
+      "meanings": [
+        "死にたいほど恥ずかしい気持ち。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "愧死愧死",
+      "reading": "きしきし",
+      "meanings": [
+        "非常に恥ずかしくてたまらないさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蒙昧無知",
+      "reading": "もうまいむち",
+      "meanings": [
+        "知識がなく愚かなこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蒙昧なる",
+      "reading": "もうまいなる",
+      "meanings": [
+        "無知で愚かな。"
+      ],
+      "tags": [
+        "連体詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蒙昧時代",
+      "reading": "もうまいじだい",
+      "meanings": [
+        "人々が無知だった時代。未開の時代。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蒙昧を脱する",
+      "reading": "もうまいをだっする",
+      "meanings": [
+        "無知な状態から抜け出す。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蒙昧蒙昧",
+      "reading": "もうまいもうまい",
+      "meanings": [
+        "非常に無知で愚かなさま。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蒙昧さ",
+      "reading": "もうまいさ",
+      "meanings": [
+        "無知で愚かであること。その度合い。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蒙昧思想",
+      "reading": "もうまいしそう",
+      "meanings": [
+        "無知で愚かな考え方。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蒙昧蒙昧たる",
+      "reading": "もうまいもうまいたる",
+      "meanings": [
+        "まったく無知な。"
+      ],
+      "tags": [
+        "連体詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "凱旋門",
+      "reading": "がいせんもん",
+      "meanings": [
+        "戦勝を記念して建てられた門。パリの凱旋門が有名。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "凱旋将軍",
+      "reading": "がいせんしょうぐん",
+      "meanings": [
+        "戦いに勝って帰還した将軍。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "凱旋行進",
+      "reading": "がいせんこうしん",
+      "meanings": [
+        "勝利を祝って行う行進。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "凱旋パレード",
+      "reading": "がいせんぱれーど",
+      "meanings": [
+        "勝利を祝うパレード。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "凱旋公演",
+      "reading": "がいせんこうえん",
+      "meanings": [
+        "海外での成功を受けて帰国後に行う公演。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "凱旋帰国",
+      "reading": "がいせんきこく",
+      "meanings": [
+        "勝利や成功を収めて帰国すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "凱旋する",
+      "reading": "がいせんする",
+      "meanings": [
+        "戦いに勝って帰る。成功を収めて戻る。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "凱旋将軍の如く",
+      "reading": "がいせんしょうぐんのごとく",
+      "meanings": [
+        "勝利した将軍のように堂々と。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦観の境地",
+      "reading": "ていかんのきょうち",
+      "meanings": [
+        "すべてを悟りきった心境。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦観する",
+      "reading": "ていかんする",
+      "meanings": [
+        "本質を見極めて悟る。あきらめる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦観的",
+      "reading": "ていかんてき",
+      "meanings": [
+        "悟りきったような。すべてを見切ったような。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦観の念",
+      "reading": "ていかんのねん",
+      "meanings": [
+        "悟りきった気持ち。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦観に達する",
+      "reading": "ていかんにたっする",
+      "meanings": [
+        "悟りの境地に達する。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦観哲学",
+      "reading": "ていかんてつがく",
+      "meanings": [
+        "すべてをあるがままに受け入れる哲学。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦観諦念",
+      "reading": "ていかんていねん",
+      "meanings": [
+        "すべてを悟りあきらめること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦観者",
+      "reading": "ていかんしゃ",
+      "meanings": [
+        "悟りきった人。すべてを見切った人。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦念",
+      "reading": "ていねん",
+      "meanings": [
+        "あきらめること。悟りの気持ち。諦観。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦念を抱く",
+      "reading": "ていねんをいだく",
+      "meanings": [
+        "あきらめの気持ちを持つ。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦念の涙",
+      "reading": "ていねんのなみだ",
+      "meanings": [
+        "あきらめきって流す涙。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦念的",
+      "reading": "ていねんてき",
+      "meanings": [
+        "あきらめの気持ちに満ちた。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦念の微笑",
+      "reading": "ていねんのびしょう",
+      "meanings": [
+        "すべてをあきらめた者の静かな微笑み。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦念に沈む",
+      "reading": "ていねんにしずむ",
+      "meanings": [
+        "深いあきらめの気持ちに沈む。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "諦念諦念",
+      "reading": "ていねんていねん",
+      "meanings": [
+        "深くあきらめているさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慟哭する",
+      "reading": "どうこくする",
+      "meanings": [
+        "声をあげて激しく泣く。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慟哭の声",
+      "reading": "どうこくのこえ",
+      "meanings": [
+        "激しく泣き叫ぶ声。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慟哭の涙",
+      "reading": "どうこくのなみだ",
+      "meanings": [
+        "激しく泣いて流す涙。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慟哭に咽ぶ",
+      "reading": "どうこくにむせぶ",
+      "meanings": [
+        "激しい泣き声にむせぶ。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慟哭慟哭",
+      "reading": "どうこくどうこく",
+      "meanings": [
+        "声をあげて泣き続けるさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慟哭の場",
+      "reading": "どうこくのば",
+      "meanings": [
+        "多くの人が激しく泣いている場面。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慟哭慟哭たる",
+      "reading": "どうこくどうこくたる",
+      "meanings": [
+        "声をあげて激しく泣いている。"
+      ],
+      "tags": [
+        "連体詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慟哭号泣",
+      "reading": "どうこくごうきゅう",
+      "meanings": [
+        "大声をあげて激しく泣くこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "号泣する",
+      "reading": "ごうきゅうする",
+      "meanings": [
+        "大声をあげて泣く。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "号泣必至",
+      "reading": "ごうきゅうひっし",
+      "meanings": [
+        "必ず号泣してしまうこと。感動で泣けること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "号泣もの",
+      "reading": "ごうきゅうもの",
+      "meanings": [
+        "泣ける話や作品（俗語）。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "号泣注意",
+      "reading": "ごうきゅうちゅうい",
+      "meanings": [
+        "涙が出るほど感動するので注意が必要なこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "号泣不可避",
+      "reading": "ごうきゅうふかひ",
+      "meanings": [
+        "泣くのは避けられない（俗語的表現）。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "号泣必至の名作",
+      "reading": "ごうきゅうひっしのめいさく",
+      "meanings": [
+        "必ず泣ける名作。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "号泣映画",
+      "reading": "ごうきゅうえいが",
+      "meanings": [
+        "見ると号泣してしまう映画。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "号泣必至の結末",
+      "reading": "ごうきゅうひっしのけつまつ",
+      "meanings": [
+        "必ず泣ける終わり方。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "号泣号泣",
+      "reading": "ごうきゅうごうきゅう",
+      "meanings": [
+        "泣きに泣きまくるさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "猖獗",
+      "reading": "しょうけつ",
+      "meanings": [
+        "悪い物事が盛んに横行すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "猖獗を極める",
+      "reading": "しょうけつをきわめる",
+      "meanings": [
+        "悪事がこの上なく横行する。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "猖獗する",
+      "reading": "しょうけつする",
+      "meanings": [
+        "悪事が盛んに行われる。はびこる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "悪疫猖獗",
+      "reading": "あくえきしょうけつ",
+      "meanings": [
+        "悪い病気が流行すること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "猖獗状態",
+      "reading": "しょうけつじょうたい",
+      "meanings": [
+        "悪事が横行している状態。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "猖獗猖獗",
+      "reading": "しょうけつしょうけつ",
+      "meanings": [
+        "悪事が非常に盛んなさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "猖獗を防ぐ",
+      "reading": "しょうけつをふせぐ",
+      "meanings": [
+        "悪事の横行を防ぐ。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "猖獗の勢い",
+      "reading": "しょうけつのいきおい",
+      "meanings": [
+        "悪事が盛んに行われる勢い。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "嗟嘆",
+      "reading": "さたん",
+      "meanings": [
+        "嘆き悲しむこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "嗟嘆する",
+      "reading": "さたんする",
+      "meanings": [
+        "嘆き悲しむ。深く嘆く。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "嗟嘆の声",
+      "reading": "さたんのこえ",
+      "meanings": [
+        "嘆き悲しむ声。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "嗟嘆に堪えない",
+      "reading": "さたんにたえない",
+      "meanings": [
+        "嘆かずにはいられない。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "嗟嘆の的",
+      "reading": "さたんのまと",
+      "meanings": [
+        "多くの人に嘆かれる対象。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "嗟嘆嗟嘆",
+      "reading": "さたんさたん",
+      "meanings": [
+        "深く嘆き悲しむさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "嗟嘆の余地",
+      "reading": "さたんのよち",
+      "meanings": [
+        "嘆くべき点。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "嗟嘆すべき",
+      "reading": "さたんすべき",
+      "meanings": [
+        "嘆かずにはいられない。嘆くべき。"
+      ],
+      "tags": [
+        "連体詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "呟き",
+      "reading": "つぶやき",
+      "meanings": [
+        "小声で独り言を言うこと。小さな声での発言。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "呟く",
+      "reading": "つぶやく",
+      "meanings": [
+        "小声で独り言を言う。ぶつぶつ言う。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "呟き声",
+      "reading": "つぶやきごえ",
+      "meanings": [
+        "小さくつぶやく声。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "呟きがち",
+      "reading": "つぶやきがち",
+      "meanings": [
+        "独り言を言いやすい傾向。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "呟きながら",
+      "reading": "つぶやきながら",
+      "meanings": [
+        "小さく独り言を言いつつ。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "呟き続ける",
+      "reading": "つぶやきつづける",
+      "meanings": [
+        "ぶつぶつと言い続ける。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "呟きを漏らす",
+      "reading": "つぶやきをもらす",
+      "meanings": [
+        "思わず独り言を言ってしまう。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "呟き口調",
+      "reading": "つぶやきくちょう",
+      "meanings": [
+        "ぶつぶつと独り言を言うような口調。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "囁き",
+      "reading": "ささやき",
+      "meanings": [
+        "声をひそめて言うこと。ひそひそ話。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "囁く",
+      "reading": "ささやく",
+      "meanings": [
+        "小さな声で話す。耳打ちする。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "囁き声",
+      "reading": "ささやきごえ",
+      "meanings": [
+        "ひそひそとした小さな声。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "囁き合う",
+      "reading": "ささやきあう",
+      "meanings": [
+        "互いに小さな声で話し合う。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "愛の囁き",
+      "reading": "あいのささやき",
+      "meanings": [
+        "恋人同士が交わす小さな声での愛の言葉。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "囁き言葉",
+      "reading": "ささやきことば",
+      "meanings": [
+        "ひそひそとした話し言葉。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "囁きかける",
+      "reading": "ささやきかける",
+      "meanings": [
+        "相手に小声で話しかける。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "囁き囁き",
+      "reading": "ささやきささやき",
+      "meanings": [
+        "ひそひそと話し続けるさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "戦慄",
+      "reading": "せんりつ",
+      "meanings": [
+        "恐ろしさで体が震えること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "戦慄する",
+      "reading": "せんりつする",
+      "meanings": [
+        "恐ろしさで身震いする。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "戦慄を覚える",
+      "reading": "せんりつをおぼえる",
+      "meanings": [
+        "恐怖で震えを感じる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "戦慄が走る",
+      "reading": "せんりつがはしる",
+      "meanings": [
+        "突然強い恐怖を感じる。背筋が凍る。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "戦慄の瞬間",
+      "reading": "せんりつのしゅんかん",
+      "meanings": [
+        "恐怖で震え上がる瞬間。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "戦慄ホラー",
+      "reading": "せんりつほらー",
+      "meanings": [
+        "恐怖で震え上がるようなホラー作品。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "戦慄を禁じ得ない",
+      "reading": "せんりつをきんじえない",
+      "meanings": [
+        "恐怖で震えずにはいられない。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "戦慄戦慄",
+      "reading": "せんりつせんりつ",
+      "meanings": [
+        "恐ろしさで震え続けるさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄然",
+      "reading": "りつぜん",
+      "meanings": [
+        "恐ろしさでぞっとするさま。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄然とする",
+      "reading": "りつぜんとする",
+      "meanings": [
+        "恐ろしさでぞっとする。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄然たる",
+      "reading": "りつぜんたる",
+      "meanings": [
+        "恐ろしくてぞっとするような。"
+      ],
+      "tags": [
+        "連体詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄然慄然",
+      "reading": "りつぜんりつぜん",
+      "meanings": [
+        "非常に恐ろしくて震え上がるさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄然の思い",
+      "reading": "りつぜんのおもい",
+      "meanings": [
+        "ぞっとするような恐ろしい気持ち。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄然として",
+      "reading": "りつぜんとして",
+      "meanings": [
+        "恐ろしさでぞっとしながら。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄然戦慄",
+      "reading": "りつぜんせんりつ",
+      "meanings": [
+        "恐ろしさで体が震えること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄然とさせる",
+      "reading": "りつぜんとさせる",
+      "meanings": [
+        "相手をぞっとさせる。恐がらせる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慟哭慄然",
+      "reading": "どうこくりつぜん",
+      "meanings": [
+        "泣き叫び震え上がるほど恐ろしいこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慴く",
+      "reading": "すく",
+      "meanings": [
+        "恐れる。おじけづく。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慴かす",
+      "reading": "おびやかす",
+      "meanings": [
+        "おどかす。怖がらせる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慴慴",
+      "reading": "しょうしょう",
+      "meanings": [
+        "恐れてびくびくするさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慴伏",
+      "reading": "しょうふく",
+      "meanings": [
+        "恐れてひれ伏すこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慴嚇",
+      "reading": "しょうかく",
+      "meanings": [
+        "おどして怖がらせること。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慴動",
+      "reading": "しょうどう",
+      "meanings": [
+        "恐れて震え動くこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慴かされる",
+      "reading": "おびやかされる",
+      "meanings": [
+        "脅される。怖がらせられる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慴れ上がる",
+      "reading": "おそれあがる",
+      "meanings": [
+        "非常に恐れる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慴慴兢兢",
+      "reading": "しょうしょうきょうきょう",
+      "meanings": [
+        "恐れてびくびくしながらも慎み深くあるさま。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慴慴たる",
+      "reading": "しょうしょうたる",
+      "meanings": [
+        "恐れてびくびくしている。"
+      ],
+      "tags": [
+        "連体詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慴慴として",
+      "reading": "しょうしょうとして",
+      "meanings": [
+        "恐れてびくびくしながら。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慴慴然",
+      "reading": "しょうしょうぜん",
+      "meanings": [
+        "恐れてびくびくしている様子。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慴慴と",
+      "reading": "しょうしょうと",
+      "meanings": [
+        "恐れてびくびくと。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄く",
+      "reading": "おののく",
+      "meanings": [
+        "恐ろしさで体が震える。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄き",
+      "reading": "おののき",
+      "meanings": [
+        "恐ろしさで震えること。戦慄。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄ける",
+      "reading": "おののける",
+      "meanings": [
+        "恐ろしさで震えさせる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄き慄き",
+      "reading": "おののきおののき",
+      "meanings": [
+        "恐ろしさで震え続けるさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄きながら",
+      "reading": "おののきながら",
+      "meanings": [
+        "恐ろしさに震えつつ。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄き上がる",
+      "reading": "おののきあがる",
+      "meanings": [
+        "非常に恐れて震え上がる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄き慴く",
+      "reading": "おののきおびく",
+      "meanings": [
+        "恐れて震えおじけづく。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄慄",
+      "reading": "りつりつ",
+      "meanings": [
+        "恐ろしさで震え続けるさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慴慴慄慄",
+      "reading": "しょうしょうりつりつ",
+      "meanings": [
+        "恐ろしさでびくびくと震え続けるさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "慄慄慴慴",
+      "reading": "りつりつしょうしょう",
+      "meanings": [
+        "恐ろしさで震えおののくさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "息衝く",
+      "reading": "いきづく",
+      "meanings": [
+        "息をする。呼吸する。生きている。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "息衝き",
+      "reading": "いきづき",
+      "meanings": [
+        "息遣い。呼吸。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "衝く",
+      "reading": "つく",
+      "meanings": [
+        "強く当たる。突く。心を動かす。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "衝撃",
+      "reading": "しょうげき",
+      "meanings": [
+        "激しくぶつかること。精神的な強い動揺。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "衝撃的",
+      "reading": "しょうげきてき",
+      "meanings": [
+        "非常に強い印象を与えるさま。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "衝撃波",
+      "reading": "しょうげきは",
+      "meanings": [
+        "爆発などで生じる強い圧力の波。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "衝動",
+      "reading": "しょうどう",
+      "meanings": [
+        "心に突然起こる激しい感情。抑えがたい欲求。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "衝動的",
+      "reading": "しょうどうてき",
+      "meanings": [
+        "深く考えずに感情のまま行動するさま。"
+      ],
+      "tags": [
+        "形容動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "衝動買い",
+      "reading": "しょうどうがい",
+      "meanings": [
+        "計画的でなく衝動的に買うこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "衝突",
+      "reading": "しょうとつ",
+      "meanings": [
+        "物と物がぶつかること。意見の対立。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "衝突する",
+      "reading": "しょうとつする",
+      "meanings": [
+        "ぶつかる。意見が対立する。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "衝く衝く",
+      "reading": "つくつく",
+      "meanings": [
+        "繰り返し衝くさま。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "衝に当たる",
+      "reading": "しょうにあたる",
+      "meanings": [
+        "要所を押さえる。核心を突く。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "要衝",
+      "reading": "ようしょう",
+      "meanings": [
+        "交通や軍事上の重要な地点。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "衝天",
+      "reading": "しょうてん",
+      "meanings": [
+        "天を衝くほど高いこと。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "衝に立つ",
+      "reading": "しょうにたつ",
+      "meanings": [
+        "重要な位置に立つ。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "衝く所",
+      "reading": "つくところ",
+      "meanings": [
+        "要点。核心。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "衝くべき",
+      "reading": "つくべき",
+      "meanings": [
+        "突くのが当然である。攻めるべき。"
+      ],
+      "tags": [
+        "連体詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "虚を衝く",
+      "reading": "きょをつく",
+      "meanings": [
+        "相手の不意をつく。弱点を攻める。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "意表を衝く",
+      "reading": "いひょうをつく",
+      "meanings": [
+        "相手の予想外のことをする。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜持を持つ",
+      "reading": "きょうじをもつ",
+      "meanings": [
+        "自分の価値を信じる誇りを持つ。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜持高く",
+      "reading": "きょうじたかく",
+      "meanings": [
+        "誇りを高く持って。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜持を傷つける",
+      "reading": "きょうじをきずつける",
+      "meanings": [
+        "誇りを傷つける。自尊心を害する。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜持ある態度",
+      "reading": "きょうじあるたいど",
+      "meanings": [
+        "誇りを持った態度。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜持に満ちた",
+      "reading": "きょうじにみちた",
+      "meanings": [
+        "誇りに満ちている。"
+      ],
+      "tags": [
+        "連体詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜持を示す",
+      "reading": "きょうじをしめす",
+      "meanings": [
+        "誇りを持っていることを態度で示す。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜持の塊",
+      "reading": "きょうじのかたまり",
+      "meanings": [
+        "誇りの非常に強い人。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜持を捨てる",
+      "reading": "きょうじをすてる",
+      "meanings": [
+        "誇りを捨てる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜恃の念",
+      "reading": "きょうじのねん",
+      "meanings": [
+        "自分の価値を信じる誇りの気持ち。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜恃を貫く",
+      "reading": "きょうじをつらぬく",
+      "meanings": [
+        "誇りを最後まで守り通す。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜恃高し",
+      "reading": "きょうじたかし",
+      "meanings": [
+        "誇りが高い。"
+      ],
+      "tags": [
+        "形容詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜恃の人",
+      "reading": "きょうじのひと",
+      "meanings": [
+        "強い誇りを持つ人。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜恃を守る",
+      "reading": "きょうじをまもる",
+      "meanings": [
+        "誇りを守り抜く。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜恃ある生き方",
+      "reading": "きょうじあるいきかた",
+      "meanings": [
+        "誇りを持った生き方。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜恃に生きる",
+      "reading": "きょうじにいきる",
+      "meanings": [
+        "誇りを大切にして生きる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "矜恃矜持",
+      "reading": "きょうじきょうじ",
+      "meanings": [
+        "強い誇り。自尊心。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "顰蹙を買う",
+      "reading": "ひんしゅくをかう",
+      "meanings": [
+        "他人から不快に思われる。眉をひそめられる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "顰蹙もの",
+      "reading": "ひんしゅくもの",
+      "meanings": [
+        "眉をひそめられるような事柄。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "顰蹙を招く",
+      "reading": "ひんしゅくをまねく",
+      "meanings": [
+        "不快感を与えて眉をひそめさせる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "顰蹙の的",
+      "reading": "ひんしゅくのまと",
+      "meanings": [
+        "多くの人から不快に思われる対象。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "顰蹙を集める",
+      "reading": "ひんしゅくをあつめる",
+      "meanings": [
+        "多くの人から眉をひそめられる。"
+      ],
+      "tags": [
+        "動詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "顰蹙の声",
+      "reading": "ひんしゅくのこえ",
+      "meanings": [
+        "眉をひそめるような批判の声。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "顰蹙を恐れず",
+      "reading": "ひんしゅくをおそれず",
+      "meanings": [
+        "他人の眉ひそめを気にせずに。"
+      ],
+      "tags": [
+        "副詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "顰蹙必至",
+      "reading": "ひんしゅくひっし",
+      "meanings": [
+        "間違いなく眉をひそめられること。"
+      ],
+      "tags": [
+        "名詞"
       ],
       "source": "Komorebi IME"
     }

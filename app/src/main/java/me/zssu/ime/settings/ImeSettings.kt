@@ -19,6 +19,7 @@ import java.io.File
 class ImeSettings(context: Context) {
 
     enum class OneHandMode { OFF, LEFT, RIGHT }
+    enum class FlickInputMode { FLICK_ONLY, FLICK_AND_TOGGLE }
 
     private val appContext = context.applicationContext
     private val prefs: SharedPreferences =
@@ -59,6 +60,23 @@ class ImeSettings(context: Context) {
         get() = KeyboardStyle.of(prefs.getString(KEY_KEYBOARD_STYLE, null))
         set(value) {
             prefs.edit().putString(KEY_KEYBOARD_STYLE, value.name).apply()
+            bumpRevision()
+        }
+
+    /**
+     * Whether a centre tap is always a literal centre flick, or repeated taps cycle the key's row.
+     *
+     * Flick-only remains the default so fast repeated input never changes meaning unless the user
+     * explicitly enables traditional mobile-phone input.
+     */
+    var flickInputMode: FlickInputMode
+        get() = runCatching {
+            FlickInputMode.valueOf(
+                prefs.getString(KEY_FLICK_INPUT_MODE, FlickInputMode.FLICK_ONLY.name)!!
+            )
+        }.getOrDefault(FlickInputMode.FLICK_ONLY)
+        set(value) {
+            prefs.edit().putString(KEY_FLICK_INPUT_MODE, value.name).apply()
             bumpRevision()
         }
 
@@ -131,6 +149,14 @@ class ImeSettings(context: Context) {
         bumpRevision()
     }
 
+    /** Whether the bundled proper-noun dictionary is active. Defaults to true. */
+    var useProperNounDictionary: Boolean
+        get() = prefs.getBoolean(KEY_USE_PRONOUN_DICT, true)
+        set(value) {
+            prefs.edit().putBoolean(KEY_USE_PRONOUN_DICT, value).apply()
+            bumpRevision()
+        }
+
     /**
      * Changes whenever anything here does.
      *
@@ -156,14 +182,17 @@ class ImeSettings(context: Context) {
         private const val BACKGROUND_FILE = "keyboard_background"
         private const val KEY_HEIGHT_SCALE = "key_height_scale"
         private const val KEY_KEYBOARD_STYLE = "keyboard_style"
+        private const val KEY_FLICK_INPUT_MODE = "flick_input_mode"
         private const val KEY_ACTIVE_THEME = "active_theme"
         private const val KEY_ACTIVE_LAYOUT = "active_layout"
         private const val KEY_ONE_HAND_MODE = "one_hand_mode"
         private const val KEY_BACKGROUND_PRESET = "background_preset"
+        private const val KEY_USE_PRONOUN_DICT = "use_pronoun_dict"
         const val DEFAULT_THEME_ID = "material_you"
         const val DEFAULT_BACKGROUND_OPACITY = 0.45f
         const val MIN_KEY_HEIGHT_SCALE = 0.7f
         const val MAX_KEY_HEIGHT_SCALE = 1.5f
+        const val TOGGLE_TIMEOUT_MILLIS = 650
 
         val BACKGROUND_PRESETS = listOf(
             BackgroundPreset("cozy_friends", "森のともだち", "backgrounds/cozy_friends.webp"),

@@ -27,6 +27,7 @@ object BundledDictionaries {
     /** Dictionary name as it appears in mozc's user dictionary list, keyed by asset file name. */
     private val DICTIONARIES = mapOf(
         "katakana-english.txt" to "カタカナ語→英語",
+        "proper-nouns.txt" to "有名固有名詞",
     )
 
     data class Status(val name: String, val entryCount: Int)
@@ -88,5 +89,39 @@ object BundledDictionaries {
                 Status(name, count.toIntOrNull() ?: return@mapNotNull null)
             }
         }.getOrDefault(emptyList())
+    }
+
+    /**
+     * Enables or disables a single bundled dictionary by (re-)importing it or clearing it.
+     *
+     * When [active] is true, reads the asset TSV and pushes it into mozc. When false, pushes an
+     * empty TSV so mozc drops the dictionary from its index. Call this when the user toggles a
+     * dictionary in settings.
+     */
+    fun setDictionaryActive(context: Context, engine: MozcEngine, assetName: String, active: Boolean) {
+        val dictionaryName = DICTIONARIES[assetName] ?: return
+        val tsv = if (active) {
+            runCatching {
+                context.assets.open("$ASSET_DIR/$assetName").bufferedReader().use { it.readText() }
+            }.getOrNull()
+        } else {
+            "# cleared\n"
+        }
+        if (tsv == null) return
+
+        val output = engine.eval(
+            Input.newBuilder()
+                .setType(Input.CommandType.IMPORT_USER_DICTIONARY)
+                .setUserDictionaryImportData(
+                    UserDictionaryImportData.newBuilder()
+                        .setDictionaryName(dictionaryName)
+                        .setData(tsv)
+                )
+        )
+        if (output == null) {
+            Log.e(TAG, "setDictionaryActive failed for $dictionaryName (active=$active)")
+        } else {
+            Log.i(TAG, "setDictionaryActive $dictionaryName active=$active")
+        }
     }
 }

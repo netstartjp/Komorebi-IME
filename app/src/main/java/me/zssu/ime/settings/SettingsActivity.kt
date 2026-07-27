@@ -91,6 +91,7 @@ private fun SettingsScreen(modifier: Modifier = Modifier) {
 
         InfoCard(title = "変換エンジン", body = engineStatus)
         InfoCard(title = "追加辞書", body = describeDictionaries(context))
+        BundledDictionaryToggles()
         CustomizationCard(repository)
 
         UserDictionaryCard()
@@ -126,6 +127,66 @@ private fun SettingsScreen(modifier: Modifier = Modifier) {
             },
             modifier = Modifier.fillMaxWidth(),
         ) { Text("キーボードを選択") }
+    }
+}
+
+@Composable
+private fun BundledDictionaryToggles() {
+    val context = LocalContext.current
+    val settings = remember { ImeSettings(context) }
+    var useDict by remember { mutableStateOf(settings.useProperNounDictionary) }
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("変換辞書の切り替え", style = MaterialTheme.typography.titleMedium)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("有名固有名詞", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "企業名・サービス名・人名・地名などの変換候補",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Switch(
+                    checked = useDict,
+                    onCheckedChange = { checked ->
+                        useDict = checked
+                        settings.useProperNounDictionary = checked
+                        Thread {
+                            try {
+                                MozcEngine.get(context)?.setBundledDictionaryActive(
+                                    context, "proper-nouns.txt", checked
+                                )
+                            } catch (_: Exception) {}
+                        }.apply { isDaemon = true }.start()
+                    },
+                )
+            }
+
+            HorizontalDivider()
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("カタカナ語→英語", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "カタカナ外来語の英語表記を候補に表示",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Switch(
+                    checked = true,
+                    enabled = false,
+                    onCheckedChange = {},
+                )
+            }
+        }
     }
 }
 
@@ -279,6 +340,7 @@ private fun KeyboardCard() {
     val settings = remember { ImeSettings(context) }
 
     var style by remember { mutableStateOf(settings.keyboardStyle) }
+    var flickInputMode by remember { mutableStateOf(settings.flickInputMode) }
     var heightScale by remember { mutableStateOf(settings.keyHeightScale) }
     var oneHandMode by remember { mutableStateOf(settings.oneHandMode) }
 
@@ -301,6 +363,32 @@ private fun KeyboardCard() {
                     settings.keyboardStyle = option
                 }
                 if (style == option) {
+                    Button(onClick = onSelect, modifier = Modifier.fillMaxWidth()) { Text(label) }
+                } else {
+                    OutlinedButton(
+                        onClick = onSelect,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text(label) }
+                }
+            }
+
+            HorizontalDivider()
+
+            Text("フリックの連打", style = MaterialTheme.typography.bodyLarge)
+            Text(
+                "ケータイ打ち併用では、同じキーを続けて押すと文字が循環します。" +
+                    "約0.65秒待つか、右キーを押すと同じ行の文字を続けて入力できます",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            for ((option, label) in listOf(
+                ImeSettings.FlickInputMode.FLICK_ONLY to "フリックのみ（連打し放題）",
+                ImeSettings.FlickInputMode.FLICK_AND_TOGGLE to "フリック＋ケータイ打ち",
+            )) {
+                val onSelect = {
+                    flickInputMode = option
+                    settings.flickInputMode = option
+                }
+                if (flickInputMode == option) {
                     Button(onClick = onSelect, modifier = Modifier.fillMaxWidth()) { Text(label) }
                 } else {
                     OutlinedButton(

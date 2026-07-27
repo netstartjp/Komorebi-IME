@@ -13,6 +13,7 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.view.Gravity
 import android.widget.Toast
@@ -30,6 +31,7 @@ import me.zssu.ime.keyboard.KeySpec
 import me.zssu.ime.keyboard.KeyboardLayout
 import me.zssu.ime.keyboard.KeyboardPanelView
 import me.zssu.ime.keyboard.LayoutRepository
+import me.zssu.ime.keyboard.MeaningPopupView
 import me.zssu.ime.settings.ImeSettings
 import me.zssu.ime.settings.AppProfileStore
 import me.zssu.ime.settings.SettingsActivity
@@ -57,6 +59,7 @@ class ZinnaImeService : InputMethodService() {
 
     private var keyboardView: FlickKeyboardView? = null
     private var candidateView: CandidateStripView? = null
+    private var meaningPopup: MeaningPopupView? = null
     private var layout: KeyboardLayout? = null
     private var theme: KeyboardTheme = KeyboardTheme.Default
     private var fieldPolicy = InputFieldPolicy.DEFAULT
@@ -83,6 +86,8 @@ class ZinnaImeService : InputMethodService() {
      * is ignored; a range selection is still the user grabbing the text, so it is honoured.
      */
     private var ownSelectionUpdatePending = false
+    private var editorStateUpdateInProgress = false
+    private var editorSelectionUpdateObserved = false
 
     /** [ImeSettings.revision] the current input view was built from. */
     private var builtFromRevision = Int.MIN_VALUE
@@ -127,7 +132,7 @@ class ZinnaImeService : InputMethodService() {
         layout = loaded
         theme = resolveTheme()
 
-        val root = KeyboardPanelView(this).apply {
+        val panel = KeyboardPanelView(this).apply {
             // The IME window runs edge-to-edge from targetSdk 35, so it extends underneath the
             // navigation bar and the bottom key row ends up beneath the gesture pill. Padding the
             // panel lifts the keys clear while its own background keeps covering the strip behind
@@ -158,23 +163,58 @@ class ZinnaImeService : InputMethodService() {
             doOnAttach { ViewCompat.requestApplyInsets(it) }
         }
 
+        val root = FrameLayout(this)
+        root.addView(panel, FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT,
+        ))
+
+        val popupView = MeaningPopupView(this).apply {
+            applyTheme(this@ZinnaImeService.theme)
+            onDismiss = {
+                candidateView?.setCandidates(lastCandidates, lastFocusedCandidateIndex)
+            }
+        }
+
         val candidates = CandidateStripView(this).apply {
             theme = this@ZinnaImeService.theme
             listener = CandidateStripView.OnCandidateSelectedListener { candidate ->
                 render(session.selectCandidate(candidate.id))
             }
             onCandidateLongPressed = { candidate ->
-                val definitions = meaningDictionaries.lookup(candidate.text).flatMap { entry ->
-                    entry.meanings.map { meaning ->
-                        buildString {
-                            entry.reading?.let { append("[$it] ") }
-                            append(meaning)
-                            if (entry.tags.isNotEmpty()) append(" (${entry.tags.joinToString("・")})")
-                            entry.source?.let { append(" — $it") }
+                val entries = meaningDictionaries.lookup(candidate.text)
+                if (entries.isEmpty()) {
+                    Toast.makeText(
+                        this@ZinnaImeService,
+                        "「${candidate.text}」は意味辞書に登録されていません",
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                } else {
+                    val definitions = entries.flatMap { entry ->
+                        entry.meanings.map { meaning ->
+                            buildString {
+                                if (entry.tags.isNotEmpty()) append("[${entry.tags.joinToString("・")}] ")
+                                append(meaning)
+                                entry.source?.let { append(" — $it") }
+                            }
                         }
                     }
+                    val primaryReading = entries.firstOrNull()?.reading
+                    popupView.show(
+                        term = candidate.text,
+                        reading = primaryReading,
+                        definitions = definitions,
+                        canDelete = candidate.deletable,
+                        onDelete = {
+                            render(session.deleteCandidateFromHistory(candidate.id))
+                            Toast.makeText(
+                                this@ZinnaImeService,
+                                "「${candidate.text}」を学習候補から削除しました",
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                        },
+                    )
                 }
-                showCandidateDetails(candidate, definitions)
             }
             onCandidateDeleteRequested = { candidate ->
                 render(session.deleteCandidateFromHistory(candidate.id))
@@ -231,10 +271,17 @@ class ZinnaImeService : InputMethodService() {
                 ImeSettings.OneHandMode.OFF -> Gravity.CENTER_HORIZONTAL
             }
         }
-        root.gravity = when (effectiveOneHandMode()) {
+        panel.gravity = when (effectiveOneHandMode()) {
             ImeSettings.OneHandMode.LEFT -> Gravity.START
             ImeSettings.OneHandMode.RIGHT -> Gravity.END
             ImeSettings.OneHandMode.OFF -> Gravity.CENTER_HORIZONTAL
+        }
+        val oneHandWidth =
+            (resources.displayMetrics.widthPixels * ONE_HAND_WIDTH).toInt()
+        val contentWidth = if (effectiveOneHandMode() == ImeSettings.OneHandMode.OFF) {
+            LinearLayout.LayoutParams.MATCH_PARENT
+        } else {
+            oneHandWidth
         }
         content.addView(
             candidates,
@@ -247,21 +294,26 @@ class ZinnaImeService : InputMethodService() {
                 LinearLayout.LayoutParams.WRAP_CONTENT,
             ),
         )
-        root.addView(
+        panel.addView(
             content,
-            LinearLayout.LayoutParams(
-                if (effectiveOneHandMode() == ImeSettings.OneHandMode.OFF) {
-                    LinearLayout.LayoutParams.MATCH_PARENT
-                } else {
-                    (resources.displayMetrics.widthPixels * ONE_HAND_WIDTH).toInt()
-                },
-                LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams(contentWidth, LinearLayout.LayoutParams.WRAP_CONTENT),
+        )
+
+        root.addView(
+            popupView,
+            FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT,
             ),
         )
 
         candidateView = candidates
         keyboardView = keyboard
+        meaningPopup = popupView
         builtFromRevision = combinedRevision()
+        session.setPhoneToggleEnabled(
+            settings.flickInputMode == ImeSettings.FlickInputMode.FLICK_AND_TOGGLE
+        )
         session.setIncognitoMode(fieldPolicy.incognito)
         loaded?.let { session.applyInputStyle(it.inputStyle) }
         candidates.showTools()
@@ -334,6 +386,7 @@ class ZinnaImeService : InputMethodService() {
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
+        meaningPopup?.hide(notify = false)
         appProfiles.recordSeenPackage(info?.packageName)
         val nextProfile = appProfiles.profileFor(info?.packageName)
         val nextPolicy = effectivePolicy(InputFieldPolicy.from(info), nextProfile)
@@ -368,6 +421,7 @@ class ZinnaImeService : InputMethodService() {
 
     override fun onFinishInput() {
         super.onFinishInput()
+        meaningPopup?.hide(notify = false)
         // Anything half-composed at this point can no longer be committed anywhere sensible.
         session.resetContext()
         isComposing = false
@@ -405,6 +459,13 @@ class ZinnaImeService : InputMethodService() {
             candidatesStart,
             candidatesEnd,
         )
+        // setComposingText has to place the caret at the end before setSelection can move it into
+        // the middle. Some editors report that temporary position synchronously, even inside a
+        // batch edit; it is an implementation detail of our render, not an external edit.
+        if (editorStateUpdateInProgress) {
+            editorSelectionUpdateObserved = true
+            return
+        }
         if (ownSelectionUpdatePending) {
             ownSelectionUpdatePending = false
             // Our render leaves the caret collapsed; a range selection means the user intervened.
@@ -457,7 +518,7 @@ class ZinnaImeService : InputMethodService() {
             // Enter. Inserting a space there would be the desktop behaviour and is not what a
             // 確定 key on a phone should do.
             is KeyAction.Convert ->
-                if (isComposing) render(session.sendSpecialKey(KeyEvent.SpecialKey.SPACE))
+                if (isComposing) render(session.convertOrSpace())
                 else handleEnter()
 
             is KeyAction.Enter -> handleEnter()
@@ -502,7 +563,7 @@ class ZinnaImeService : InputMethodService() {
      * nothing at all, so space appeared to work only as the second keystroke of a word.
      */
     private fun handleSpace() {
-        val state = session.sendSpecialKey(KeyEvent.SpecialKey.SPACE)
+        val state = session.convertOrSpace()
         if (state == null || !state.consumed) {
             val fullWidth = layout?.inputStyle?.fullWidthSpace ?: false
             currentInputConnection?.commitText(if (fullWidth) FULL_WIDTH_SPACE else " ", 1)
@@ -597,57 +658,83 @@ class ZinnaImeService : InputMethodService() {
         val ic = currentInputConnection ?: return
         if (state == null) return
 
-        ownSelectionUpdatePending = true
         isComposing = state.hasComposition
         isConverting = state.isConverting
         renderedPreeditCursor = state.preeditCursor
+        editorStateUpdateInProgress = true
+        editorSelectionUpdateObserved = false
         ic.beginBatchEdit()
-        if (state.committedText.isNotEmpty()) {
-            ic.commitText(state.committedText, 1)
-        }
-        if (state.preedit.isEmpty()) {
-            ic.finishComposingText()
-        } else {
-            val styled = SpannableString(state.preedit).apply {
-                if (state.isConverting && isNotEmpty()) {
-                    setSpan(
-                        BackgroundColorSpan(CONVERSION_RANGE_COLOR),
-                        0,
-                        length,
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
-                    )
-                }
-                var start = 0
-                for (segment in state.segments) {
-                    val end = (start + segment.text.length).coerceAtMost(length)
-                    if (end > start) {
+        try {
+            if (state.committedText.isNotEmpty()) {
+                ic.commitText(state.committedText, 1)
+            }
+            if (state.preedit.isEmpty()) {
+                ic.finishComposingText()
+            } else {
+                val styled = SpannableString(state.preedit).apply {
+                    if (state.isConverting && isNotEmpty()) {
                         setSpan(
-                            UnderlineSpan(),
-                            start,
-                            end,
+                            BackgroundColorSpan(CONVERSION_RANGE_COLOR),
+                            0,
+                            length,
                             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
                         )
-                        if (segment.highlighted) {
+                    }
+                    var start = 0
+                    for (segment in state.segments) {
+                        val end = (start + segment.text.length).coerceAtMost(length)
+                        if (end > start) {
                             setSpan(
-                                BackgroundColorSpan(CONVERSION_FOCUSED_COLOR),
+                                UnderlineSpan(),
                                 start,
                                 end,
                                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
                             )
+                            if (segment.highlighted) {
+                                setSpan(
+                                    BackgroundColorSpan(CONVERSION_FOCUSED_COLOR),
+                                    start,
+                                    end,
+                                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+                                )
+                            }
                         }
+                        start = end
                     }
-                    start = end
+                    if (state.segments.isEmpty() && isNotEmpty()) {
+                        setSpan(UnderlineSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
                 }
-                if (state.segments.isEmpty() && isNotEmpty()) {
-                    setSpan(UnderlineSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                // Android can place newly supplied composing text only at/beyond its edges. Put it
+                // down with the caret at the end, then explicitly restore Mozc's character offset.
+                // Without this second step every interior offset collapses to the beginning or end,
+                // leaving the editor and Mozc at different positions.
+                ic.setComposingText(styled, 1)
+                if (state.preeditCursor != state.preedit.length) {
+                    val extracted = ic.getExtractedText(
+                        android.view.inputmethod.ExtractedTextRequest(),
+                        0,
+                    )
+                    if (extracted != null) {
+                        val composingEnd = extracted.startOffset + extracted.selectionEnd
+                        val target = SelectionUpdate.absolutePreeditCursor(
+                            composingEnd = composingEnd,
+                            preeditLength = state.preedit.length,
+                            preeditCursor = state.preeditCursor,
+                        )
+                        ic.setSelection(target, target)
+                    }
                 }
             }
-            // InputConnection expresses this relative to the end of the inserted composing text:
-            // 1 means the end, 0 means one character before it.
-            val cursorPosition = state.preeditCursor - state.preedit.length + 1
-            ic.setComposingText(styled, cursorPosition)
+        } finally {
+            ic.endBatchEdit()
+            editorStateUpdateInProgress = false
+            // If endBatchEdit already delivered the selection callback synchronously, there is no
+            // future self-update to ignore. Otherwise one collapsed asynchronous callback is
+            // expected from this composition render.
+            ownSelectionUpdatePending = state.hasComposition && !editorSelectionUpdateObserved
         }
-        ic.endBatchEdit()
 
         lastCandidates = state.candidates
         lastFocusedCandidateIndex = state.focusedCandidateIndex

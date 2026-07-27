@@ -5,6 +5,7 @@ import me.zssu.ime.keyboard.InputStyle
 import me.zssu.ime.mozc.MozcEngine
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoConfig.Config
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.CompositionMode
+import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.DecoderExperimentParams
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.Input
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.KeyEvent
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.Output
@@ -12,6 +13,7 @@ import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.Request
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.SessionCommand
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCandidateWindow.Category
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCandidateWindow.CandidateAttribute
+import me.zssu.ime.settings.ImeSettings
 
 /**
  * Task-level view of a mozc session: sends key events and session commands, and flattens the
@@ -58,20 +60,30 @@ class MozcSession(context: Context) {
         val text: String,
         /** True when Mozc marks the candidate with its DELETABLE history attribute. */
         val deletable: Boolean = false,
+        /** Used to keep supplementary user dictionaries from overwhelming live suggestions. */
+        internal val fromUserDictionary: Boolean = false,
     )
     data class Segment(val text: String, val highlighted: Boolean)
 
+    private var requestedStyle: InputStyle? = null
     private var currentStyle: InputStyle? = null
     private var configApplied = false
     private var incognito = false
+    private var phoneToggleEnabled = false
     private var deletableCandidateIds: Set<Int> = emptySet()
 
     fun applyInputStyle(style: InputStyle) {
-        if (style == currentStyle) return
+        requestedStyle = style
+        val effectiveStyle = if (phoneToggleEnabled && style == InputStyle.FLICK_HIRAGANA) {
+            InputStyle.TOGGLE_FLICK_HIRAGANA
+        } else {
+            style
+        }
+        if (effectiveStyle == currentStyle) return
         val engine = engine ?: return
         val request = Request.newBuilder()
             .setSpecialRomanjiTable(
-                Request.SpecialRomanjiTable.forNumber(style.mozcTableNumber)
+                Request.SpecialRomanjiTable.forNumber(effectiveStyle.mozcTableNumber)
                     ?: Request.SpecialRomanjiTable.DEFAULT_TABLE
             )
             .setZeroQuerySuggestion(true)
@@ -79,10 +91,20 @@ class MozcSession(context: Context) {
             .setUpdateInputModeFromSurroundingText(false)
             .setAutoPartialSuggestion(true)
             .setSpaceOnAlphanumeric(Request.SpaceOnAlphanumeric.SPACE_OR_CONVERT_COMMITTING_COMPOSITION)
-            .setCrossingEdgeBehavior(Request.CrossingEdgeBehavior.COMMIT_WITHOUT_CONSUMING)
+            // Keep an unfinished reading intact at either edge. The keyboard's arrows move within
+            // the composition one character at a time; crossing an edge must not silently commit
+            // the whole reading and hand the movement to the editor.
+            .setCrossingEdgeBehavior(Request.CrossingEdgeBehavior.DO_NOTHING)
             // Forgives a missing or stray dakuten/small kana: "かつこう" still finds 学校. Costs
             // nothing extra — it widens an existing dictionary lookup rather than adding one.
             .setKanaModifierInsensitiveConversion(true)
+            // Let corrected readings consult learned history as well as the static dictionary.
+            // Two queries captures the most plausible geometric slips without turning each key
+            // into a large set of history lookups.
+            .setDecoderExperimentParams(
+                DecoderExperimentParams.newBuilder()
+                    .setTypingCorrectionApplyUserHistorySize(2)
+            )
             .build()
         engine.eval(
             Input.newBuilder()
@@ -98,11 +120,12 @@ class MozcSession(context: Context) {
             SessionCommand.newBuilder()
                 .setType(SessionCommand.CommandType.SWITCH_COMPOSITION_MODE)
                 .setCompositionMode(
-                    CompositionMode.forNumber(style.mozcCompositionMode) ?: CompositionMode.HIRAGANA
+                    CompositionMode.forNumber(effectiveStyle.mozcCompositionMode)
+                        ?: CompositionMode.HIRAGANA
                 )
                 .build()
         )
-        currentStyle = style
+        currentStyle = effectiveStyle
     }
 
     /**
@@ -118,6 +141,14 @@ class MozcSession(context: Context) {
      * a symbol run), so it goes out as `key_string` for direct insertion.
      */
     fun sendText(text: String): State? {
+        // In flick-only mode, finish the *previous* ordinary key immediately before starting the
+        // next one. Finishing after every key breaks the table's suffix modifiers: `か` must still
+        // be open when `*`, `[`, `]`, or backtick arrives so it can become が/ぱ/small kana.
+        // Doing it here still makes repeated centre taps produce separate characters.
+        if (!phoneToggleEnabled && !FlickTableInput.isModifierKey(currentStyle, text)) {
+            stopKeyToggling()
+        }
+
         val key = KeyEvent.newBuilder()
         val singleChar = text.length == 1 && text[0].code in 0x20..0x7E
         if (singleChar) {
@@ -135,6 +166,18 @@ class MozcSession(context: Context) {
         val key = KeyEvent.newBuilder().setSpecialKey(specialKey)
         if (shift) key.addModifierKeys(KeyEvent.ModifierKey.SHIFT)
         return engine?.sendKey(key.build())?.toState()
+    }
+
+    /**
+     * Opens the conversion candidate list with one user action.
+     *
+     * A freshly entered 12-key character is intentionally left open for ゛小゜ modification.
+     * Sending Space directly can therefore spend the first press only closing that table chunk.
+     * Close it explicitly, then send Space so the same press reaches Mozc's Convert command.
+     */
+    fun convertOrSpace(): State? {
+        stopKeyToggling()
+        return sendSpecialKey(KeyEvent.SpecialKey.SPACE)
     }
 
     /**
@@ -159,6 +202,11 @@ class MozcSession(context: Context) {
                     builder
                         .setUseTypingCorrection(true)
                         .setUseKanaModifierInsensitiveConversion(true)
+                        .setUseHistorySuggest(true)
+                        .setSuggestionsSize(9)
+                        .setComposingTimeoutThresholdMsec(
+                            if (phoneToggleEnabled) ImeSettings.TOGGLE_TIMEOUT_MILLIS else 0
+                        )
                         .setIncognitoMode(incognito)
                 )
         )
@@ -176,6 +224,15 @@ class MozcSession(context: Context) {
         incognito = enabled
         configApplied = false
         engine?.let(::applyConfig)
+    }
+
+    fun setPhoneToggleEnabled(enabled: Boolean) {
+        if (phoneToggleEnabled == enabled && configApplied) return
+        phoneToggleEnabled = enabled
+        configApplied = false
+        currentStyle = null
+        engine?.let(::applyConfig)
+        requestedStyle?.let(::applyInputStyle)
     }
 
     fun submit(): State? = sendSessionCommand(SessionCommand.CommandType.SUBMIT)
@@ -219,6 +276,7 @@ class MozcSession(context: Context) {
 
     fun close() {
         engine?.deleteSession()
+        requestedStyle = null
         currentStyle = null
     }
 
@@ -241,9 +299,53 @@ class MozcSession(context: Context) {
         } else if (!hasCandidateWindow()) {
             deletableCandidateIds = emptySet()
         }
+        val candidateAttributes = if (hasAllCandidateWords()) {
+            allCandidateWords.candidatesList.associate { it.id to it.attributesList.toSet() }
+        } else {
+            emptyMap()
+        }
         val candidates = if (hasCandidateWindow()) {
-            candidateWindow.candidateList.map {
-                Candidate(it.id, it.value, it.id in deletableCandidateIds)
+            val visible = candidateWindow.candidateList.map {
+                Candidate(
+                    id = it.id,
+                    text = it.value,
+                    deletable = it.id in deletableCandidateIds,
+                    fromUserDictionary =
+                        CandidateAttribute.USER_DICTIONARY in candidateAttributes[it.id].orEmpty(),
+                )
+            }
+
+            // User dictionaries intentionally receive a strong native ranking boost. That is right
+            // for someone's own entries, but it made the bundled 24k-entry kana→English dictionary
+            // occupy nearly the whole toolbar. During an unfocused Japanese suggestion only, draw
+            // additional candidates from Mozc's complete result and apply a small stable penalty to
+            // Latin user-dictionary values. Explicit conversion, focused prediction, and the ASCII
+            // keyboard retain Mozc's original order.
+            val isLiveJapaneseSuggestion =
+                candidateWindow.category == Category.SUGGESTION &&
+                    !candidateWindow.hasFocusedIndex() &&
+                    (currentStyle == InputStyle.FLICK_HIRAGANA ||
+                        currentStyle == InputStyle.TOGGLE_FLICK_HIRAGANA)
+            if (isLiveJapaneseSuggestion) {
+                val complete = if (hasAllCandidateWords()) {
+                    allCandidateWords.candidatesList.map {
+                        Candidate(
+                            id = it.id,
+                            text = it.value,
+                            deletable = CandidateAttribute.DELETABLE in it.attributesList,
+                            fromUserDictionary =
+                                CandidateAttribute.USER_DICTIONARY in it.attributesList,
+                        )
+                    }
+                } else {
+                    emptyList()
+                }
+                CandidateRanking.rankLiveJapaneseSuggestions(
+                    candidates = (visible + complete).distinctBy { it.id },
+                    limit = visible.size,
+                )
+            } else {
+                visible
             }
         } else {
             emptyList()
@@ -279,5 +381,62 @@ class MozcSession(context: Context) {
                 candidateWindow.hasFocusedIndex(),
             consumed = consumed,
         )
+    }
+}
+
+/** Mozc table keys that transform the preceding chunk rather than starting a new character. */
+internal object FlickTableInput {
+    fun isModifierKey(style: InputStyle?, text: String): Boolean = when (style) {
+        InputStyle.FLICK_HIRAGANA,
+        InputStyle.TOGGLE_FLICK_HIRAGANA,
+        -> text == "*" || text == "[" || text == "]" || text == "`"
+
+        InputStyle.FLICK_HALFWIDTH_ASCII,
+        InputStyle.TOGGLE_FLICK_HALFWIDTH_ASCII,
+        -> text == "*"
+
+        else -> false
+    }
+}
+
+/**
+ * Conservative client-side adjustment for the unfocused toolbar.
+ *
+ * Native order is retained as a score and English user-dictionary entries receive only a bounded
+ * delay. They are still available, but cannot displace every normal Japanese candidate merely
+ * because supplemental dictionaries use Mozc's high-priority user-dictionary path.
+ */
+internal object CandidateRanking {
+    private const val LATIN_USER_DICTIONARY_PENALTY = 6
+
+    fun rankLiveJapaneseSuggestions(
+        candidates: List<MozcSession.Candidate>,
+        limit: Int,
+    ): List<MozcSession.Candidate> {
+        if (limit <= 0 || candidates.isEmpty()) return emptyList()
+        if (candidates.none { containsJapaneseScript(it.text) }) return candidates.take(limit)
+
+        return candidates.withIndex()
+            .sortedBy { indexed ->
+                indexed.index + if (isLatinUserDictionaryEntry(indexed.value)) {
+                    LATIN_USER_DICTIONARY_PENALTY
+                } else {
+                    0
+                }
+            }
+            .map { it.value }
+            .take(limit)
+    }
+
+    private fun isLatinUserDictionaryEntry(candidate: MozcSession.Candidate): Boolean =
+        candidate.fromUserDictionary &&
+            candidate.text.any { it in 'A'..'Z' || it in 'a'..'z' } &&
+            !containsJapaneseScript(candidate.text)
+
+    private fun containsJapaneseScript(text: String): Boolean = text.any { ch ->
+        ch in '\u3040'..'\u30ff' || // Hiragana, Katakana
+            ch in '\u3400'..'\u4dbf' || // CJK Extension A
+            ch in '\u4e00'..'\u9fff' || // CJK Unified Ideographs
+            ch == '\u3005' || ch == '\u3006' || ch == '\u303b'
     }
 }

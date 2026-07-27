@@ -1,10 +1,39 @@
 package me.zssu.ime.ime
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SelectionUpdateTest {
+
+    @Test
+    fun `preedit cursor is restored relative to composing span start`() {
+        assertEquals(
+            12,
+            SelectionUpdate.absolutePreeditCursor(
+                composingEnd = 15,
+                preeditLength = 5,
+                preeditCursor = 2,
+            )
+        )
+        assertEquals(
+            10,
+            SelectionUpdate.absolutePreeditCursor(
+                composingEnd = 15,
+                preeditLength = 5,
+                preeditCursor = 0,
+            )
+        )
+        assertEquals(
+            15,
+            SelectionUpdate.absolutePreeditCursor(
+                composingEnd = 15,
+                preeditLength = 5,
+                preeditCursor = 5,
+            )
+        )
+    }
 
     @Test
     fun `own composing update keeps native composition`() {
