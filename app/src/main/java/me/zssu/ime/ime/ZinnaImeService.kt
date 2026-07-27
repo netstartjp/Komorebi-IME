@@ -1,5 +1,6 @@
 package me.zssu.ime.ime
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.ClipboardManager
 import android.content.Intent
@@ -135,6 +136,22 @@ class ZinnaImeService : InputMethodService() {
         if (loaded == null) Log.e(TAG, "default layout missing from assets")
         layout = loaded
         theme = resolveTheme()
+
+        // onCreateInputView can run before this window's first insets dispatch. Seed the panel from
+        // the decor view when possible and from Android's configured navigation-bar height on the
+        // very first launch, so no frame places the bottom row underneath system controls.
+        val initialInsets = KeyboardInsetPolicy.initial(
+            window = currentImeWindowInsets(),
+            previous = KeyboardSystemInsets(
+                left = systemInsetLeft,
+                right = systemInsetRight,
+                bottom = systemInsetBottom,
+            ),
+            navigationBarFallback = navigationBarHeightFallback(),
+        )
+        systemInsetLeft = initialInsets.left
+        systemInsetRight = initialInsets.right
+        systemInsetBottom = initialInsets.bottom
 
         val panel = KeyboardPanelView(this).apply {
             // The IME window runs edge-to-edge from targetSdk 35, so it extends underneath the
@@ -355,6 +372,29 @@ class ZinnaImeService : InputMethodService() {
         loaded?.let { session.applyInputStyle(it.inputStyle) }
         candidates.showTools()
         return root
+    }
+
+    private fun currentImeWindowInsets(): KeyboardSystemInsets? {
+        val decorView = window?.window?.decorView ?: return null
+        val insets = ViewCompat.getRootWindowInsets(decorView) ?: return null
+        val bars = insets.getInsets(
+            WindowInsetsCompat.Type.navigationBars() or
+                WindowInsetsCompat.Type.displayCutout()
+        )
+        return KeyboardSystemInsets(left = bars.left, right = bars.right, bottom = bars.bottom)
+    }
+
+    @SuppressLint("DiscouragedApi", "InternalInsetResource")
+    private fun navigationBarHeightFallback(): Int {
+        val showNavigationBar = resources.getIdentifier(
+            "config_showNavigationBar",
+            "bool",
+            "android",
+        )
+        if (showNavigationBar != 0 && !resources.getBoolean(showNavigationBar)) return 0
+
+        val height = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+        return if (height != 0) resources.getDimensionPixelSize(height) else 0
     }
 
     private fun handleToolAction(action: CandidateStripView.ToolAction) {
