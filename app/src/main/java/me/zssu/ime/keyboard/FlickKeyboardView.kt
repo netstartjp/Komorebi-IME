@@ -89,7 +89,7 @@ class FlickKeyboardView @JvmOverloads constructor(
     var guideOverflowTop: Float = 0f
 
     /** What to draw while a finger rests on a flick key. See [FlickGuideStyle]. */
-    var guideStyle: FlickGuideStyle = FlickGuideStyle.PREVIEW
+    var guideStyle: FlickGuideStyle = FlickGuideStyle.DIRECTIONS
         set(value) {
             field = value
             invalidate()

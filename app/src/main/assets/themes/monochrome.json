@@ -1,0 +1,19 @@
+{
+  "id": "monochrome",
+  "label": "Monochrome",
+  "backgroundColor": "#FF1A1A1A",
+  "keyColor": "#FF2A2A2A",
+  "keyPressedColor": "#FF444444",
+  "modifierKeyColor": "#FF222222",
+  "labelColor": "#FFDDDDDD",
+  "flickGuideColor": "#FF888888",
+  "flickGuideLabelColor": "#FFCCCCCC",
+  "flickGuideSelectedLabelColor": "#FFFFFFFF",
+  "candidateBackgroundColor": "#FF1A1A1A",
+  "candidateTextColor": "#FFDDDDDD",
+  "keyHeightDp": 56.0,
+  "keyGapDp": 2.0,
+  "keyCornerRadiusDp": 8.0,
+  "labelSizeSp": 17.0,
+  "hapticFeedback": true
+}

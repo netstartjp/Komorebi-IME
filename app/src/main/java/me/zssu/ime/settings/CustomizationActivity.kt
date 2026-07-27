@@ -111,8 +111,19 @@ private fun Studio(modifier: Modifier = Modifier) {
             onClick = {
                 context.startActivity(Intent(context, VisualLayoutEditorActivity::class.java))
             },
+            enabled = kind == ResourceKind.LAYOUT && selectedId != null,
             modifier = Modifier.fillMaxWidth(),
         ) { Text("視覚的な配列エディタを開く") }
+        Button(
+            onClick = {
+                val intent = Intent(context, ThemeEditorActivity::class.java).apply {
+                    putExtra(ThemeEditorActivity.EXTRA_THEME_ID, selectedId)
+                }
+                context.startActivity(intent)
+            },
+            enabled = kind == ResourceKind.THEME && selectedId != null && selectedId != MaterialYouTheme.ID,
+            modifier = Modifier.fillMaxWidth(),
+        ) { Text("テーマを編集") }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ModeButton("配列", kind == ResourceKind.LAYOUT, Modifier.weight(1f)) {
                 kind = ResourceKind.LAYOUT; selectedId = null; editor = ""
@@ -164,42 +175,49 @@ private fun Studio(modifier: Modifier = Modifier) {
         }
 
         HorizontalDivider()
+        var jsonExpanded by remember { mutableStateOf(false) }
         Text("JSONエディタ", style = MaterialTheme.typography.titleMedium)
-        OutlinedTextField(
-            value = editor,
-            onValueChange = { editor = it },
-            modifier = Modifier.fillMaxWidth().heightIn(min = 260.dp),
-            label = { Text("id を変更すると複製として保存") },
-            textStyle = MaterialTheme.typography.bodySmall,
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(
-                onClick = {
-                    repository.importJson(editor)
-                        .onSuccess {
-                            kind = if (it is LayoutRepository.ImportedResource.Layout) {
-                                ResourceKind.LAYOUT
-                            } else ResourceKind.THEME
-                            selectedId = it.id
-                            message = "${it.id} を検証して保存しました"
-                            refresh++
-                        }
-                        .onFailure { message = "保存できません: ${it.message}" }
-                },
-                enabled = editor.isNotBlank(),
-                modifier = Modifier.weight(1f),
-            ) { Text("検証して保存") }
-            OutlinedButton(
-                onClick = {
-                    val id = selectedId ?: return@OutlinedButton
-                    exportText = if (kind == ResourceKind.LAYOUT) repository.exportLayout(id)
-                        else repository.exportTheme(id)
-                    if (exportText == null) message = "この動的テーマは書き出せません"
-                    else exportFile.launch("$id.json")
-                },
-                enabled = selectedId != null,
-                modifier = Modifier.weight(1f),
-            ) { Text("書き出し") }
+        Button(
+            onClick = { jsonExpanded = !jsonExpanded },
+            modifier = Modifier.fillMaxWidth(),
+        ) { Text(if (jsonExpanded) "▼ JSONエディタを閉じる" else "▶ JSONエディタを開く") }
+        if (jsonExpanded) {
+            OutlinedTextField(
+                value = editor,
+                onValueChange = { editor = it },
+                modifier = Modifier.fillMaxWidth().heightIn(min = 260.dp),
+                label = { Text("id を変更すると複製として保存") },
+                textStyle = MaterialTheme.typography.bodySmall,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = {
+                        repository.importJson(editor)
+                            .onSuccess {
+                                kind = if (it is LayoutRepository.ImportedResource.Layout) {
+                                    ResourceKind.LAYOUT
+                                } else ResourceKind.THEME
+                                selectedId = it.id
+                                message = "${it.id} を検証して保存しました"
+                                refresh++
+                            }
+                            .onFailure { message = "保存できません: ${it.message}" }
+                    },
+                    enabled = editor.isNotBlank(),
+                    modifier = Modifier.weight(1f),
+                ) { Text("検証して保存") }
+                OutlinedButton(
+                    onClick = {
+                        val id = selectedId ?: return@OutlinedButton
+                        exportText = if (kind == ResourceKind.LAYOUT) repository.exportLayout(id)
+                            else repository.exportTheme(id)
+                        if (exportText == null) message = "この動的テーマは書き出せません"
+                        else exportFile.launch("$id.json")
+                    },
+                    enabled = selectedId != null,
+                    modifier = Modifier.weight(1f),
+                ) { Text("書き出し") }
+            }
         }
         OutlinedButton(
             onClick = {

@@ -1,0 +1,19 @@
+{
+  "id": "sunset_orange",
+  "label": "Sunset Orange",
+  "backgroundColor": "#FF2D2218",
+  "keyColor": "#FF382D22",
+  "keyPressedColor": "#FF504030",
+  "modifierKeyColor": "#FF30241A",
+  "labelColor": "#FFF0E0D4",
+  "flickGuideColor": "#FFF0A64C",
+  "flickGuideLabelColor": "#FFF0E0D4",
+  "flickGuideSelectedLabelColor": "#FFFFFFFF",
+  "candidateBackgroundColor": "#FF2D2218",
+  "candidateTextColor": "#FFF0E0D4",
+  "keyHeightDp": 56.0,
+  "keyGapDp": 2.0,
+  "keyCornerRadiusDp": 8.0,
+  "labelSizeSp": 17.0,
+  "hapticFeedback": true
+}

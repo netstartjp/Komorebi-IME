@@ -15,6 +15,6 @@ enum class FlickGuideStyle {
     DIRECTIONS;
 
     companion object {
-        fun of(name: String?): FlickGuideStyle = entries.firstOrNull { it.name == name } ?: PREVIEW
+        fun of(name: String?): FlickGuideStyle = entries.firstOrNull { it.name == name } ?: DIRECTIONS
     }
 }

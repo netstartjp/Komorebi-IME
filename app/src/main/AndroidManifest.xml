@@ -53,6 +53,12 @@
             android:parentActivityName=".settings.CustomizationActivity" />
 
         <activity
+            android:name=".settings.ThemeEditorActivity"
+            android:exported="false"
+            android:label="テーマエディタ"
+            android:parentActivityName=".settings.CustomizationActivity" />
+
+        <activity
             android:name=".settings.AppProfileActivity"
             android:exported="false"
             android:label="アプリ別入力プロファイル"

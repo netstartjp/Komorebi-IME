@@ -1,0 +1,19 @@
+{
+  "id": "sakura_pink",
+  "label": "Sakura Pink",
+  "backgroundColor": "#FF2D1F24",
+  "keyColor": "#FF382A2F",
+  "keyPressedColor": "#FF50404A",
+  "modifierKeyColor": "#FF302228",
+  "labelColor": "#FFF0D4DC",
+  "flickGuideColor": "#FFF08C9E",
+  "flickGuideLabelColor": "#FFF0D4DC",
+  "flickGuideSelectedLabelColor": "#FFFFFFFF",
+  "candidateBackgroundColor": "#FF2D1F24",
+  "candidateTextColor": "#FFF0D4DC",
+  "keyHeightDp": 56.0,
+  "keyGapDp": 2.0,
+  "keyCornerRadiusDp": 8.0,
+  "labelSizeSp": 17.0,
+  "hapticFeedback": true
+}
