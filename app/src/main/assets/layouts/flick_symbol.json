@@ -8,9 +8,10 @@
         {
           "weight": 1.0,
           "center": {
-            "label": "↶",
+            "label": "2/2",
             "action": {
-              "type": "undo"
+              "type": "layout",
+              "layoutId": "flick_symbol2"
             }
           },
           "style": "MODIFIER"
@@ -416,6 +417,13 @@
             }
           },
           "style": "CHARACTER",
+          "longPress": {
+            "label": "{",
+            "action": {
+              "type": "symbol",
+              "text": "{"
+            }
+          },
           "left": {
             "label": ")",
             "action": {
@@ -483,6 +491,13 @@
             }
           },
           "style": "CHARACTER",
+          "longPress": {
+            "label": "_",
+            "action": {
+              "type": "symbol",
+              "text": "_"
+            }
+          },
           "left": {
             "label": ",",
             "action": {

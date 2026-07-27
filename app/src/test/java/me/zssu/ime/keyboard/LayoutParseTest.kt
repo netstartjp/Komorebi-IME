@@ -19,7 +19,7 @@ class LayoutParseTest {
     @Test
     fun everyBundledLayoutParses() {
         val all = layouts()
-        assertTrue("no layouts found", all.size >= 7)
+        assertTrue("no layouts found", all.size >= 8)
         for ((name, layout) in all) {
             assertEquals("id must match filename", name.removeSuffix(".json"), layout.id)
             assertTrue("$name has no rows", layout.rows.isNotEmpty())
@@ -32,6 +32,16 @@ class LayoutParseTest {
             val widths = layout.rows.map { it.totalWeight }
             for (w in widths) {
                 assertEquals("$name rows must align: $widths", widths[0], w, 0.001f)
+            }
+        }
+    }
+
+    @Test
+    fun flickRowsAreTheSameWidth() {
+        for ((name, layout) in layouts().filter { it.first.startsWith("flick") }) {
+            val widths = layout.rows.map { it.totalWeight }
+            for (width in widths) {
+                assertEquals("$name rows must align: $widths", widths[0], width, 0.001f)
             }
         }
     }
@@ -94,6 +104,19 @@ class LayoutParseTest {
                     layout.inputStyle.mozcCompositionMode,
                 )
             }
+        }
+    }
+
+    @Test
+    fun bundledLongPressOutputsAreDirectSymbols() {
+        val outputs = layouts().flatMap { it.second.rows }
+            .flatMap { it.keys }
+            .mapNotNull { it.longPress }
+        assertTrue("bundled layouts should demonstrate long-press symbols", outputs.isNotEmpty())
+        outputs.forEach {
+            val action = it.action
+            assertTrue("long-press output must be a direct symbol: $action", action is KeyAction.InsertSymbol)
+            assertTrue((action as KeyAction.InsertSymbol).text.isNotEmpty())
         }
     }
 }

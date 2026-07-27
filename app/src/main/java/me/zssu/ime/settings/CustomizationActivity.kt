@@ -1,5 +1,6 @@
 package me.zssu.ime.settings
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -36,11 +37,11 @@ import me.zssu.ime.theme.MaterialYouTheme
 import me.zssu.ime.theme.ZinnaTheme
 
 /**
- * A deliberately data-first layout/theme studio.
+ * Data-first layout/theme studio with both common visual edits and full JSON access.
  *
- * A structured visual layout editor would always lag behind the serialised KeyAction model. The
- * JSON editor exposes every current and future action immediately, while preset selection,
- * duplication, validation and SAF sharing cover users who do not want to manage internal files.
+ * The visual editor handles spatial changes and long-press symbols. The JSON editor remains the
+ * complete representation of every KeyAction, while preset selection, validation and SAF sharing
+ * keep both paths interoperable.
  */
 class CustomizationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,6 +107,12 @@ private fun Studio(modifier: Modifier = Modifier) {
     ) {
         Text("配列・テーマスタジオ", style = MaterialTheme.typography.headlineSmall)
         Text("プリセットを選択し、複製して自由に編集できます。作成数に上限はありません。")
+        Button(
+            onClick = {
+                context.startActivity(Intent(context, VisualLayoutEditorActivity::class.java))
+            },
+            modifier = Modifier.fillMaxWidth(),
+        ) { Text("視覚的な配列エディタを開く") }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ModeButton("配列", kind == ResourceKind.LAYOUT, Modifier.weight(1f)) {
                 kind = ResourceKind.LAYOUT; selectedId = null; editor = ""

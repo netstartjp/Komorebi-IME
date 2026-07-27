@@ -1,0 +1,28 @@
+{
+  "id": "basic_ja",
+  "label": "Komorebi 基本語彙",
+  "entries": [
+    {
+      "term": "木漏れ日",
+      "reading": "こもれび",
+      "meanings": [
+        "木々の葉の間から差し込む日光。"
+      ],
+      "tags": [
+        "名詞"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "IME",
+      "reading": "アイエムイー",
+      "meanings": [
+        "文字入力を補助し、読みを漢字などへ変換する入力方式エディタ。"
+      ],
+      "tags": [
+        "情報技術"
+      ],
+      "source": "Komorebi IME"
+    }
+  ]
+}

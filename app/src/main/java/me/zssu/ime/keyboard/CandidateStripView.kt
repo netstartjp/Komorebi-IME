@@ -29,6 +29,7 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
 
     enum class ToolAction { CLIPBOARD, EMOJI, ONE_HAND_CYCLE, SETTINGS }
     enum class OneHandDisplayMode { FULL, LEFT, RIGHT }
+    enum class EmojiPage { RECENT, EMOJI, KAOMOJI, FAVORITE }
 
     fun interface OnCandidateSelectedListener {
         fun onCandidateSelected(candidate: MozcSession.Candidate)
@@ -50,6 +51,7 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
     }
+    private var currentEmojiPage = EmojiPage.RECENT
 
     init {
         isHorizontalScrollBarEnabled = false
@@ -130,17 +132,49 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
         )
     }
 
-    fun showEmoji() {
+    fun showEmoji(
+        recents: List<String>,
+        favorites: List<String>,
+        page: EmojiPage? = null,
+    ) {
+        val selectedPage = page ?: currentEmojiPage
+        currentEmojiPage = selectedPage
         container.removeAllViews()
         scrollTo(0, 0)
         val padding = (12 * resources.displayMetrics.density).toInt()
-        listOf("😀", "😂", "🥰", "😊", "😭", "👍", "🙏", "🎉", "❤️", "✨", "🔥", "✅", "💡", "👀").forEach { emoji ->
+        val pages = listOf(
+            EmojiPage.RECENT to "最近",
+            EmojiPage.EMOJI to "絵文字",
+            EmojiPage.KAOMOJI to "顔文字",
+            EmojiPage.FAVORITE to "★",
+        )
+        pages.forEach { (target, label) ->
             container.addView(TextView(context).apply {
-                text = emoji
+                text = if (target == selectedPage) "[$label]" else label
+                setTextColor(theme.candidateTextColor)
+                setPadding(padding, padding / 2, padding, padding / 2)
+                gravity = Gravity.CENTER
+                setOnClickListener { showEmoji(recents, favorites, target) }
+            })
+        }
+        val values = when (selectedPage) {
+            EmojiPage.RECENT -> recents.ifEmpty { EmojiRepository.EMOJI.take(10) }
+            EmojiPage.EMOJI -> EmojiRepository.EMOJI
+            EmojiPage.KAOMOJI -> EmojiRepository.KAOMOJI
+            EmojiPage.FAVORITE -> favorites
+        }
+        values.forEach { emoji ->
+            container.addView(TextView(context).apply {
+                text = if (emoji in favorites) "$emoji★" else emoji
+                setTextColor(theme.candidateTextColor)
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, theme.labelSizeSp + 4f)
                 setPadding(padding, padding / 2, padding, padding / 2)
                 gravity = Gravity.CENTER
                 setOnClickListener { onEmojiSelected?.invoke(emoji) }
+                setOnLongClickListener {
+                    onEmojiFavoriteToggled?.invoke(emoji)
+                    true
+                }
             })
         }
         container.addView(
@@ -149,6 +183,52 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
     }
 
     var onEmojiSelected: ((String) -> Unit)? = null
+    var onEmojiFavoriteToggled: ((String) -> Unit)? = null
+
+    /**
+     * Reuses the strip as a compact candidate-inspector, avoiding a dialog window above the IME.
+     */
+    fun showCandidateDetails(
+        candidate: MozcSession.Candidate,
+        definitions: List<String>,
+    ) {
+        container.removeAllViews()
+        scrollTo(0, 0)
+        val padding = (12 * resources.displayMetrics.density).toInt()
+        container.addView(
+            iconButton(R.drawable.ic_material_arrow_back, "候補一覧に戻る") {
+                onCandidateDetailsClosed?.invoke()
+            }
+        )
+        container.addView(TextView(context).apply {
+            text = buildString {
+                append(candidate.text)
+                if (definitions.isNotEmpty()) {
+                    append("　")
+                    append(definitions.joinToString(" / "))
+                } else {
+                    append("　意味辞書には登録されていません")
+                }
+            }
+            setTextColor(theme.candidateTextColor)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, theme.labelSizeSp)
+            setPadding(padding, padding / 2, padding, padding / 2)
+            gravity = Gravity.CENTER_VERTICAL
+            isSingleLine = true
+        })
+        if (candidate.deletable) {
+            container.addView(TextView(context).apply {
+                text = "学習削除"
+                setTextColor(theme.candidateTextColor)
+                setPadding(padding, padding / 2, padding, padding / 2)
+                gravity = Gravity.CENTER
+                setOnClickListener { onCandidateDeleteRequested?.invoke(candidate) }
+            })
+        }
+    }
+
+    var onCandidateDeleteRequested: ((MozcSession.Candidate) -> Unit)? = null
+    var onCandidateDetailsClosed: (() -> Unit)? = null
 
     private fun iconButton(
         @DrawableRes icon: Int,

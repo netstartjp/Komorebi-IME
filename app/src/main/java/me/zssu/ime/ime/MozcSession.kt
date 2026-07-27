@@ -11,6 +11,7 @@ import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.Output
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.Request
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.SessionCommand
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCandidateWindow.Category
+import org.mozc.android.inputmethod.japanese.protobuf.ProtoCandidateWindow.CandidateAttribute
 
 /**
  * Task-level view of a mozc session: sends key events and session commands, and flattens the
@@ -52,12 +53,18 @@ class MozcSession(context: Context) {
         val hasComposition: Boolean get() = preedit.isNotEmpty()
     }
 
-    data class Candidate(val id: Int, val text: String)
+    data class Candidate(
+        val id: Int,
+        val text: String,
+        /** True when Mozc marks the candidate with its DELETABLE history attribute. */
+        val deletable: Boolean = false,
+    )
     data class Segment(val text: String, val highlighted: Boolean)
 
     private var currentStyle: InputStyle? = null
     private var configApplied = false
     private var incognito = false
+    private var deletableCandidateIds: Set<Int> = emptySet()
 
     fun applyInputStyle(style: InputStyle) {
         if (style == currentStyle) return
@@ -226,8 +233,18 @@ class MozcSession(context: Context) {
             cursor = preedit.cursor
         }
 
+        if (hasAllCandidateWords()) {
+            deletableCandidateIds = allCandidateWords.candidatesList
+                .filter { CandidateAttribute.DELETABLE in it.attributesList }
+                .map { it.id }
+                .toSet()
+        } else if (!hasCandidateWindow()) {
+            deletableCandidateIds = emptySet()
+        }
         val candidates = if (hasCandidateWindow()) {
-            candidateWindow.candidateList.map { Candidate(it.id, it.value) }
+            candidateWindow.candidateList.map {
+                Candidate(it.id, it.value, it.id in deletableCandidateIds)
+            }
         } else {
             emptyList()
         }

@@ -47,6 +47,24 @@
             android:parentActivityName=".settings.SettingsActivity" />
 
         <activity
+            android:name=".settings.VisualLayoutEditorActivity"
+            android:exported="false"
+            android:label="視覚的な配列エディタ"
+            android:parentActivityName=".settings.CustomizationActivity" />
+
+        <activity
+            android:name=".settings.AppProfileActivity"
+            android:exported="false"
+            android:label="アプリ別入力プロファイル"
+            android:parentActivityName=".settings.SettingsActivity" />
+
+        <activity
+            android:name=".settings.MeaningDictionaryActivity"
+            android:exported="false"
+            android:label="意味辞書"
+            android:parentActivityName=".settings.SettingsActivity" />
+
+        <activity
             android:name=".settings.UserDictionaryActivity"
             android:exported="false"
             android:label="@string/user_dictionary"

@@ -60,7 +60,7 @@ class FlickKeyboardView @JvmOverloads constructor(
             // onSizeChanged never fires. Relying on it left the new layout with no placed keys at
             // all — a blank keyboard that ignores touches.
             activeTouches.clear()
-            cancelRepeat()
+            cancelTimers()
             refreshPlacement()
             requestLayout()
             invalidate()
@@ -92,6 +92,8 @@ class FlickKeyboardView @JvmOverloads constructor(
         var firedOnPress: Boolean = false,
         /** Set once a hold-to-repeat has fired, so release does not add one extra centre hit. */
         var repeated: Boolean = false,
+        /** Set once [KeySpec.longPress] fires, so release does not also emit the centre output. */
+        var longPressed: Boolean = false,
     )
 
     private var placedKeys: List<PlacedKey> = emptyList()
@@ -101,11 +103,16 @@ class FlickKeyboardView @JvmOverloads constructor(
     private val keyPressedPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val modifierPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
+    private val longPressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        textAlign = Paint.Align.RIGHT
+        alpha = 180
+    }
     private val guideBackgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val guideLabelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
 
     private val handler = Handler(Looper.getMainLooper())
     private var repeatRunnable: Runnable? = null
+    private var longPressRunnable: Runnable? = null
 
     private val flickThresholdPx: Float
         get() = flickThresholdDp * resources.displayMetrics.density
@@ -121,6 +128,7 @@ class FlickKeyboardView @JvmOverloads constructor(
         keyPressedPaint.color = theme.keyPressedColor
         modifierPaint.color = theme.modifierKeyColor
         labelPaint.color = theme.labelColor
+        longPressPaint.color = theme.labelColor
         guideBackgroundPaint.color = theme.flickGuideColor
         guideLabelPaint.color = theme.flickGuideLabelColor
         // The parent paints the panel — a colour, or the user's background image. Painting it here
@@ -137,6 +145,8 @@ class FlickKeyboardView @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         labelPaint.textSize = theme.labelSizeSp * resources.displayMetrics.scaledDensity
+        longPressPaint.textSize =
+            theme.labelSizeSp * 0.55f * resources.displayMetrics.scaledDensity
         guideLabelPaint.textSize = theme.labelSizeSp * resources.displayMetrics.scaledDensity
         refreshPlacement()
     }
@@ -189,6 +199,15 @@ class FlickKeyboardView @JvmOverloads constructor(
             if (paint != null) canvas.drawRoundRect(placed.bounds, radius, radius, paint)
             val baseline = placed.bounds.centerY() - (labelPaint.descent() + labelPaint.ascent()) / 2f
             canvas.drawText(faceLabel(placed.spec), placed.bounds.centerX(), baseline, labelPaint)
+            placed.spec.longPress?.let { output ->
+                val inset = 5f * resources.displayMetrics.density
+                canvas.drawText(
+                    output.label,
+                    placed.bounds.right - inset,
+                    placed.bounds.top - longPressPaint.ascent() + inset / 2f,
+                    longPressPaint,
+                )
+            }
         }
 
         // Guides go on top of every key so a guide near the edge is never clipped by a neighbour.
@@ -289,14 +308,20 @@ class FlickKeyboardView @JvmOverloads constructor(
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
                 val index = event.actionIndex
                 onPointerUp(event.getPointerId(index))
+                if (event.actionMasked == MotionEvent.ACTION_UP) performClick()
             }
 
             MotionEvent.ACTION_CANCEL -> {
-                cancelRepeat()
+                cancelTimers()
                 activeTouches.clear()
                 invalidate()
             }
         }
+        return true
+    }
+
+    override fun performClick(): Boolean {
+        super.performClick()
         return true
     }
 
@@ -306,7 +331,7 @@ class FlickKeyboardView @JvmOverloads constructor(
         // move event on the old pointer rewrite it.
         activeTouches.values.forEach { commit(it) }
         activeTouches.clear()
-        cancelRepeat()
+        cancelTimers()
 
         val touch = Touch(key, x, y)
         activeTouches[pointerId] = touch
@@ -326,6 +351,8 @@ class FlickKeyboardView @JvmOverloads constructor(
                 emit(touch)
                 scheduleRepeat(touch)
             }
+        } else if (key.spec.longPress != null) {
+            scheduleLongPress(touch)
         }
         invalidate()
     }
@@ -336,14 +363,14 @@ class FlickKeyboardView @JvmOverloads constructor(
         if (direction != touch.direction) {
             touch.direction = direction
             // Once the finger leaves the centre the key is no longer a hold-to-repeat candidate.
-            cancelRepeat()
+            cancelTimers()
             invalidate()
         }
     }
 
     private fun onPointerUp(pointerId: Int) {
         val touch = activeTouches.remove(pointerId) ?: return
-        cancelRepeat()
+        cancelTimers()
         commit(touch)
         invalidate()
     }
@@ -357,7 +384,7 @@ class FlickKeyboardView @JvmOverloads constructor(
         )
 
     private fun commit(touch: Touch) {
-        if (touch.firedOnPress) return
+        if (touch.firedOnPress || touch.longPressed) return
         // A flickable repeatable key that already repeated its centre on hold must not add one
         // more on release; a resolved flick (non-centre) still emits normally.
         if (touch.repeated && touch.direction == FlickDirection.CENTER) return
@@ -366,6 +393,10 @@ class FlickKeyboardView @JvmOverloads constructor(
 
     private fun emit(touch: Touch) {
         val output = touch.key.spec.output(touch.direction) ?: return
+        emitOutput(output, touch.key.spec, touch.direction)
+    }
+
+    private fun emitOutput(output: KeyOutput, key: KeySpec, direction: FlickDirection) {
         if (output.action is KeyAction.Shift) {
             // Tap cycles off → once → locked, the way every phone keyboard does it. Consumed here:
             // the service has nothing to do with it and never sees the key.
@@ -377,7 +408,7 @@ class FlickKeyboardView @JvmOverloads constructor(
             invalidate()
             return
         }
-        listener?.onKeyOutput(shiftApplied(output), touch.key.spec, touch.direction)
+        listener?.onKeyOutput(shiftApplied(output), key, direction)
         if (shift == ShiftState.ONCE && output.action is KeyAction.Input) {
             shift = ShiftState.OFF
             invalidate()
@@ -427,13 +458,38 @@ class FlickKeyboardView @JvmOverloads constructor(
         handler.postDelayed(runnable, REPEAT_DELAY_MS)
     }
 
+    private fun scheduleLongPress(touch: Touch) {
+        val output = touch.key.spec.longPress ?: return
+        val runnable = Runnable {
+            if (touch.direction != FlickDirection.CENTER) return@Runnable
+            touch.longPressed = true
+            if (theme.hapticFeedback) {
+                performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+            }
+            emitOutput(output, touch.key.spec, FlickDirection.CENTER)
+            invalidate()
+        }
+        longPressRunnable = runnable
+        handler.postDelayed(runnable, LONG_PRESS_DELAY_MS)
+    }
+
     private fun cancelRepeat() {
         repeatRunnable?.let { handler.removeCallbacks(it) }
         repeatRunnable = null
     }
 
-    override fun onDetachedFromWindow() {
+    private fun cancelLongPressTimer() {
+        longPressRunnable?.let { handler.removeCallbacks(it) }
+        longPressRunnable = null
+    }
+
+    private fun cancelTimers() {
         cancelRepeat()
+        cancelLongPressTimer()
+    }
+
+    override fun onDetachedFromWindow() {
+        cancelTimers()
         super.onDetachedFromWindow()
     }
 
@@ -445,6 +501,7 @@ class FlickKeyboardView @JvmOverloads constructor(
         private const val SHIFT_LOCKED_LABEL = "⇪"
         /** How long the key must be held before it starts repeating. */
         private const val REPEAT_DELAY_MS = 400L
+        private const val LONG_PRESS_DELAY_MS = 450L
 
         /**
          * Gap between repeats. Explicit rather than ViewConfiguration.getKeyRepeatDelay(), which

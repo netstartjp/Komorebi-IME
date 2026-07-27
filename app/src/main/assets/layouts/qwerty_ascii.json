@@ -13,6 +13,13 @@
               "type": "input",
               "text": "q"
             }
+          },
+          "longPress": {
+            "label": "1",
+            "action": {
+              "type": "symbol",
+              "text": "1"
+            }
           }
         },
         {
@@ -22,6 +29,13 @@
             "action": {
               "type": "input",
               "text": "w"
+            }
+          },
+          "longPress": {
+            "label": "2",
+            "action": {
+              "type": "symbol",
+              "text": "2"
             }
           }
         },
@@ -33,6 +47,13 @@
               "type": "input",
               "text": "e"
             }
+          },
+          "longPress": {
+            "label": "3",
+            "action": {
+              "type": "symbol",
+              "text": "3"
+            }
           }
         },
         {
@@ -42,6 +63,13 @@
             "action": {
               "type": "input",
               "text": "r"
+            }
+          },
+          "longPress": {
+            "label": "4",
+            "action": {
+              "type": "symbol",
+              "text": "4"
             }
           }
         },
@@ -53,6 +81,13 @@
               "type": "input",
               "text": "t"
             }
+          },
+          "longPress": {
+            "label": "5",
+            "action": {
+              "type": "symbol",
+              "text": "5"
+            }
           }
         },
         {
@@ -62,6 +97,13 @@
             "action": {
               "type": "input",
               "text": "y"
+            }
+          },
+          "longPress": {
+            "label": "6",
+            "action": {
+              "type": "symbol",
+              "text": "6"
             }
           }
         },
@@ -73,6 +115,13 @@
               "type": "input",
               "text": "u"
             }
+          },
+          "longPress": {
+            "label": "7",
+            "action": {
+              "type": "symbol",
+              "text": "7"
+            }
           }
         },
         {
@@ -82,6 +131,13 @@
             "action": {
               "type": "input",
               "text": "i"
+            }
+          },
+          "longPress": {
+            "label": "8",
+            "action": {
+              "type": "symbol",
+              "text": "8"
             }
           }
         },
@@ -93,6 +149,13 @@
               "type": "input",
               "text": "o"
             }
+          },
+          "longPress": {
+            "label": "9",
+            "action": {
+              "type": "symbol",
+              "text": "9"
+            }
           }
         },
         {
@@ -102,6 +165,13 @@
             "action": {
               "type": "input",
               "text": "p"
+            }
+          },
+          "longPress": {
+            "label": "0",
+            "action": {
+              "type": "symbol",
+              "text": "0"
             }
           }
         }

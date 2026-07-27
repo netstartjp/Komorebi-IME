@@ -95,9 +95,13 @@ private fun SettingsScreen(modifier: Modifier = Modifier) {
 
         UserDictionaryCard()
 
+        MeaningDictionaryCard()
+
         LearningCard()
 
         KeyboardCard()
+
+        AppProfilesCard()
 
         AppearanceCard()
 
@@ -122,6 +126,47 @@ private fun SettingsScreen(modifier: Modifier = Modifier) {
             },
             modifier = Modifier.fillMaxWidth(),
         ) { Text("キーボードを選択") }
+    }
+}
+
+@Composable
+private fun MeaningDictionaryCard() {
+    val context = LocalContext.current
+    val count = me.zssu.ime.dictionary.MeaningDictionaryRepository(context)
+        .dictionaries().sumOf { it.entries.size }
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("意味辞書", style = MaterialTheme.typography.titleMedium)
+            Text("$count 語の意味を候補長押しで表示できます")
+            Button(
+                onClick = {
+                    context.startActivity(Intent(context, MeaningDictionaryActivity::class.java))
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text("意味辞書を追加・管理") }
+        }
+    }
+}
+
+@Composable
+private fun AppProfilesCard() {
+    val context = LocalContext.current
+    val count = AppProfileStore(context).profiles().size
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("アプリ別入力プロファイル", style = MaterialTheme.typography.titleMedium)
+            Text(if (count == 0) "アプリ別設定はありません" else "$count アプリに設定済み")
+            Text(
+                "入力方式・片手モード・高さ・シークレットモードをアプリごとに切り替えます",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Button(
+                onClick = {
+                    context.startActivity(Intent(context, AppProfileActivity::class.java))
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text("アプリ別設定を管理") }
+        }
     }
 }
 
@@ -316,7 +361,7 @@ private fun LearningCard() {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("変換学習", style = MaterialTheme.typography.titleMedium)
             Text(
-                "候補を長押しすると、その候補だけを学習履歴から削除できます。",
+                "候補を長押しすると意味を確認でき、削除可能な予測候補では学習削除も選べます。",
                 style = MaterialTheme.typography.bodyMedium,
             )
             OutlinedButton(

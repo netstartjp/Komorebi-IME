@@ -21,6 +21,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnAttach
 import androidx.core.view.updatePadding
 import me.zssu.ime.keyboard.CandidateStripView
+import me.zssu.ime.keyboard.EmojiRepository
 import me.zssu.ime.keyboard.FlickDirection
 import me.zssu.ime.keyboard.FlickKeyboardView
 import me.zssu.ime.keyboard.KeyAction
@@ -30,7 +31,9 @@ import me.zssu.ime.keyboard.KeyboardLayout
 import me.zssu.ime.keyboard.KeyboardPanelView
 import me.zssu.ime.keyboard.LayoutRepository
 import me.zssu.ime.settings.ImeSettings
+import me.zssu.ime.settings.AppProfileStore
 import me.zssu.ime.settings.SettingsActivity
+import me.zssu.ime.dictionary.MeaningDictionaryRepository
 import me.zssu.ime.theme.KeyboardTheme
 import me.zssu.ime.theme.MaterialYouTheme
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.KeyEvent
@@ -47,6 +50,9 @@ class ZinnaImeService : InputMethodService() {
 
     private lateinit var repository: LayoutRepository
     private lateinit var settings: ImeSettings
+    private lateinit var appProfiles: AppProfileStore
+    private lateinit var emojiRepository: EmojiRepository
+    private lateinit var meaningDictionaries: MeaningDictionaryRepository
     private lateinit var session: MozcSession
 
     private var keyboardView: FlickKeyboardView? = null
@@ -54,6 +60,9 @@ class ZinnaImeService : InputMethodService() {
     private var layout: KeyboardLayout? = null
     private var theme: KeyboardTheme = KeyboardTheme.Default
     private var fieldPolicy = InputFieldPolicy.DEFAULT
+    private var activeProfile: AppProfileStore.Profile? = null
+    private var lastCandidates: List<MozcSession.Candidate> = emptyList()
+    private var lastFocusedCandidateIndex: Int = -1
 
     /**
      * Whether mozc currently holds a composition. Mirrors the last rendered state so Enter can
@@ -94,6 +103,9 @@ class ZinnaImeService : InputMethodService() {
         super.onCreate()
         repository = LayoutRepository(this)
         settings = ImeSettings(this)
+        appProfiles = AppProfileStore(this)
+        emojiRepository = EmojiRepository(this)
+        meaningDictionaries = MeaningDictionaryRepository(this)
         session = MozcSession(this)
         if (!session.isAvailable) {
             // Without the native engine there is nothing useful to do; the keyboard still renders
@@ -105,7 +117,10 @@ class ZinnaImeService : InputMethodService() {
     override fun onCreateInputView(): View {
         // onStartInputView normally makes this available first. Keep an explicitly selected policy
         // if an OEM calls view creation with no EditorInfo instead of falling back to normal text.
-        currentInputEditorInfo?.let { fieldPolicy = InputFieldPolicy.from(it) }
+        currentInputEditorInfo?.let {
+            activeProfile = appProfiles.profileFor(it.packageName)
+            fieldPolicy = effectivePolicy(InputFieldPolicy.from(it), activeProfile)
+        }
         val loaded = repository.loadLayout(initialLayoutId(fieldPolicy))
             ?: repository.loadLayout(LayoutRepository.DEFAULT_LAYOUT_ID)
         if (loaded == null) Log.e(TAG, "default layout missing from assets")
@@ -149,6 +164,19 @@ class ZinnaImeService : InputMethodService() {
                 render(session.selectCandidate(candidate.id))
             }
             onCandidateLongPressed = { candidate ->
+                val definitions = meaningDictionaries.lookup(candidate.text).flatMap { entry ->
+                    entry.meanings.map { meaning ->
+                        buildString {
+                            entry.reading?.let { append("[$it] ") }
+                            append(meaning)
+                            if (entry.tags.isNotEmpty()) append(" (${entry.tags.joinToString("・")})")
+                            entry.source?.let { append(" — $it") }
+                        }
+                    }
+                }
+                showCandidateDetails(candidate, definitions)
+            }
+            onCandidateDeleteRequested = { candidate ->
                 render(session.deleteCandidateFromHistory(candidate.id))
                 Toast.makeText(
                     this@ZinnaImeService,
@@ -156,9 +184,25 @@ class ZinnaImeService : InputMethodService() {
                     Toast.LENGTH_SHORT,
                 ).show()
             }
+            onCandidateDetailsClosed = {
+                setCandidates(lastCandidates, lastFocusedCandidateIndex)
+            }
             onToolAction = ::handleToolAction
-            onEmojiSelected = { emoji -> currentInputConnection?.commitText(emoji, 1) }
-            oneHandMode = when (settings.oneHandMode) {
+            onEmojiSelected = { emoji ->
+                currentInputConnection?.commitText(emoji, 1)
+                emojiRepository.recordUsed(emoji)
+                showEmoji(emojiRepository.recents(), emojiRepository.favorites())
+            }
+            onEmojiFavoriteToggled = { emoji ->
+                val added = emojiRepository.toggleFavorite(emoji)
+                Toast.makeText(
+                    this@ZinnaImeService,
+                    if (added) "お気に入りに追加しました" else "お気に入りから外しました",
+                    Toast.LENGTH_SHORT,
+                ).show()
+                showEmoji(emojiRepository.recents(), emojiRepository.favorites())
+            }
+            oneHandMode = when (effectiveOneHandMode()) {
                 ImeSettings.OneHandMode.OFF -> CandidateStripView.OneHandDisplayMode.FULL
                 ImeSettings.OneHandMode.LEFT -> CandidateStripView.OneHandDisplayMode.LEFT
                 ImeSettings.OneHandMode.RIGHT -> CandidateStripView.OneHandDisplayMode.RIGHT
@@ -181,13 +225,13 @@ class ZinnaImeService : InputMethodService() {
             orientation = LinearLayout.VERTICAL
             clipChildren = false
             clipToPadding = false
-            gravity = when (settings.oneHandMode) {
+            gravity = when (effectiveOneHandMode()) {
                 ImeSettings.OneHandMode.LEFT -> Gravity.START
                 ImeSettings.OneHandMode.RIGHT -> Gravity.END
                 ImeSettings.OneHandMode.OFF -> Gravity.CENTER_HORIZONTAL
             }
         }
-        root.gravity = when (settings.oneHandMode) {
+        root.gravity = when (effectiveOneHandMode()) {
             ImeSettings.OneHandMode.LEFT -> Gravity.START
             ImeSettings.OneHandMode.RIGHT -> Gravity.END
             ImeSettings.OneHandMode.OFF -> Gravity.CENTER_HORIZONTAL
@@ -206,7 +250,7 @@ class ZinnaImeService : InputMethodService() {
         root.addView(
             content,
             LinearLayout.LayoutParams(
-                if (settings.oneHandMode == ImeSettings.OneHandMode.OFF) {
+                if (effectiveOneHandMode() == ImeSettings.OneHandMode.OFF) {
                     LinearLayout.LayoutParams.MATCH_PARENT
                 } else {
                     (resources.displayMetrics.widthPixels * ONE_HAND_WIDTH).toInt()
@@ -217,7 +261,7 @@ class ZinnaImeService : InputMethodService() {
 
         candidateView = candidates
         keyboardView = keyboard
-        builtFromRevision = settings.revision
+        builtFromRevision = combinedRevision()
         session.setIncognitoMode(fieldPolicy.incognito)
         loaded?.let { session.applyInputStyle(it.inputStyle) }
         candidates.showTools()
@@ -232,7 +276,11 @@ class ZinnaImeService : InputMethodService() {
                 if (!text.isNullOrEmpty()) currentInputConnection?.commitText(text, 1)
                 else Toast.makeText(this, "クリップボードは空です", Toast.LENGTH_SHORT).show()
             }
-            CandidateStripView.ToolAction.EMOJI -> candidateView?.showEmoji()
+            CandidateStripView.ToolAction.EMOJI -> candidateView?.showEmoji(
+                emojiRepository.recents(),
+                emojiRepository.favorites(),
+                CandidateStripView.EmojiPage.RECENT,
+            )
             CandidateStripView.ToolAction.ONE_HAND_CYCLE -> cycleOneHandMode()
             CandidateStripView.ToolAction.SETTINGS -> startActivity(
                 Intent(this, SettingsActivity::class.java)
@@ -247,17 +295,23 @@ class ZinnaImeService : InputMethodService() {
      * narrow keyboard with no obvious exit.
      */
     private fun cycleOneHandMode() {
-        settings.oneHandMode = when (settings.oneHandMode) {
+        val next = when (effectiveOneHandMode()) {
             ImeSettings.OneHandMode.OFF -> ImeSettings.OneHandMode.LEFT
             ImeSettings.OneHandMode.LEFT -> ImeSettings.OneHandMode.RIGHT
             ImeSettings.OneHandMode.RIGHT -> ImeSettings.OneHandMode.OFF
+        }
+        val profile = activeProfile
+        if (profile != null) {
+            activeProfile = profile.copy(oneHandMode = next.name).also(appProfiles::save)
+        } else {
+            settings.oneHandMode = next
         }
         setInputView(onCreateInputView())
     }
 
     /** Keeps the bottom-left key as the language switch on the mixed QWERTY alphabet plane. */
     private fun adaptLayoutForStyle(source: KeyboardLayout): KeyboardLayout {
-        return settings.keyboardStyle.adapt(source)
+        return effectiveKeyboardStyle().adapt(source)
     }
 
     /**
@@ -274,16 +328,22 @@ class ZinnaImeService : InputMethodService() {
             repository.loadTheme(selected)
                 ?: MaterialYouTheme.create(this, forceDark = settings.pureBlack)
         }
-        val sized = base.copy(keyHeightDp = base.keyHeightDp * settings.keyHeightScale)
+        val sized = base.copy(keyHeightDp = base.keyHeightDp * effectiveKeyHeightScale())
         return if (settings.pureBlack) sized.asPureBlack() else sized
     }
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
-        val nextPolicy = InputFieldPolicy.from(info)
+        appProfiles.recordSeenPackage(info?.packageName)
+        val nextProfile = appProfiles.profileFor(info?.packageName)
+        val nextPolicy = effectivePolicy(InputFieldPolicy.from(info), nextProfile)
         // Settings live in another process's Activity, so this is the first moment we can notice
         // they changed. Rebuilding only on a revision bump keeps the common case free.
-        if (settings.revision != builtFromRevision || nextPolicy != fieldPolicy) {
+        if (combinedRevision() != builtFromRevision ||
+            nextPolicy != fieldPolicy ||
+            nextProfile != activeProfile
+        ) {
+            activeProfile = nextProfile
             fieldPolicy = nextPolicy
             setInputView(onCreateInputView())
         }
@@ -507,7 +567,7 @@ class ZinnaImeService : InputMethodService() {
     private fun switchLayout(layoutId: String) {
         // The layouts point inside their own family; the user's style decides which family the
         // kana and alphabet planes actually come from, so every switch goes through it.
-        val resolved = settings.keyboardStyle.resolve(layoutId)
+        val resolved = effectiveKeyboardStyle().resolve(layoutId)
         val next = repository.loadLayout(resolved)
         if (next == null) {
             Log.w(TAG, "layout $resolved not found; staying on ${layout?.id}")
@@ -522,10 +582,12 @@ class ZinnaImeService : InputMethodService() {
 
     private fun initialLayoutId(policy: InputFieldPolicy): String = when (policy.plane) {
         InputFieldPolicy.Plane.USER_DEFAULT ->
-            settings.activeLayoutId?.takeIf { repository.loadLayout(it) != null }
-                ?: settings.keyboardStyle.defaultLayoutId
-        InputFieldPolicy.Plane.ASCII -> settings.keyboardStyle.resolve("qwerty_ascii")
-        InputFieldPolicy.Plane.NUMERIC -> when (settings.keyboardStyle) {
+            settings.activeLayoutId
+                ?.takeIf { activeProfile == null }
+                ?.takeIf { repository.loadLayout(it) != null }
+                ?: effectiveKeyboardStyle().defaultLayoutId
+        InputFieldPolicy.Plane.ASCII -> effectiveKeyboardStyle().resolve("qwerty_ascii")
+        InputFieldPolicy.Plane.NUMERIC -> when (effectiveKeyboardStyle()) {
             me.zssu.ime.keyboard.KeyboardStyle.QWERTY -> "qwerty_symbol"
             else -> "flick_symbol"
         }
@@ -587,8 +649,26 @@ class ZinnaImeService : InputMethodService() {
         }
         ic.endBatchEdit()
 
+        lastCandidates = state.candidates
+        lastFocusedCandidateIndex = state.focusedCandidateIndex
         candidateView?.setCandidates(state.candidates, state.focusedCandidateIndex)
     }
+
+    private fun effectiveKeyboardStyle() =
+        activeProfile?.resolvedKeyboardStyle ?: settings.keyboardStyle
+
+    private fun effectiveOneHandMode() =
+        activeProfile?.resolvedOneHandMode ?: settings.oneHandMode
+
+    private fun effectiveKeyHeightScale() =
+        activeProfile?.keyHeightScale ?: settings.keyHeightScale
+
+    private fun effectivePolicy(
+        base: InputFieldPolicy,
+        profile: AppProfileStore.Profile?,
+    ): InputFieldPolicy = base.copy(incognito = base.incognito || profile?.incognito == true)
+
+    private fun combinedRevision(): Int = settings.revision * 31 + appProfiles.revision
 
     companion object {
         private const val TAG = "ZinnaImeService"

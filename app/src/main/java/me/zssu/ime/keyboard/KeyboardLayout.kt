@@ -53,6 +53,8 @@ data class KeySpec(
     val up: KeyOutput? = null,
     val right: KeyOutput? = null,
     val down: KeyOutput? = null,
+    /** Optional output emitted by holding the key without flicking. */
+    val longPress: KeyOutput? = null,
     /** Overrides the label drawn on the key face; defaults to [center]'s label. */
     val label: String? = null,
     /** Holding the key repeats it (backspace, cursor movement). */

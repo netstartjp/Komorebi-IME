@@ -13,9 +13,9 @@ import java.io.File
  * Loads layouts and themes, preferring user-supplied files over the bundled defaults.
  *
  * Lookup order for both kinds of resource is user directory first, then assets. That single rule is
- * what makes the app customizable without a theme editor: dropping `layouts/flick_kana.json` into
- * the app's files directory overrides the shipped layout of the same id, and deleting it restores
- * the default. The in-app editor, when it lands, is just a writer for these same files.
+ * what makes the app customizable: saving `layouts/flick_kana.json` in the app's files directory
+ * overrides the shipped layout of the same id, and deleting it restores the default. Both the
+ * visual editor and JSON studio are writers for these same files.
  */
 class LayoutRepository(private val context: Context) {
 
