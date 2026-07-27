@@ -409,9 +409,16 @@ class MozcSession(context: Context) {
         } else {
             null
         }
-        val (reordered, reorderedFocused) = exactReadingFirst(
-            candidates, focusedId, extending::contains,
-        )
+        // exactReadingFirst is for live suggestions only — during explicit conversion or prediction
+        // with a focused item, mozc's own ranking order is intentional and should not be reordered.
+        val isLiveUnfocusedSuggestion = hasCandidateWindow() &&
+            candidateWindow.category == Category.SUGGESTION &&
+            !candidateWindow.hasFocusedIndex()
+        val (reordered, reorderedFocused) = if (isLiveUnfocusedSuggestion) {
+            exactReadingFirst(candidates, focusedId, extending::contains)
+        } else {
+            candidates to (focusedId?.let { id -> candidates.indexOfFirst { it.id == id } } ?: -1)
+        }
 
         return State(
             committedText = if (hasResult()) result.value else "",

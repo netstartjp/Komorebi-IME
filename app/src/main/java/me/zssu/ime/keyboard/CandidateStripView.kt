@@ -81,6 +81,14 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
      * invalidate unconditionally, so assigning the same value still costs a layout pass.
      */
     fun setCandidates(candidates: List<MozcSession.Candidate>, focusedIndex: Int) {
+        if (candidates.isEmpty()) {
+            showTools()
+            return
+        }
+        // Tear down any non-chip children left by showTools / showEmoji.
+        for (i in container.childCount - 1 downTo 0) {
+            if (container.getChildAt(i) !is TextView) container.removeViewAt(i)
+        }
         while (container.childCount > candidates.size) {
             container.removeViewAt(container.childCount - 1)
         }
@@ -109,6 +117,7 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
     }
 
     private fun highlight(index: Int, on: Boolean) {
+        if (index < 0 || index >= container.childCount) return
         val view = container.getChildAt(index) ?: return
         if (on) view.setBackgroundColor(theme.keyPressedColor) else view.background = null
     }
