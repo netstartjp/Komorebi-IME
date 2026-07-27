@@ -41,6 +41,12 @@
         </service>
 
         <activity
+            android:name=".settings.CustomizationActivity"
+            android:exported="false"
+            android:label="配列・テーマスタジオ"
+            android:parentActivityName=".settings.SettingsActivity" />
+
+        <activity
             android:name=".settings.UserDictionaryActivity"
             android:exported="false"
             android:label="@string/user_dictionary"

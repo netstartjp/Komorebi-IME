@@ -5,6 +5,8 @@ import android.util.Log
 import me.zssu.ime.theme.KeyboardTheme
 import me.zssu.ime.theme.MaterialYouTheme
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
 
 /**
@@ -57,6 +59,66 @@ class LayoutRepository(private val context: Context) {
             .writeText(json.encodeToString(KeyboardTheme.serializer(), theme))
     }
 
+    sealed interface ImportedResource {
+        val id: String
+        data class Layout(override val id: String) : ImportedResource
+        data class Theme(override val id: String) : ImportedResource
+    }
+
+    /**
+     * Validates before touching disk. IDs are deliberately filename-safe: imported JSON must never
+     * be able to escape the app-owned resource directories.
+     */
+    fun importJson(text: String): Result<ImportedResource> = runCatching {
+        require(text.toByteArray().size <= MAX_JSON_BYTES) { "JSON は 1 MB 以下にしてください" }
+        val root = json.parseToJsonElement(text).jsonObject
+        val id = root["id"]?.jsonPrimitive?.content.orEmpty()
+        require(ID_PATTERN.matches(id)) {
+            "id は英数字・ハイフン・アンダースコア（1〜64文字）で指定してください"
+        }
+        if ("rows" in root) {
+            val value = json.decodeFromString<KeyboardLayout>(text)
+            validate(value)
+            saveLayout(value)
+            ImportedResource.Layout(value.id)
+        } else {
+            val value = json.decodeFromString<KeyboardTheme>(text)
+            validate(value)
+            saveTheme(value)
+            ImportedResource.Theme(value.id)
+        }
+    }
+
+    fun exportLayout(id: String): String? =
+        loadLayout(id)?.let { json.encodeToString(KeyboardLayout.serializer(), it) }
+
+    fun exportTheme(id: String): String? =
+        if (id == MaterialYouTheme.ID) null
+        else loadTheme(id)?.let { json.encodeToString(KeyboardTheme.serializer(), it) }
+
+    fun hasUserOverride(directory: String, id: String): Boolean {
+        val dir = if (directory == LAYOUTS_DIR) layoutsDir else themesDir
+        return File(dir, "$id.json").isFile
+    }
+
+    private fun validate(layout: KeyboardLayout) {
+        require(layout.rows.isNotEmpty() && layout.rows.size <= 12) { "行数は 1〜12 行にしてください" }
+        require(layout.rows.all { it.keys.isNotEmpty() && it.keys.size <= 20 }) {
+            "各行のキー数は 1〜20 個にしてください"
+        }
+        require(layout.rows.flatMap { it.keys }.all { it.weight > 0f && it.weight <= 10f }) {
+            "キー幅は 0 より大きく 10 以下にしてください"
+        }
+    }
+
+    private fun validate(theme: KeyboardTheme) {
+        require(theme.keyHeightDp in 32f..96f) { "キー高さは 32〜96dp にしてください" }
+        require(theme.keyGapDp in 0f..16f && theme.keyCornerRadiusDp in 0f..32f) {
+            "キー間隔または角丸が範囲外です"
+        }
+        require(theme.labelSizeSp in 10f..32f) { "文字サイズは 10〜32sp にしてください" }
+    }
+
     /** Removes a user override, falling back to the bundled version if one exists. */
     fun deleteOverride(directory: String, id: String): Boolean {
         val dir = if (directory == LAYOUTS_DIR) layoutsDir else themesDir
@@ -94,5 +156,7 @@ class LayoutRepository(private val context: Context) {
         const val LAYOUTS_DIR = "layouts"
         const val THEMES_DIR = "themes"
         const val DEFAULT_LAYOUT_ID = "flick_kana"
+        private const val MAX_JSON_BYTES = 1024 * 1024
+        private val ID_PATTERN = Regex("[A-Za-z0-9_-]{1,64}")
     }
 }

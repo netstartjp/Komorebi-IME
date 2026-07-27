@@ -168,8 +168,13 @@ class ZinnaImeService : InputMethodService() {
      * palette, which also means the keyboard tracks light/dark without a setting.
      */
     private fun resolveTheme(): KeyboardTheme {
-        val base = repository.loadTheme(MaterialYouTheme.ID)
-            ?: MaterialYouTheme.create(this, forceDark = settings.pureBlack)
+        val selected = settings.activeThemeId
+        val base = if (selected == MaterialYouTheme.ID) {
+            MaterialYouTheme.create(this, forceDark = settings.pureBlack)
+        } else {
+            repository.loadTheme(selected)
+                ?: MaterialYouTheme.create(this, forceDark = settings.pureBlack)
+        }
         val sized = base.copy(keyHeightDp = base.keyHeightDp * settings.keyHeightScale)
         return if (settings.pureBlack) sized.asPureBlack() else sized
     }
@@ -394,7 +399,9 @@ class ZinnaImeService : InputMethodService() {
     }
 
     private fun initialLayoutId(policy: InputFieldPolicy): String = when (policy.plane) {
-        InputFieldPolicy.Plane.USER_DEFAULT -> settings.keyboardStyle.defaultLayoutId
+        InputFieldPolicy.Plane.USER_DEFAULT ->
+            settings.activeLayoutId?.takeIf { repository.loadLayout(it) != null }
+                ?: settings.keyboardStyle.defaultLayoutId
         InputFieldPolicy.Plane.ASCII -> settings.keyboardStyle.resolve("qwerty_ascii")
         InputFieldPolicy.Plane.NUMERIC -> when (settings.keyboardStyle) {
             me.zssu.ime.keyboard.KeyboardStyle.QWERTY -> "qwerty_symbol"

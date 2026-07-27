@@ -69,8 +69,6 @@ private fun SettingsScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val repository = remember { LayoutRepository(context) }
     val engineStatus = remember { describeEngine(context) }
-    val layouts = remember { repository.availableLayoutIds() }
-    val themes = remember { repository.availableThemeIds() }
 
     Column(
         modifier = modifier
@@ -84,8 +82,7 @@ private fun SettingsScreen(modifier: Modifier = Modifier) {
 
         InfoCard(title = "変換エンジン", body = engineStatus)
         InfoCard(title = "追加辞書", body = describeDictionaries(context))
-        InfoCard(title = "配列", body = layouts.joinToString(", ").ifEmpty { "(なし)" })
-        InfoCard(title = "テーマ", body = themes.joinToString(", ").ifEmpty { "(なし)" })
+        CustomizationCard(repository)
 
         UserDictionaryCard()
 
@@ -114,6 +111,31 @@ private fun SettingsScreen(modifier: Modifier = Modifier) {
             },
             modifier = Modifier.fillMaxWidth(),
         ) { Text("キーボードを選択") }
+    }
+}
+
+@Composable
+private fun CustomizationCard(repository: LayoutRepository) {
+    val context = LocalContext.current
+    val settings = remember { ImeSettings(context) }
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("配列とテーマ", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "配列 ${repository.availableLayoutIds().size} 個 / テーマ " +
+                    "${repository.availableThemeIds().size} 個",
+            )
+            Text(
+                "使用中: ${settings.activeLayoutId ?: "入力方式の標準"} / ${settings.activeThemeId}",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Button(
+                onClick = {
+                    context.startActivity(Intent(context, CustomizationActivity::class.java))
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text("プリセット選択・自作・共有") }
+        }
     }
 }
 

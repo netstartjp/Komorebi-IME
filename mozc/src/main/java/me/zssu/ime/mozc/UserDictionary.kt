@@ -56,6 +56,30 @@ class UserDictionary(context: Context) {
 
     fun delete(entry: Entry): List<Entry> = write(entries() - entry)
 
+    /** Plain Mozc-compatible TSV for an explicit SAF export. Decryption never leaves this call. */
+    fun exportTsv(): String = contents()
+
+    /**
+     * Replaces the dictionary from Mozc / Google Japanese Input compatible TSV.
+     * Parsing and size checks finish before the encrypted authoritative file is touched.
+     */
+    fun importTsv(tsv: String): Result<List<Entry>> = runCatching {
+        require(tsv.toByteArray().size <= MAX_IMPORT_BYTES) { "辞書は 5 MB 以下にしてください" }
+        val parsed = tsv.lines().mapNotNull { line ->
+            if (line.isBlank() || line.startsWith("#")) return@mapNotNull null
+            val fields = line.split('\t')
+            require(fields.size >= 2) { "TSVとして読めない行があります" }
+            Entry(
+                fields[0],
+                fields[1],
+                fields.getOrNull(2)?.ifBlank { DEFAULT_POS } ?: DEFAULT_POS,
+                fields.getOrNull(3).orEmpty(),
+            ).sanitized()
+        }
+        require(parsed.isNotEmpty()) { "有効な単語がありません" }
+        write(parsed.distinctBy { it.reading to it.word })
+    }
+
     private fun write(entries: List<Entry>): List<Entry> {
         SecureStore.write(
             file,
@@ -106,6 +130,7 @@ class UserDictionary(context: Context) {
     companion object {
         private const val TAG = "UserDictionary"
         private const val FILE_NAME = "user_dictionary.enc"
+        private const val MAX_IMPORT_BYTES = 5 * 1024 * 1024
 
         /** Shown in mozc's dictionary list, and kept distinct from the bundled dictionaries. */
         const val DICTIONARY_NAME = "ユーザー辞書"

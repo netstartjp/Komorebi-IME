@@ -3,6 +3,8 @@ package me.zssu.ime.settings
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,15 +62,59 @@ private fun UserDictionaryScreen() {
     val dictionary = remember { UserDictionary(context) }
     var entries by remember { mutableStateOf(dictionary.entries()) }
     var editing by remember { mutableStateOf<EditTarget?>(null) }
+    var status by remember { mutableStateOf<String?>(null) }
+    val importFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        runCatching {
+            context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+                ?: error("ファイルを読み込めません")
+        }.mapCatching { dictionary.importTsv(it).getOrThrow() }
+            .onSuccess {
+                entries = it
+                status = "${it.size} 語を取り込みました"
+            }
+            .onFailure { status = "取り込み失敗: ${it.message}" }
+    }
+    val exportFile = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("text/tab-separated-values")
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        runCatching {
+            context.contentResolver.openOutputStream(uri)?.bufferedWriter()
+                ?.use { it.write(dictionary.exportTsv()) }
+                ?: error("保存先を開けません")
+        }.onSuccess { status = "辞書を書き出しました" }
+            .onFailure { status = "書き出し失敗: ${it.message}" }
+    }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("ユーザー辞書") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("ユーザー辞書") },
+                actions = {
+                    TextButton(onClick = { importFile.launch(arrayOf("text/*", "application/octet-stream")) }) {
+                        Text("取込")
+                    }
+                    TextButton(
+                        onClick = { exportFile.launch("zinna-user-dictionary.txt") },
+                        enabled = entries.isNotEmpty(),
+                    ) { Text("書出") }
+                },
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = { editing = EditTarget(null) }) {
                 Icon(Icons.Filled.Add, contentDescription = "単語を追加")
             }
         },
     ) { padding ->
+        status?.let {
+            Text(
+                it,
+                modifier = Modifier.padding(padding).padding(horizontal = 16.dp),
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
         if (entries.isEmpty()) {
             Box(
                 Modifier.fillMaxSize().padding(padding).padding(32.dp),

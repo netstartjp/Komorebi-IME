@@ -59,6 +59,27 @@ class ImeSettings(context: Context) {
             bumpRevision()
         }
 
+    /** Theme selected in the in-app studio. `material_you` remains the safe dynamic default. */
+    var activeThemeId: String
+        get() = prefs.getString(KEY_ACTIVE_THEME, DEFAULT_THEME_ID) ?: DEFAULT_THEME_ID
+        set(value) {
+            prefs.edit().putString(KEY_ACTIVE_THEME, value).apply()
+            bumpRevision()
+        }
+
+    /**
+     * Optional custom entry plane. Once opened, a layout's own SwitchLayout actions continue to
+     * define its family, so completely new multi-plane keyboards can be shipped as JSON alone.
+     */
+    var activeLayoutId: String?
+        get() = prefs.getString(KEY_ACTIVE_LAYOUT, null)
+        set(value) {
+            prefs.edit().apply {
+                if (value == null) remove(KEY_ACTIVE_LAYOUT) else putString(KEY_ACTIVE_LAYOUT, value)
+            }.apply()
+            bumpRevision()
+        }
+
     /**
      * The keyboard background image, or null for a plain colour.
      *
@@ -106,6 +127,9 @@ class ImeSettings(context: Context) {
         private const val BACKGROUND_FILE = "keyboard_background"
         private const val KEY_HEIGHT_SCALE = "key_height_scale"
         private const val KEY_KEYBOARD_STYLE = "keyboard_style"
+        private const val KEY_ACTIVE_THEME = "active_theme"
+        private const val KEY_ACTIVE_LAYOUT = "active_layout"
+        const val DEFAULT_THEME_ID = "material_you"
         const val DEFAULT_BACKGROUND_OPACITY = 0.45f
         const val MIN_KEY_HEIGHT_SCALE = 0.7f
         const val MAX_KEY_HEIGHT_SCALE = 1.5f
