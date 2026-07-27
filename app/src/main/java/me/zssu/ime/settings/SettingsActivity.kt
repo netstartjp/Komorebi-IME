@@ -10,42 +10,115 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Brush
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Devices
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.GTranslate
+import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Keyboard
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Style
+import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Update
+import androidx.compose.material.icons.filled.Widgets
+import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.Brush
+import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Devices
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.GTranslate
+import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Keyboard
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
+import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Psychology
+import androidx.compose.material.icons.outlined.School
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.Style
+import androidx.compose.material.icons.outlined.TouchApp
+import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material.icons.outlined.Update
+import androidx.compose.material.icons.outlined.Widgets
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import me.zssu.ime.keyboard.FlickGuideStyle
 import me.zssu.ime.keyboard.KeyboardStyle
@@ -54,20 +127,136 @@ import me.zssu.ime.mozc.MozcEngine
 import me.zssu.ime.mozc.UserDictionary
 import me.zssu.ime.theme.ZinnaTheme
 
-/**
- * Setup and status screen.
- *
- * Deliberately thin for now: enabling the IME and confirming the native engine actually loaded are
- * the two things a user needs on first run, and the second one is the difference between "the
- * keyboard is broken" and "libmozc.so is missing for this ABI".
- */
 class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ZinnaTheme {
-                Scaffold { padding ->
-                    SettingsScreen(Modifier.padding(padding))
+                SettingsScreen()
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+private fun SettingsScreen() {
+    val context = LocalContext.current
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("設定", style = MaterialTheme.typography.titleLarge) },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
+            )
+        },
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Spacer(Modifier.height(8.dp))
+            HeroSection()
+            Spacer(Modifier.height(4.dp))
+            QuickActionsSection()
+            EngineSection()
+            DictionarySection()
+            LayoutThemeSection()
+            InputStyleSection()
+            KeyboardLayoutSection()
+            AppearanceSection()
+            LearningSection()
+            AppProfilesSection()
+            AboutSection()
+            Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun HeroSection() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        MaterialTheme.colorScheme.secondaryContainer,
+                    ),
+                ),
+            )
+            .padding(24.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                Icons.Filled.Brush,
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                "Komorebi IME",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                "言葉をそっと照らす、日本語入力",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun QuickActionsSection() {
+    val context = LocalContext.current
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            SectionHeader(Icons.Filled.Settings, Icons.Outlined.Settings, "クイック設定")
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                FilledTonalButton(
+                    onClick = {
+                        context.startActivity(
+                            Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                    },
+                ) {
+                    Icon(Icons.Filled.Keyboard, contentDescription = null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("有効化")
+                }
+                FilledTonalButton(
+                    onClick = {
+                        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                        imm.showInputMethodPicker()
+                    },
+                ) {
+                    Icon(Icons.Filled.GridView, contentDescription = null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("切り替え")
                 }
             }
         }
@@ -75,391 +264,289 @@ class SettingsActivity : ComponentActivity() {
 }
 
 @Composable
-private fun SettingsScreen(modifier: Modifier = Modifier) {
+private fun EngineSection() {
     val context = LocalContext.current
-    val repository = remember { LayoutRepository(context) }
     val engineStatus = remember { describeEngine(context) }
+    val dictStatus = remember { describeDictionaries(context) }
+    val healthy = engineStatus.startsWith("オフライン")
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (healthy) MaterialTheme.colorScheme.surface
+            else MaterialTheme.colorScheme.errorContainer,
+        ),
     ) {
-        Text("Komorebi IME", style = MaterialTheme.typography.headlineMedium)
-        Text("言葉をそっと照らす、日本語入力", style = MaterialTheme.typography.titleMedium)
-
-        InfoCard(title = "変換エンジン", body = engineStatus)
-        InfoCard(title = "追加辞書", body = describeDictionaries(context))
-        BundledDictionaryToggles()
-        CustomizationCard(repository)
-
-        UserDictionaryCard()
-
-        MeaningDictionaryCard()
-
-        LearningCard()
-
-        KeyboardCard()
-
-        AppProfilesCard()
-
-        AppearanceCard()
-
-        AboutCard()
-
-        TestInputField()
-
-        Button(
-            onClick = {
-                context.startActivity(
-                    Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    if (healthy) Icons.Filled.Psychology else Icons.Filled.Info,
+                    contentDescription = null,
+                    tint = if (healthy) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(24.dp),
                 )
-            },
-            modifier = Modifier.fillMaxWidth(),
-        ) { Text("キーボードを有効化") }
-
-        Button(
-            onClick = {
-                val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showInputMethodPicker()
-            },
-            modifier = Modifier.fillMaxWidth(),
-        ) { Text("キーボードを選択") }
+                Spacer(Modifier.width(10.dp))
+                Text("変換エンジン", style = MaterialTheme.typography.titleMedium)
+            }
+            Text(
+                engineStatus,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (healthy) MaterialTheme.colorScheme.onSurface
+                else MaterialTheme.colorScheme.onErrorContainer,
+            )
+            HorizontalDivider()
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.AutoMirrored.Filled.MenuBook,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(20.dp),
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(dictStatus, style = MaterialTheme.typography.bodySmall)
+            }
+        }
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun BundledDictionaryToggles() {
+private fun DictionarySection() {
     val context = LocalContext.current
     val settings = remember { ImeSettings(context) }
     var useDict by remember { mutableStateOf(settings.useProperNounDictionary) }
     var useAiDict by remember { mutableStateOf(settings.useAiTechDictionary) }
 
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("変換辞書の切り替え", style = MaterialTheme.typography.titleMedium)
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text("有名固有名詞", style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        "企業名・サービス名・人名・地名などの変換候補",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                Switch(
-                    checked = useDict,
-                    onCheckedChange = { checked ->
-                        useDict = checked
-                        settings.useProperNounDictionary = checked
-                        Thread {
-                            try {
-                                MozcEngine.get(context)?.setBundledDictionaryActive(
-                                    context, "proper-nouns.txt", checked
-                                )
-                            } catch (_: Exception) {}
-                        }.apply { isDaemon = true }.start()
-                    },
-                )
-            }
-
-            HorizontalDivider()
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text("AI・テクノロジー", style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        "AI企業・技術用語・スタートアップ名の候補",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                Switch(
-                    checked = useAiDict,
-                    onCheckedChange = { checked ->
-                        useAiDict = checked
-                        settings.useAiTechDictionary = checked
-                        Thread {
-                            try {
-                                MozcEngine.get(context)?.setBundledDictionaryActive(
-                                    context, "ai-tech-nouns.txt", checked
-                                )
-                            } catch (_: Exception) {}
-                        }.apply { isDaemon = true }.start()
-                    },
-                )
-            }
-
-            HorizontalDivider()
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text("カタカナ語→英語", style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        "カタカナ外来語の英語表記を候補に表示",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                Switch(
-                    checked = true,
-                    enabled = false,
-                    onCheckedChange = {},
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun MeaningDictionaryCard() {
-    val context = LocalContext.current
-    val count = me.zssu.ime.dictionary.MeaningDictionaryRepository(context)
-        .dictionaries().sumOf { it.entries.size }
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("意味辞書", style = MaterialTheme.typography.titleMedium)
-            Text("$count 語の意味を候補長押しで表示できます")
-            Button(
-                onClick = {
-                    context.startActivity(Intent(context, MeaningDictionaryActivity::class.java))
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text("意味辞書を追加・管理") }
-        }
-    }
-}
-
-@Composable
-private fun AppProfilesCard() {
-    val context = LocalContext.current
-    val count = AppProfileStore(context).profiles().size
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("アプリ別入力プロファイル", style = MaterialTheme.typography.titleMedium)
-            Text(if (count == 0) "アプリ別設定はありません" else "$count アプリに設定済み")
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            SectionHeader(Icons.Filled.AutoAwesome, Icons.Outlined.AutoAwesome, "変換辞書")
             Text(
-                "入力方式・片手モード・高さ・シークレットモードをアプリごとに切り替えます",
+                "用途にあわせて辞書のオン・オフを切り替えられます",
                 style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Button(
-                onClick = {
-                    context.startActivity(Intent(context, AppProfileActivity::class.java))
+
+            SwitchRow(
+                title = "有名固有名詞",
+                subtitle = "企業名・サービス名・人名・地名",
+                checked = useDict,
+                onCheckedChange = { checked ->
+                    useDict = checked
+                    settings.useProperNounDictionary = checked
+                    Thread {
+                        try {
+                            MozcEngine.get(context)?.setBundledDictionaryActive(
+                                context, "proper-nouns.txt", checked
+                            )
+                        } catch (_: Exception) {}
+                    }.apply { isDaemon = true }.start()
                 },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text("アプリ別設定を管理") }
+            )
+            HorizontalDivider()
+            SwitchRow(
+                title = "AI・テクノロジー",
+                subtitle = "AI企業・技術用語・スタートアップ名",
+                checked = useAiDict,
+                onCheckedChange = { checked ->
+                    useAiDict = checked
+                    settings.useAiTechDictionary = checked
+                    Thread {
+                        try {
+                            MozcEngine.get(context)?.setBundledDictionaryActive(
+                                context, "ai-tech-nouns.txt", checked
+                            )
+                        } catch (_: Exception) {}
+                    }.apply { isDaemon = true }.start()
+                },
+            )
+            HorizontalDivider()
+            SwitchRow(
+                title = "カタカナ語→英語",
+                subtitle = "カタカナ外来語の英語表記を表示",
+                checked = true,
+                enabled = false,
+                onCheckedChange = {},
+            )
         }
     }
 }
 
 @Composable
-private fun CustomizationCard(repository: LayoutRepository) {
+private fun LayoutThemeSection() {
     val context = LocalContext.current
+    val repository = remember { LayoutRepository(context) }
     val settings = remember { ImeSettings(context) }
-    Card(modifier = Modifier.fillMaxWidth()) {
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+    ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("配列とテーマ", style = MaterialTheme.typography.titleMedium)
+            SectionHeader(Icons.Filled.Palette, Icons.Outlined.Palette, "配列とテーマ")
             Text(
-                "配列 ${repository.availableLayoutIds().size} 個 / テーマ " +
-                    "${repository.availableThemeIds().size} 個",
+                "配列 ${repository.availableLayoutIds().size} 個 / テーマ ${repository.availableThemeIds().size} 個",
+                style = MaterialTheme.typography.bodyMedium,
             )
             Text(
                 "使用中: ${settings.activeLayoutId ?: "入力方式の標準"} / ${settings.activeThemeId}",
                 style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Button(
-                onClick = {
-                    context.startActivity(Intent(context, CustomizationActivity::class.java))
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text("プリセット選択・自作・共有") }
-        }
-    }
-}
-
-/**
- * Attribution is deliberately visible in the installed app, not only in the source repository.
- * The packaged LICENSE/NOTICE files provide the complete legal text; this card gives users the
- * identity, origin, and support route they need without unpacking the APK.
- */
-@Composable
-private fun AboutCard() {
-    val context = LocalContext.current
-    val uriHandler = LocalUriHandler.current
-
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("このアプリについて", style = MaterialTheme.typography.titleMedium)
-            Text(
-                "ZenSky Project が soichi11208/Zinna-IME をフォークし、変更・配布している版です。",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Text(
-                "ライセンス: Apache License 2.0\n" +
-                    "パッケージ: me.zssu.ime\n" +
-                    "連絡先: support@zslink.xyz",
-                style = MaterialTheme.typography.bodySmall,
-            )
-            Text(
-                "原作者および Mozc・同梱辞書の権利は各権利者に帰属します。完全な表示は" +
-                    "「オープンソースライセンス」から確認できます。",
-                style = MaterialTheme.typography.bodySmall,
-            )
-            Button(
-                onClick = {
-                    context.startActivity(Intent(context, LegalActivity::class.java))
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text("オープンソースライセンス") }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(
+                FilledTonalButton(
                     onClick = {
-                        uriHandler.openUri("https://github.com/soichi11208/Zinna-IME")
+                        context.startActivity(Intent(context, CustomizationActivity::class.java))
                     },
                     modifier = Modifier.weight(1f),
-                ) { Text("フォーク元") }
+                ) {
+                    Icon(Icons.Filled.Style, contentDescription = null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("プリセット選択")
+                }
                 OutlinedButton(
-                    onClick = { uriHandler.openUri("mailto:support@zslink.xyz") },
+                    onClick = {
+                        context.startActivity(Intent(context, ThemeEditorActivity::class.java))
+                    },
                     modifier = Modifier.weight(1f),
-                ) { Text("問い合わせ") }
+                ) {
+                    Icon(Icons.Filled.Edit, contentDescription = null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("自作")
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun UserDictionaryCard() {
-    val context = LocalContext.current
-    // Recomputed on every composition rather than remembered: returning from the editor
-    // recomposes this screen, and a cached count would show the pre-edit number.
-    val count = UserDictionary(context).entries().size
-
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("ユーザー辞書", style = MaterialTheme.typography.titleMedium)
-            Text(
-                if (count == 0) "登録された単語はありません" else "$count 語を登録済み",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Button(
-                onClick = {
-                    context.startActivity(Intent(context, UserDictionaryActivity::class.java))
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text("単語を編集") }
-        }
-    }
-}
-
-/**
- * How the keyboard is laid out and how big it is — choices about the input surface rather than
- * about how it looks, which is why they are not in [AppearanceCard].
- */
-@Composable
-private fun KeyboardCard() {
+private fun InputStyleSection() {
     val context = LocalContext.current
     val settings = remember { ImeSettings(context) }
 
     var style by remember { mutableStateOf(settings.keyboardStyle) }
     var flickInputMode by remember { mutableStateOf(settings.flickInputMode) }
     var guide by remember { mutableStateOf(settings.flickGuideStyle) }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            SectionHeader(Icons.Filled.TouchApp, Icons.Outlined.TouchApp, "入力方式")
+
+            Text("キーボード配列", style = MaterialTheme.typography.labelLarge)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                FilterChoice(
+                    selected = style == KeyboardStyle.FLICK,
+                    label = "フリック",
+                    onClick = {
+                        style = KeyboardStyle.FLICK
+                        settings.keyboardStyle = KeyboardStyle.FLICK
+                    },
+                )
+                FilterChoice(
+                    selected = style == KeyboardStyle.QWERTY,
+                    label = "QWERTY",
+                    onClick = {
+                        style = KeyboardStyle.QWERTY
+                        settings.keyboardStyle = KeyboardStyle.QWERTY
+                    },
+                )
+                FilterChoice(
+                    selected = style == KeyboardStyle.MIXED,
+                    label = "混合",
+                    onClick = {
+                        style = KeyboardStyle.MIXED
+                        settings.keyboardStyle = KeyboardStyle.MIXED
+                    },
+                )
+            }
+
+            HorizontalDivider()
+
+            Text("フリック連打", style = MaterialTheme.typography.labelLarge)
+            Text(
+                "ケータイ打ちでは同じキー連打で文字が循環します",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                FilterChoice(
+                    selected = flickInputMode == ImeSettings.FlickInputMode.FLICK_ONLY,
+                    label = "フリックのみ",
+                    onClick = {
+                        flickInputMode = ImeSettings.FlickInputMode.FLICK_ONLY
+                        settings.flickInputMode = ImeSettings.FlickInputMode.FLICK_ONLY
+                    },
+                )
+                FilterChoice(
+                    selected = flickInputMode == ImeSettings.FlickInputMode.FLICK_AND_TOGGLE,
+                    label = "ケータイ併用",
+                    onClick = {
+                        flickInputMode = ImeSettings.FlickInputMode.FLICK_AND_TOGGLE
+                        settings.flickInputMode = ImeSettings.FlickInputMode.FLICK_AND_TOGGLE
+                    },
+                )
+            }
+
+            HorizontalDivider()
+
+            Text("フリックガイド", style = MaterialTheme.typography.labelLarge)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                FilterChoice(
+                    selected = guide == FlickGuideStyle.PREVIEW,
+                    label = "選択文字のみ",
+                    onClick = {
+                        guide = FlickGuideStyle.PREVIEW
+                        settings.flickGuideStyle = FlickGuideStyle.PREVIEW
+                    },
+                )
+                FilterChoice(
+                    selected = guide == FlickGuideStyle.DIRECTIONS,
+                    label = "4方向表示",
+                    onClick = {
+                        guide = FlickGuideStyle.DIRECTIONS
+                        settings.flickGuideStyle = FlickGuideStyle.DIRECTIONS
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun KeyboardLayoutSection() {
+    val context = LocalContext.current
+    val settings = remember { ImeSettings(context) }
+
     var heightScale by remember { mutableStateOf(settings.keyHeightScale) }
     var oneHandMode by remember { mutableStateOf(settings.oneHandMode) }
 
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("キーボード", style = MaterialTheme.typography.titleMedium)
-
-            Text("入力方式", style = MaterialTheme.typography.bodyLarge)
-            Text(
-                "かなと英字それぞれの配列。キーボード上のキーで面を切り替えたときも、この選択に従います",
-                style = MaterialTheme.typography.bodySmall,
-            )
-            for ((option, label) in listOf(
-                KeyboardStyle.FLICK to "フリック",
-                KeyboardStyle.QWERTY to "QWERTY",
-                KeyboardStyle.MIXED to "かなフリック + 英字QWERTY",
-            )) {
-                val onSelect = {
-                    style = option
-                    settings.keyboardStyle = option
-                }
-                if (style == option) {
-                    Button(onClick = onSelect, modifier = Modifier.fillMaxWidth()) { Text(label) }
-                } else {
-                    OutlinedButton(
-                        onClick = onSelect,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) { Text(label) }
-                }
-            }
-
-            HorizontalDivider()
-
-            Text("フリックの連打", style = MaterialTheme.typography.bodyLarge)
-            Text(
-                "ケータイ打ち併用では、同じキーを続けて押すと文字が循環します。" +
-                    "約0.65秒待つか、右キーを押すと同じ行の文字を続けて入力できます",
-                style = MaterialTheme.typography.bodySmall,
-            )
-            for ((option, label) in listOf(
-                ImeSettings.FlickInputMode.FLICK_ONLY to "フリックのみ（連打し放題）",
-                ImeSettings.FlickInputMode.FLICK_AND_TOGGLE to "フリック＋ケータイ打ち",
-            )) {
-                val onSelect = {
-                    flickInputMode = option
-                    settings.flickInputMode = option
-                }
-                if (flickInputMode == option) {
-                    Button(onClick = onSelect, modifier = Modifier.fillMaxWidth()) { Text(label) }
-                } else {
-                    OutlinedButton(
-                        onClick = onSelect,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) { Text(label) }
-                }
-            }
-
-            HorizontalDivider()
-
-            Text("フリック中の表示", style = MaterialTheme.typography.bodyLarge)
-            Text(
-                "キーを押している間に何を出すか。フリック配列のときだけ効きます",
-                style = MaterialTheme.typography.bodySmall,
-            )
-            for ((option, label) in listOf(
-                FlickGuideStyle.PREVIEW to "離したら入る文字だけ",
-                FlickGuideStyle.DIRECTIONS to "4方向すべて",
-            )) {
-                val onSelect = {
-                    guide = option
-                    settings.flickGuideStyle = option
-                }
-                if (guide == option) {
-                    Button(onClick = onSelect, modifier = Modifier.fillMaxWidth()) { Text(label) }
-                } else {
-                    OutlinedButton(
-                        onClick = onSelect,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) { Text(label) }
-                }
-            }
-
-            HorizontalDivider()
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            SectionHeader(Icons.Filled.Keyboard, Icons.Outlined.Keyboard, "キーボードレイアウト")
 
             Text(
-                "キーボードの高さ  ${(heightScale * 100).toInt()}%",
-                style = MaterialTheme.typography.bodyLarge,
+                "キーの高さ  ${(heightScale * 100).toInt()}%",
+                style = MaterialTheme.typography.labelLarge,
             )
             Slider(
                 value = heightScale,
@@ -469,82 +556,48 @@ private fun KeyboardCard() {
             )
 
             HorizontalDivider()
-            Text("片手モード", style = MaterialTheme.typography.bodyLarge)
+
+            Text("片手モード", style = MaterialTheme.typography.labelLarge)
             Text(
-                "候補がないときのツールバーからも左右を切り替えられます",
+                "候補がないときのツールバーからも切り替えられます",
                 style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                for ((option, label) in listOf(
-                    ImeSettings.OneHandMode.LEFT to "左寄せ",
-                    ImeSettings.OneHandMode.OFF to "全幅",
-                    ImeSettings.OneHandMode.RIGHT to "右寄せ",
-                )) {
-                    val select = {
-                        oneHandMode = option
-                        settings.oneHandMode = option
-                    }
-                    if (oneHandMode == option) {
-                        Button(onClick = select, modifier = Modifier.weight(1f)) { Text(label) }
-                    } else {
-                        OutlinedButton(onClick = select, modifier = Modifier.weight(1f)) {
-                            Text(label)
-                        }
-                    }
-                }
+                FilterChip(
+                    selected = oneHandMode == ImeSettings.OneHandMode.LEFT,
+                    onClick = {
+                        oneHandMode = ImeSettings.OneHandMode.LEFT
+                        settings.oneHandMode = ImeSettings.OneHandMode.LEFT
+                    },
+                    label = { Text("左寄せ") },
+                    modifier = Modifier.weight(1f),
+                )
+                FilterChip(
+                    selected = oneHandMode == ImeSettings.OneHandMode.OFF,
+                    onClick = {
+                        oneHandMode = ImeSettings.OneHandMode.OFF
+                        settings.oneHandMode = ImeSettings.OneHandMode.OFF
+                    },
+                    label = { Text("全幅") },
+                    modifier = Modifier.weight(1f),
+                )
+                FilterChip(
+                    selected = oneHandMode == ImeSettings.OneHandMode.RIGHT,
+                    onClick = {
+                        oneHandMode = ImeSettings.OneHandMode.RIGHT
+                        settings.oneHandMode = ImeSettings.OneHandMode.RIGHT
+                    },
+                    label = { Text("右寄せ") },
+                    modifier = Modifier.weight(1f),
+                )
             }
         }
     }
 }
 
 @Composable
-private fun LearningCard() {
-    val context = LocalContext.current
-    var confirmReset by remember { mutableStateOf(false) }
-    var result by remember { mutableStateOf<String?>(null) }
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("変換学習", style = MaterialTheme.typography.titleMedium)
-            Text(
-                "候補を長押しすると意味を確認でき、削除可能な予測候補では学習削除も選べます。",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            OutlinedButton(
-                onClick = { confirmReset = true },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text("変換学習をすべてリセット") }
-            result?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
-        }
-    }
-    if (confirmReset) {
-        AlertDialog(
-            onDismissRequest = { confirmReset = false },
-            title = { Text("変換学習をリセットしますか？") },
-            text = { Text("ユーザー辞書は残り、変換履歴と予測履歴だけが削除されます。") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val ok = MozcEngine.get(context)?.clearLearning() == true
-                        result = if (ok) "変換学習をリセットしました" else "リセットに失敗しました"
-                        confirmReset = false
-                    },
-                ) { Text("リセット") }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirmReset = false }) { Text("キャンセル") }
-            },
-        )
-    }
-}
-
-/**
- * Appearance controls that belong to this device rather than to a shareable theme file.
- *
- * The keyboard picks changes up the next time it opens — it lives in another process and only
- * re-reads settings when its input view starts.
- */
-@Composable
-private fun AppearanceCard() {
+private fun AppearanceSection() {
     val context = LocalContext.current
     val settings = remember { ImeSettings(context) }
 
@@ -557,8 +610,6 @@ private fun AppearanceCard() {
         ActivityResultContracts.OpenDocument()
     ) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
-        // Read it out now rather than holding the URI: the IME runs in a process that never got
-        // this grant, and the picked file can be deleted or its volume unmounted later.
         val bytes = runCatching {
             context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
         }.getOrNull()
@@ -569,34 +620,31 @@ private fun AppearanceCard() {
         }
     }
 
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("外観", style = MaterialTheme.typography.titleMedium)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            SectionHeader(Icons.Filled.Image, Icons.Outlined.Image, "外観")
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text("ピュアブラック", style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        "有機EL向け。背景を完全な黒にして画素を消灯させます",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                Switch(
-                    checked = pureBlack,
-                    onCheckedChange = {
-                        pureBlack = it
-                        settings.pureBlack = it
-                    },
-                )
-            }
+            SwitchRow(
+                title = "ピュアブラック",
+                subtitle = "有機EL画面の黒を完全に消灯",
+                checked = pureBlack,
+                onCheckedChange = {
+                    pureBlack = it
+                    settings.pureBlack = it
+                },
+            )
 
             HorizontalDivider()
 
-            Text("キーボードの背景画像", style = MaterialTheme.typography.bodyLarge)
-            Text("生成アート・プリセット", style = MaterialTheme.typography.bodySmall)
+            Text("キーボードの背景", style = MaterialTheme.typography.labelLarge)
+            Text(
+                "生成アート・プリセット",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -624,6 +672,7 @@ private fun AppearanceCard() {
                             }
                         },
                         modifier = Modifier.width(144.dp),
+                        shape = RoundedCornerShape(12.dp),
                     ) {
                         Image(
                             bitmap = thumbnail,
@@ -634,7 +683,7 @@ private fun AppearanceCard() {
                                 .height(72.dp),
                         )
                         Text(
-                            if (selectedPreset == preset.id) "${preset.label}・選択中"
+                            if (selectedPreset == preset.id) "✓ ${preset.label}"
                             else preset.label,
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(8.dp),
@@ -643,12 +692,16 @@ private fun AppearanceCard() {
                 }
             }
 
-            Text("自分の画像", style = MaterialTheme.typography.bodySmall)
+            Text("カスタム画像", style = MaterialTheme.typography.labelLarge)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = { pickImage.launch(arrayOf("image/*")) },
                     modifier = Modifier.weight(1f),
-                ) { Text(if (hasImage) "変更" else "選択") }
+                ) {
+                    Icon(Icons.Filled.Image, contentDescription = null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(if (hasImage) "変更" else "選択")
+                }
                 OutlinedButton(
                     onClick = {
                         settings.clearBackgroundImage()
@@ -660,40 +713,235 @@ private fun AppearanceCard() {
                 ) { Text("解除") }
             }
 
-            if (hasImage) {
-                Text(
-                    "画像の濃さ  ${(opacity * 100).toInt()}%",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                Slider(
-                    value = opacity,
-                    onValueChange = { opacity = it },
-                    onValueChangeFinished = { settings.backgroundOpacity = opacity },
-                    valueRange = 0f..1f,
-                )
+            AnimatedVisibility(visible = hasImage) {
+                Column {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "背景の濃さ  ${(opacity * 100).toInt()}%",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Slider(
+                        value = opacity,
+                        onValueChange = { opacity = it },
+                        onValueChangeFinished = { settings.backgroundOpacity = opacity },
+                        valueRange = 0f..1f,
+                    )
+                }
             }
         }
     }
 }
 
-/**
- * Somewhere to actually try the keyboard without leaving the app.
- *
- * A multi-line field on purpose: it is the only way to see what the Enter key does when the editor
- * has no action attached, which is exactly the case that is easy to get wrong.
- */
 @Composable
-private fun TestInputField() {
-    var text by remember { mutableStateOf("") }
-    Card(modifier = Modifier.fillMaxWidth()) {
+private fun LearningSection() {
+    val context = LocalContext.current
+    var confirmReset by remember { mutableStateOf(false) }
+    var result by remember { mutableStateOf<String?>(null) }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+    ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("試し入力", style = MaterialTheme.typography.titleMedium)
+            SectionHeader(Icons.Filled.School, Icons.Outlined.School, "変換学習")
+            Text(
+                "候補を長押しすると意味を確認でき、削除可能な予測候補では学習削除も選べます。",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            OutlinedButton(
+                onClick = { confirmReset = true },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(Icons.Filled.Update, contentDescription = null, Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("学習をリセット")
+            }
+            result?.let {
+                Text(
+                    it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
+    }
+    if (confirmReset) {
+        AlertDialog(
+            onDismissRequest = { confirmReset = false },
+            title = { Text("変換学習をリセットしますか？") },
+            text = { Text("ユーザー辞書は残り、変換履歴と予測履歴だけが削除されます。") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val ok = MozcEngine.get(context)?.clearLearning() == true
+                        result = if (ok) "リセットしました" else "リセットに失敗しました"
+                        confirmReset = false
+                    },
+                ) { Text("リセット") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmReset = false }) { Text("キャンセル") }
+            },
+        )
+    }
+}
+
+@Composable
+private fun AppProfilesSection() {
+    val context = LocalContext.current
+    val count = AppProfileStore(context).profiles().size
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            SectionHeader(Icons.Filled.Devices, Icons.Outlined.Devices, "アプリ別プロファイル")
+            Text(
+                if (count == 0) "設定されているアプリはありません" else "$count アプリに設定済み",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Text(
+                "入力方式・片手モード・高さ・シークレットモードをアプリごとに切り替え",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            FilledTonalButton(
+                onClick = {
+                    context.startActivity(Intent(context, AppProfileActivity::class.java))
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(Icons.Filled.Tune, contentDescription = null, Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("アプリ別設定を管理")
+            }
+        }
+    }
+}
+
+@Composable
+private fun AboutSection() {
+    val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            SectionHeader(Icons.Filled.Info, Icons.Outlined.Info, "このアプリについて")
+            Text(
+                "ZenSky Project が soichi11208/Zinna-IME をフォークし、変更・配布している版です。",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Text(
+                "ライセンス: Apache License 2.0\nパッケージ: me.zssu.ime\n連絡先: support@zslink.xyz",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            FilledTonalButton(
+                onClick = {
+                    context.startActivity(Intent(context, LegalActivity::class.java))
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(Icons.Filled.Description, contentDescription = null, Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("オープンソースライセンス")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = {
+                        uriHandler.openUri("https://github.com/soichi11208/Zinna-IME")
+                    },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Icon(Icons.Filled.Share, contentDescription = null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("フォーク元")
+                }
+                OutlinedButton(
+                    onClick = { uriHandler.openUri("mailto:support@zslink.xyz") },
+                    modifier = Modifier.weight(1f),
+                ) { Text("問い合わせ") }
+            }
+        }
+    }
+
+    Spacer(Modifier.height(8.dp))
+
+    // User Dictionary
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+    ) {
+        val userContext = LocalContext.current
+        val userCount = remember { UserDictionary(userContext).entries().size }
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            SectionHeader(Icons.Filled.Edit, Icons.Outlined.Edit, "ユーザー辞書")
+            Text(
+                if (userCount == 0) "登録された単語はありません" else "$userCount 語を登録済み",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            FilledTonalButton(
+                onClick = {
+                    userContext.startActivity(Intent(userContext, UserDictionaryActivity::class.java))
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(Icons.Filled.Edit, contentDescription = null, Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("単語を編集")
+            }
+        }
+    }
+
+    Spacer(Modifier.height(8.dp))
+
+    // Meaning Dictionary (now with short code)
+    val meanContext = LocalContext.current
+    val meanCount = me.zssu.ime.dictionary.MeaningDictionaryRepository(meanContext)
+        .dictionaries().sumOf { it.entries.size }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            SectionHeader(Icons.Filled.GTranslate, Icons.Outlined.GTranslate, "意味辞書")
+            Text(
+                "$meanCount 語の意味を候補長押しで表示できます",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            FilledTonalButton(
+                onClick = {
+                    meanContext.startActivity(Intent(meanContext, MeaningDictionaryActivity::class.java))
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("意味辞書を管理")
+            }
+        }
+    }
+
+    Spacer(Modifier.height(8.dp))
+
+    // Test input
+    var text by remember { mutableStateOf("") }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            SectionHeader(Icons.Filled.Keyboard, Icons.Outlined.Keyboard, "試し入力")
             OutlinedTextField(
                 value = text,
                 onValueChange = { text = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 120.dp),
+                    .heightIn(min = 100.dp),
                 placeholder = { Text("ここで入力を試せます") },
                 singleLine = false,
             )
@@ -701,30 +949,77 @@ private fun TestInputField() {
     }
 }
 
+// ── Reusable components ──
+
 @Composable
-private fun InfoCard(title: String, body: String) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium)
-            Text(body, style = MaterialTheme.typography.bodyMedium)
-        }
+private fun SectionHeader(
+    filledIcon: ImageVector,
+    outlinedIcon: ImageVector,
+    title: String,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            filledIcon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(22.dp),
+        )
+        Spacer(Modifier.width(10.dp))
+        Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
     }
 }
 
-/**
- * The bundled dictionaries import in the background on first run, so this doubles as the way to
- * tell "not imported yet" from "imported and empty" without digging through logcat.
- */
+@Composable
+private fun SwitchRow(
+    title: String,
+    subtitle: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge)
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
+    }
+}
+
+@Composable
+private fun FilterChoice(
+    selected: Boolean,
+    label: String,
+    onClick: () -> Unit,
+) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = { Text(label) },
+        colors = FilterChipDefaults.filterChipColors(
+            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        ),
+    )
+}
+
 private fun describeDictionaries(context: Context): String {
     val engine = MozcEngine.get(context) ?: return "—"
     val installed = engine.installedDictionaries(context)
     if (installed.isEmpty()) return "読み込み中… (初回起動時にバックグラウンドで取り込みます)"
-    return installed.joinToString("\n") { "${it.name}  ${"%,d".format(it.entryCount)} 語" }
+    return installed.joinToString(", ") { "${it.name} ${"%,d".format(it.entryCount)}語" }
 }
 
 private fun describeEngine(context: Context): String {
     val engine = MozcEngine.get(context)
-        ?: return "読み込み失敗 — この ABI 用の libmozc.so がありません (scripts/build_mozc.sh を実行)"
+        ?: return "読み込み失敗 — libmozc.so が見つかりません (scripts/build_mozc.sh を実行)"
     val version = engine.dataVersion.ifEmpty { "unknown" }
-    return "オフライン動作中 / 辞書バージョン $version"
+    return "オフライン動作中 / 辞書 v$version"
 }
