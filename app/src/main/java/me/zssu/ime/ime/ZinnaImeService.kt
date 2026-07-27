@@ -616,11 +616,22 @@ class ZinnaImeService : InputMethodService() {
     }
 
     private fun handleBackspace() {
+        // Route from the state *before* sending Backspace. If the last composing character is
+        // removed, Mozc's response is empty — indistinguishable from a key pressed while already
+        // idle — and inspecting only that response used to delete one extra editor character.
+        val hadComposition = isComposing
+        val ic = currentInputConnection
+        val hasSelection = if (hadComposition) {
+            false
+        } else {
+            runCatching { !ic?.getSelectedText(0).isNullOrEmpty() }.getOrDefault(false)
+        }
         val state = session.sendSpecialKey(KeyEvent.SpecialKey.BACKSPACE)
-        // mozc reports an empty composition both when it consumed the delete and when there was
-        // nothing to delete, so fall through to the editor whenever nothing was composing.
-        if (state == null || (!state.hasComposition && state.committedText.isEmpty())) {
-            currentInputConnection?.deleteSurroundingText(1, 0)
+        when (BackspaceRouting.target(hadComposition, hasSelection)) {
+            BackspaceRouting.Target.MOZC_COMPOSITION -> Unit
+            BackspaceRouting.Target.EDITOR_SELECTION -> ic?.commitText("", 1)
+            BackspaceRouting.Target.EDITOR_PREVIOUS_CODE_POINT ->
+                ic?.deleteSurroundingTextInCodePoints(1, 0)
         }
         render(state)
     }
