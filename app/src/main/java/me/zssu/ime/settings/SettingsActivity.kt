@@ -11,12 +11,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,56 +37,34 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Brush
-import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.GTranslate
-import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Keyboard
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.School
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material.icons.filled.TouchApp
-import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.filled.Widgets
-import androidx.compose.material.icons.outlined.AutoAwesome
-import androidx.compose.material.icons.outlined.Brush
-import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.Description
-import androidx.compose.material.icons.outlined.Devices
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.GTranslate
-import androidx.compose.material.icons.outlined.GridView
-import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Keyboard
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.automirrored.outlined.MenuBook
-import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.Psychology
-import androidx.compose.material.icons.outlined.School
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.Share
-import androidx.compose.material.icons.outlined.Style
-import androidx.compose.material.icons.outlined.TouchApp
-import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material.icons.outlined.Update
-import androidx.compose.material.icons.outlined.Widgets
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -110,6 +92,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -127,14 +110,43 @@ import me.zssu.ime.mozc.MozcEngine
 import me.zssu.ime.mozc.UserDictionary
 import me.zssu.ime.theme.ZinnaTheme
 
+// ── Dashboard section keys ──
+private typealias Section = String
+private const val SEC_ENGINE: Section = "engine"
+private const val SEC_DICT: Section = "dict"
+private const val SEC_INPUT: Section = "input"
+private const val SEC_LAYOUT: Section = "layoutKey"
+private const val SEC_APPEARANCE: Section = "appearance"
+private const val SEC_LEARNING: Section = "learning"
+private const val SEC_PROFILES: Section = "profiles"
+private const val SEC_DICTIONARY: Section = "userDict"
+private const val SEC_MEANING: Section = "meaning"
+
+// ── Dashboard entry model ──
+private data class DashEntry(
+    val key: Section,
+    val icon: ImageVector,
+    val title: String,
+    val subtitle: String,
+    val accentColors: List<Color>,
+)
+
+private val dashEntries = listOf(
+    DashEntry(SEC_ENGINE, Icons.Filled.Psychology, "変換エンジン", "辞書・動作状態", listOf(Color(0xFF0B8460), Color(0xFF4DDBA8))),
+    DashEntry(SEC_DICT, Icons.Filled.AutoAwesome, "変換辞書", "固有名詞・AI用語の切替", listOf(Color(0xFF7B3FCF), Color(0xFFC8ABFF))),
+    DashEntry(SEC_INPUT, Icons.Filled.TouchApp, "入力方式", "フリック・QWERTY設定", listOf(Color(0xFFE8571A), Color(0xFFFFB593))),
+    DashEntry(SEC_LAYOUT, Icons.Filled.Palette, "配列とテーマ", "プリセット・自作", listOf(Color(0xFF0E7AA3), Color(0xFF7DD3F5))),
+    DashEntry(SEC_APPEARANCE, Icons.Filled.Image, "外観", "背景画像・黒設定", listOf(Color(0xFFB81A6B), Color(0xFFF5A0CD))),
+    DashEntry(SEC_LEARNING, Icons.Filled.School, "変換学習", "履歴リセット", listOf(Color(0xFF8A6A13), Color(0xFFFFE47A))),
+    DashEntry(SEC_PROFILES, Icons.Filled.Devices, "アプリ別設定", "プロファイル管理", listOf(Color(0xFF4A4D52), Color(0xFFB0B3BB))),
+    DashEntry(SEC_DICTIONARY, Icons.Filled.Edit, "ユーザー辞書", "単語の追加・編集", listOf(Color(0xFF2E8B57), Color(0xFF98FB98))),
+    DashEntry(SEC_MEANING, Icons.Filled.GTranslate, "意味辞書", "候補長押しで意味表示", listOf(Color(0xFF6B3FA0), Color(0xFFD4A5FF))),
+)
+
 class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            ZinnaTheme {
-                SettingsScreen()
-            }
-        }
+        setContent { ZinnaTheme { SettingsScreen() } }
     }
 }
 
@@ -142,11 +154,12 @@ class SettingsActivity : ComponentActivity() {
 @Composable
 private fun SettingsScreen() {
     val context = LocalContext.current
+    var expanded by remember { mutableStateOf<Section?>(null) }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("設定", style = MaterialTheme.typography.titleLarge) },
+                title = { Text("Komorebi IME", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                 ),
@@ -158,84 +171,40 @@ private fun SettingsScreen() {
                 .fillMaxSize()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(horizontal = 12.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Spacer(Modifier.height(8.dp))
-            HeroSection()
             Spacer(Modifier.height(4.dp))
-            QuickActionsSection()
-            EngineSection()
-            DictionarySection()
-            LayoutThemeSection()
-            InputStyleSection()
-            KeyboardLayoutSection()
-            AppearanceSection()
-            LearningSection()
-            AppProfilesSection()
-            AboutSection()
-            Spacer(Modifier.height(24.dp))
-        }
-    }
-}
 
-@Composable
-private fun HeroSection() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primaryContainer,
-                        MaterialTheme.colorScheme.secondaryContainer,
-                    ),
-                ),
-            )
-            .padding(24.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(
-                Icons.Filled.Brush,
-                contentDescription = null,
-                modifier = Modifier.size(48.dp),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-            Spacer(Modifier.height(12.dp))
-            Text(
-                "Komorebi IME",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                "言葉をそっと照らす、日本語入力",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
-                textAlign = TextAlign.Center,
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun QuickActionsSection() {
-    val context = LocalContext.current
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SectionHeader(Icons.Filled.Settings, Icons.Outlined.Settings, "クイック設定")
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+            // Hero
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(22.dp))
+                    .background(
+                        Brush.linearGradient(listOf(
+                            MaterialTheme.colorScheme.primaryContainer,
+                            MaterialTheme.colorScheme.secondaryContainer,
+                            MaterialTheme.colorScheme.tertiaryContainer,
+                        ))
+                    )
+                    .padding(20.dp),
+                contentAlignment = Alignment.Center,
             ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("言葉をそっと照らす", style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                        textAlign = TextAlign.Center)
+                    Spacer(Modifier.height(2.dp))
+                    Text("Komorebi IME", style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer)
+                }
+            }
+
+            // Quick actions
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilledTonalButton(
                     onClick = {
                         context.startActivity(
@@ -243,766 +212,450 @@ private fun QuickActionsSection() {
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         )
                     },
+                    modifier = Modifier.weight(1f),
                 ) {
                     Icon(Icons.Filled.Keyboard, contentDescription = null, Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("有効化")
+                    Text("キーボードを有効化")
                 }
                 FilledTonalButton(
                     onClick = {
                         val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                         imm.showInputMethodPicker()
                     },
+                    modifier = Modifier.weight(1f),
                 ) {
-                    Icon(Icons.Filled.GridView, contentDescription = null, Modifier.size(18.dp))
+                    Icon(Icons.Filled.Widgets, contentDescription = null, Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("切り替え")
+                    Text("キーボードを選択")
+                }
+            }
+
+            // Dashboard grid
+            dashEntries.chunked(2).forEach { row ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    row.forEach { entry ->
+                        DashboardCard(
+                            entry = entry,
+                            expanded = expanded == entry.key,
+                            onClick = {
+                                expanded = if (expanded == entry.key) null else entry.key
+                            },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    // If odd number, fill with spacer
+                    if (row.size == 1) Spacer(Modifier.weight(1f))
+                }
+            }
+
+            // About row
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = {
+                        context.startActivity(Intent(context, LegalActivity::class.java))
+                    },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Icon(Icons.Filled.Description, contentDescription = null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("ライセンス")
+                }
+                OutlinedButton(
+                    onClick = {
+                        context.startActivity(Intent(context, AppProfileActivity::class.java))
+                    },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Icon(Icons.Filled.Devices, contentDescription = null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("アプリ別設定")
+                }
+            }
+
+            Spacer(Modifier.height(4.dp))
+        }
+    }
+}
+
+@Composable
+private fun DashboardCard(
+    entry: DashEntry,
+    expanded: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier
+            .animateContentSize(tween(300))
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(18.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (expanded) 4.dp else 1.dp),
+    ) {
+        Column {
+            // Header
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.linearGradient(entry.accentColors)
+                    )
+                    .padding(14.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        entry.icon,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp),
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            entry.title,
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                        Text(
+                            entry.subtitle,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.8f),
+                        )
+                    }
+                    Icon(
+                        if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                        contentDescription = null,
+                        tint = Color.White.copy(alpha = 0.7f),
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
+
+            // Expanded content
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandVertically(tween(300)) + fadeIn(tween(200)),
+                exit = shrinkVertically(tween(300)) + fadeOut(tween(200)),
+            ) {
+                Column(Modifier.padding(12.dp)) {
+                    ExpandedContent(entry.key)
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun EngineSection() {
+private fun ExpandedContent(key: Section) {
+    when (key) {
+        SEC_ENGINE -> EngineContent()
+        SEC_DICT -> DictionaryContent()
+        SEC_INPUT -> InputStyleContent()
+        SEC_LAYOUT -> LayoutThemeContent()
+        SEC_APPEARANCE -> AppearanceContent()
+        SEC_LEARNING -> LearningContent()
+        SEC_PROFILES -> ProfilesContent()
+        SEC_DICTIONARY -> UserDictContent()
+        SEC_MEANING -> MeaningDictContent()
+    }
+}
+
+// ── Engine content ──
+@Composable
+private fun EngineContent() {
     val context = LocalContext.current
     val engineStatus = remember { describeEngine(context) }
     val dictStatus = remember { describeDictionaries(context) }
     val healthy = engineStatus.startsWith("オフライン")
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (healthy) MaterialTheme.colorScheme.surface
-            else MaterialTheme.colorScheme.errorContainer,
-        ),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    if (healthy) Icons.Filled.Psychology else Icons.Filled.Info,
-                    contentDescription = null,
-                    tint = if (healthy) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(24.dp),
-                )
-                Spacer(Modifier.width(10.dp))
-                Text("変換エンジン", style = MaterialTheme.typography.titleMedium)
-            }
-            Text(
-                engineStatus,
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (healthy) MaterialTheme.colorScheme.onSurface
-                else MaterialTheme.colorScheme.onErrorContainer,
-            )
-            HorizontalDivider()
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    Icons.AutoMirrored.Filled.MenuBook,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(20.dp),
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(dictStatus, style = MaterialTheme.typography.bodySmall)
-            }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        if (!healthy) {
+            Text("⚠ 読み込み失敗", color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
         }
+        Text(engineStatus, style = MaterialTheme.typography.bodySmall)
+        HorizontalDivider()
+        Text(dictStatus, style = MaterialTheme.typography.bodySmall)
     }
 }
 
+// ── Dictionary content ──
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun DictionarySection() {
+private fun DictionaryContent() {
     val context = LocalContext.current
     val settings = remember { ImeSettings(context) }
     var useDict by remember { mutableStateOf(settings.useProperNounDictionary) }
     var useAiDict by remember { mutableStateOf(settings.useAiTechDictionary) }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SectionHeader(Icons.Filled.AutoAwesome, Icons.Outlined.AutoAwesome, "変換辞書")
-            Text(
-                "用途にあわせて辞書のオン・オフを切り替えられます",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-
-            SwitchRow(
-                title = "有名固有名詞",
-                subtitle = "企業名・サービス名・人名・地名",
-                checked = useDict,
-                onCheckedChange = { checked ->
-                    useDict = checked
-                    settings.useProperNounDictionary = checked
-                    Thread {
-                        try {
-                            MozcEngine.get(context)?.setBundledDictionaryActive(
-                                context, "proper-nouns.txt", checked
-                            )
-                        } catch (_: Exception) {}
-                    }.apply { isDaemon = true }.start()
-                },
-            )
-            HorizontalDivider()
-            SwitchRow(
-                title = "AI・テクノロジー",
-                subtitle = "AI企業・技術用語・スタートアップ名",
-                checked = useAiDict,
-                onCheckedChange = { checked ->
-                    useAiDict = checked
-                    settings.useAiTechDictionary = checked
-                    Thread {
-                        try {
-                            MozcEngine.get(context)?.setBundledDictionaryActive(
-                                context, "ai-tech-nouns.txt", checked
-                            )
-                        } catch (_: Exception) {}
-                    }.apply { isDaemon = true }.start()
-                },
-            )
-            HorizontalDivider()
-            SwitchRow(
-                title = "カタカナ語→英語",
-                subtitle = "カタカナ外来語の英語表記を表示",
-                checked = true,
-                enabled = false,
-                onCheckedChange = {},
-            )
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        MiniSwitchRow("有名固有名詞", "企業名・サービス名・人名・地名", useDict) {
+            useDict = it; settings.useProperNounDictionary = it
+            Thread {
+                try { MozcEngine.get(context)?.setBundledDictionaryActive(context, "proper-nouns.txt", it) } catch (_: Exception) {}
+            }.apply { isDaemon = true }.start()
         }
+        HorizontalDivider()
+        MiniSwitchRow("AI・テクノロジー", "AI企業・技術用語・スタートアップ名", useAiDict) {
+            useAiDict = it; settings.useAiTechDictionary = it
+            Thread {
+                try { MozcEngine.get(context)?.setBundledDictionaryActive(context, "ai-tech-nouns.txt", it) } catch (_: Exception) {}
+            }.apply { isDaemon = true }.start()
+        }
+        HorizontalDivider()
+        MiniSwitchRow("カタカナ語→英語", "カタカナ外来語の英語表記", checked = true, enabled = false) {}
     }
 }
 
-@Composable
-private fun LayoutThemeSection() {
-    val context = LocalContext.current
-    val repository = remember { LayoutRepository(context) }
-    val settings = remember { ImeSettings(context) }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SectionHeader(Icons.Filled.Palette, Icons.Outlined.Palette, "配列とテーマ")
-            Text(
-                "配列 ${repository.availableLayoutIds().size} 個 / テーマ ${repository.availableThemeIds().size} 個",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Text(
-                "使用中: ${settings.activeLayoutId ?: "入力方式の標準"} / ${settings.activeThemeId}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilledTonalButton(
-                    onClick = {
-                        context.startActivity(Intent(context, CustomizationActivity::class.java))
-                    },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Icon(Icons.Filled.Style, contentDescription = null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text("プリセット選択")
-                }
-                OutlinedButton(
-                    onClick = {
-                        context.startActivity(Intent(context, ThemeEditorActivity::class.java))
-                    },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Icon(Icons.Filled.Edit, contentDescription = null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text("自作")
-                }
-            }
-        }
-    }
-}
-
+// ── Input style content ──
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun InputStyleSection() {
+private fun InputStyleContent() {
     val context = LocalContext.current
     val settings = remember { ImeSettings(context) }
-
     var style by remember { mutableStateOf(settings.keyboardStyle) }
     var flickInputMode by remember { mutableStateOf(settings.flickInputMode) }
     var guide by remember { mutableStateOf(settings.flickGuideStyle) }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SectionHeader(Icons.Filled.TouchApp, Icons.Outlined.TouchApp, "入力方式")
-
-            Text("キーボード配列", style = MaterialTheme.typography.labelLarge)
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                FilterChoice(
-                    selected = style == KeyboardStyle.FLICK,
-                    label = "フリック",
-                    onClick = {
-                        style = KeyboardStyle.FLICK
-                        settings.keyboardStyle = KeyboardStyle.FLICK
-                    },
-                )
-                FilterChoice(
-                    selected = style == KeyboardStyle.QWERTY,
-                    label = "QWERTY",
-                    onClick = {
-                        style = KeyboardStyle.QWERTY
-                        settings.keyboardStyle = KeyboardStyle.QWERTY
-                    },
-                )
-                FilterChoice(
-                    selected = style == KeyboardStyle.MIXED,
-                    label = "混合",
-                    onClick = {
-                        style = KeyboardStyle.MIXED
-                        settings.keyboardStyle = KeyboardStyle.MIXED
-                    },
-                )
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("キーボード配列", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            listOf(KeyboardStyle.FLICK to "フリック", KeyboardStyle.QWERTY to "QWERTY", KeyboardStyle.MIXED to "混合").forEach { (v, l) ->
+                MiniChip(style == v, l) { style = v; settings.keyboardStyle = v }
             }
-
-            HorizontalDivider()
-
-            Text("フリック連打", style = MaterialTheme.typography.labelLarge)
-            Text(
-                "ケータイ打ちでは同じキー連打で文字が循環します",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                FilterChoice(
-                    selected = flickInputMode == ImeSettings.FlickInputMode.FLICK_ONLY,
-                    label = "フリックのみ",
-                    onClick = {
-                        flickInputMode = ImeSettings.FlickInputMode.FLICK_ONLY
-                        settings.flickInputMode = ImeSettings.FlickInputMode.FLICK_ONLY
-                    },
-                )
-                FilterChoice(
-                    selected = flickInputMode == ImeSettings.FlickInputMode.FLICK_AND_TOGGLE,
-                    label = "ケータイ併用",
-                    onClick = {
-                        flickInputMode = ImeSettings.FlickInputMode.FLICK_AND_TOGGLE
-                        settings.flickInputMode = ImeSettings.FlickInputMode.FLICK_AND_TOGGLE
-                    },
-                )
+        }
+        HorizontalDivider()
+        Text("フリック連打", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            MiniChip(flickInputMode == ImeSettings.FlickInputMode.FLICK_ONLY, "フリックのみ") {
+                flickInputMode = ImeSettings.FlickInputMode.FLICK_ONLY; settings.flickInputMode = ImeSettings.FlickInputMode.FLICK_ONLY
             }
-
-            HorizontalDivider()
-
-            Text("フリックガイド", style = MaterialTheme.typography.labelLarge)
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                FilterChoice(
-                    selected = guide == FlickGuideStyle.PREVIEW,
-                    label = "選択文字のみ",
-                    onClick = {
-                        guide = FlickGuideStyle.PREVIEW
-                        settings.flickGuideStyle = FlickGuideStyle.PREVIEW
-                    },
-                )
-                FilterChoice(
-                    selected = guide == FlickGuideStyle.DIRECTIONS,
-                    label = "4方向表示",
-                    onClick = {
-                        guide = FlickGuideStyle.DIRECTIONS
-                        settings.flickGuideStyle = FlickGuideStyle.DIRECTIONS
-                    },
-                )
+            MiniChip(flickInputMode == ImeSettings.FlickInputMode.FLICK_AND_TOGGLE, "ケータイ併用") {
+                flickInputMode = ImeSettings.FlickInputMode.FLICK_AND_TOGGLE; settings.flickInputMode = ImeSettings.FlickInputMode.FLICK_AND_TOGGLE
+            }
+        }
+        HorizontalDivider()
+        Text("フリックガイド", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            MiniChip(guide == FlickGuideStyle.PREVIEW, "選択文字のみ") {
+                guide = FlickGuideStyle.PREVIEW; settings.flickGuideStyle = FlickGuideStyle.PREVIEW
+            }
+            MiniChip(guide == FlickGuideStyle.DIRECTIONS, "4方向表示") {
+                guide = FlickGuideStyle.DIRECTIONS; settings.flickGuideStyle = FlickGuideStyle.DIRECTIONS
             }
         }
     }
 }
 
+// ── Layout / Theme content ──
 @Composable
-private fun KeyboardLayoutSection() {
+private fun LayoutThemeContent() {
     val context = LocalContext.current
+    val repository = remember { LayoutRepository(context) }
     val settings = remember { ImeSettings(context) }
+    val kind = remember { mutableStateOf("layout") }
 
-    var heightScale by remember { mutableStateOf(settings.keyHeightScale) }
-    var oneHandMode by remember { mutableStateOf(settings.oneHandMode) }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SectionHeader(Icons.Filled.Keyboard, Icons.Outlined.Keyboard, "キーボードレイアウト")
-
-            Text(
-                "キーの高さ  ${(heightScale * 100).toInt()}%",
-                style = MaterialTheme.typography.labelLarge,
-            )
-            Slider(
-                value = heightScale,
-                onValueChange = { heightScale = it },
-                onValueChangeFinished = { settings.keyHeightScale = heightScale },
-                valueRange = ImeSettings.MIN_KEY_HEIGHT_SCALE..ImeSettings.MAX_KEY_HEIGHT_SCALE,
-            )
-
-            HorizontalDivider()
-
-            Text("片手モード", style = MaterialTheme.typography.labelLarge)
-            Text(
-                "候補がないときのツールバーからも切り替えられます",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
-                    selected = oneHandMode == ImeSettings.OneHandMode.LEFT,
-                    onClick = {
-                        oneHandMode = ImeSettings.OneHandMode.LEFT
-                        settings.oneHandMode = ImeSettings.OneHandMode.LEFT
-                    },
-                    label = { Text("左寄せ") },
-                    modifier = Modifier.weight(1f),
-                )
-                FilterChip(
-                    selected = oneHandMode == ImeSettings.OneHandMode.OFF,
-                    onClick = {
-                        oneHandMode = ImeSettings.OneHandMode.OFF
-                        settings.oneHandMode = ImeSettings.OneHandMode.OFF
-                    },
-                    label = { Text("全幅") },
-                    modifier = Modifier.weight(1f),
-                )
-                FilterChip(
-                    selected = oneHandMode == ImeSettings.OneHandMode.RIGHT,
-                    onClick = {
-                        oneHandMode = ImeSettings.OneHandMode.RIGHT
-                        settings.oneHandMode = ImeSettings.OneHandMode.RIGHT
-                    },
-                    label = { Text("右寄せ") },
-                    modifier = Modifier.weight(1f),
-                )
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            MiniChip(kind.value == "layout", "配列") { kind.value = "layout" }
+            MiniChip(kind.value == "theme", "テーマ") { kind.value = "theme" }
+        }
+        Text("使用中: ${settings.activeLayoutId ?: "標準"} / ${settings.activeThemeId}", style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            OutlinedButton(onClick = {
+                context.startActivity(Intent(context, CustomizationActivity::class.java))
+            }, modifier = Modifier.weight(1f), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)) {
+                Text("プリセット", style = MaterialTheme.typography.labelMedium)
+            }
+            OutlinedButton(onClick = {
+                context.startActivity(Intent(context, ThemeEditorActivity::class.java))
+            }, modifier = Modifier.weight(1f), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)) {
+                Text("自作", style = MaterialTheme.typography.labelMedium)
             }
         }
     }
 }
 
+// ── Appearance content ──
 @Composable
-private fun AppearanceSection() {
+private fun AppearanceContent() {
     val context = LocalContext.current
     val settings = remember { ImeSettings(context) }
-
     var pureBlack by remember { mutableStateOf(settings.pureBlack) }
     var opacity by remember { mutableStateOf(settings.backgroundOpacity) }
     var hasImage by remember { mutableStateOf(settings.backgroundImage != null) }
     var selectedPreset by remember { mutableStateOf(settings.backgroundPresetId) }
+    var heightScale by remember { mutableStateOf(settings.keyHeightScale) }
+    var oneHandMode by remember { mutableStateOf(settings.oneHandMode) }
 
-    val pickImage = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument()
-    ) { uri ->
+    val pickImage = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
-        val bytes = runCatching {
-            context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-        }.getOrNull()
-        if (bytes != null) {
-            settings.setBackgroundImage(bytes)
-            hasImage = true
-            selectedPreset = null
-        }
+        val bytes = runCatching { context.contentResolver.openInputStream(uri)?.use { it.readBytes() } }.getOrNull()
+        if (bytes != null) { settings.setBackgroundImage(bytes); hasImage = true; selectedPreset = null }
     }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SectionHeader(Icons.Filled.Image, Icons.Outlined.Image, "外観")
-
-            SwitchRow(
-                title = "ピュアブラック",
-                subtitle = "有機EL画面の黒を完全に消灯",
-                checked = pureBlack,
-                onCheckedChange = {
-                    pureBlack = it
-                    settings.pureBlack = it
-                },
-            )
-
-            HorizontalDivider()
-
-            Text("キーボードの背景", style = MaterialTheme.typography.labelLarge)
-            Text(
-                "生成アート・プリセット",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                ImeSettings.BACKGROUND_PRESETS.forEach { preset ->
-                    val thumbnail = remember(preset.id) {
-                        context.assets.open(preset.assetPath).use {
-                            requireNotNull(
-                                BitmapFactory.decodeStream(
-                                    it,
-                                    null,
-                                    BitmapFactory.Options().apply { inSampleSize = 4 },
-                                )
-                            ) { "背景プリセットを読み込めません: ${preset.assetPath}" }
-                                .asImageBitmap()
-                        }
-                    }
-                    Card(
-                        onClick = {
-                            if (settings.setBackgroundPreset(preset.id)) {
-                                selectedPreset = preset.id
-                                hasImage = true
-                            }
-                        },
-                        modifier = Modifier.width(144.dp),
-                        shape = RoundedCornerShape(12.dp),
-                    ) {
-                        Image(
-                            bitmap = thumbnail,
-                            contentDescription = "${preset.label} 背景",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(72.dp),
-                        )
-                        Text(
-                            if (selectedPreset == preset.id) "✓ ${preset.label}"
-                            else preset.label,
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(8.dp),
-                        )
-                    }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        MiniSwitchRow("ピュアブラック", "有機EL向け", pureBlack) { pureBlack = it; settings.pureBlack = it }
+        HorizontalDivider()
+        Text("キーの高さ  ${(heightScale * 100).toInt()}%", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+        Slider(value = heightScale, onValueChange = { heightScale = it },
+            onValueChangeFinished = { settings.keyHeightScale = heightScale },
+            valueRange = ImeSettings.MIN_KEY_HEIGHT_SCALE..ImeSettings.MAX_KEY_HEIGHT_SCALE)
+        HorizontalDivider()
+        Text("片手モード", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            listOf(ImeSettings.OneHandMode.LEFT to "左", ImeSettings.OneHandMode.OFF to "全幅", ImeSettings.OneHandMode.RIGHT to "右").forEach { (v, l) ->
+                MiniChip(oneHandMode == v, l) { oneHandMode = v; settings.oneHandMode = v }
+            }
+        }
+        HorizontalDivider()
+        Text("背景プリセット", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            ImeSettings.BACKGROUND_PRESETS.forEach { preset ->
+                val thumbnail = remember(preset.id) {
+                    context.assets.open(preset.assetPath).use {
+                        requireNotNull(BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = 4 }))
+                    }.asImageBitmap()
+                }
+                Card(onClick = {
+                    if (settings.setBackgroundPreset(preset.id)) { selectedPreset = preset.id; hasImage = true }
+                }, modifier = Modifier.width(100.dp), shape = RoundedCornerShape(10.dp)) {
+                    Image(bitmap = thumbnail, contentDescription = preset.label, contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxWidth().height(56.dp))
+                    Text(if (selectedPreset == preset.id) "✓" else preset.label, style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(6.dp), maxLines = 1)
                 }
             }
-
-            Text("カスタム画像", style = MaterialTheme.typography.labelLarge)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(
-                    onClick = { pickImage.launch(arrayOf("image/*")) },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Icon(Icons.Filled.Image, contentDescription = null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(if (hasImage) "変更" else "選択")
-                }
-                OutlinedButton(
-                    onClick = {
-                        settings.clearBackgroundImage()
-                        hasImage = false
-                        selectedPreset = null
-                    },
-                    enabled = hasImage,
-                    modifier = Modifier.weight(1f),
-                ) { Text("解除") }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Button(onClick = { pickImage.launch(arrayOf("image/*")) }, modifier = Modifier.weight(1f), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)) {
+                Text(if (hasImage) "画像変更" else "画像選択", style = MaterialTheme.typography.labelMedium)
             }
-
-            AnimatedVisibility(visible = hasImage) {
-                Column {
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        "背景の濃さ  ${(opacity * 100).toInt()}%",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    Slider(
-                        value = opacity,
-                        onValueChange = { opacity = it },
-                        onValueChangeFinished = { settings.backgroundOpacity = opacity },
-                        valueRange = 0f..1f,
-                    )
-                }
+            OutlinedButton(onClick = { settings.clearBackgroundImage(); hasImage = false; selectedPreset = null },
+                enabled = hasImage, modifier = Modifier.weight(1f), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)) {
+                Text("解除", style = MaterialTheme.typography.labelMedium)
+            }
+        }
+        AnimatedVisibility(visible = hasImage) {
+            Column(Modifier.padding(top = 4.dp)) {
+                Text("濃さ  ${(opacity * 100).toInt()}%", style = MaterialTheme.typography.labelSmall)
+                Slider(value = opacity, onValueChange = { opacity = it },
+                    onValueChangeFinished = { settings.backgroundOpacity = opacity }, valueRange = 0f..1f)
             }
         }
     }
 }
 
+// ── Learning content ──
 @Composable
-private fun LearningSection() {
+private fun LearningContent() {
     val context = LocalContext.current
     var confirmReset by remember { mutableStateOf(false) }
     var result by remember { mutableStateOf<String?>(null) }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SectionHeader(Icons.Filled.School, Icons.Outlined.School, "変換学習")
-            Text(
-                "候補を長押しすると意味を確認でき、削除可能な予測候補では学習削除も選べます。",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            OutlinedButton(
-                onClick = { confirmReset = true },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Icon(Icons.Filled.Update, contentDescription = null, Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("学習をリセット")
-            }
-            result?.let {
-                Text(
-                    it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text("候補を長押しすると意味を確認でき、学習削除も選べます。", style = MaterialTheme.typography.bodySmall)
+        OutlinedButton(onClick = { confirmReset = true }, modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.Filled.Update, contentDescription = null, Modifier.size(16.dp))
+            Spacer(Modifier.width(4.dp))
+            Text("学習をリセット", style = MaterialTheme.typography.labelMedium)
         }
+        result?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
     }
     if (confirmReset) {
         AlertDialog(
             onDismissRequest = { confirmReset = false },
             title = { Text("変換学習をリセットしますか？") },
             text = { Text("ユーザー辞書は残り、変換履歴と予測履歴だけが削除されます。") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val ok = MozcEngine.get(context)?.clearLearning() == true
-                        result = if (ok) "リセットしました" else "リセットに失敗しました"
-                        confirmReset = false
-                    },
-                ) { Text("リセット") }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirmReset = false }) { Text("キャンセル") }
-            },
+            confirmButton = { TextButton(onClick = {
+                val ok = MozcEngine.get(context)?.clearLearning() == true
+                result = if (ok) "リセットしました" else "リセットに失敗しました"
+                confirmReset = false
+            }) { Text("リセット") } },
+            dismissButton = { TextButton(onClick = { confirmReset = false }) { Text("キャンセル") } },
         )
     }
 }
 
+// ── App profiles content ──
 @Composable
-private fun AppProfilesSection() {
+private fun ProfilesContent() {
     val context = LocalContext.current
     val count = AppProfileStore(context).profiles().size
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SectionHeader(Icons.Filled.Devices, Icons.Outlined.Devices, "アプリ別プロファイル")
-            Text(
-                if (count == 0) "設定されているアプリはありません" else "$count アプリに設定済み",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Text(
-                "入力方式・片手モード・高さ・シークレットモードをアプリごとに切り替え",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            FilledTonalButton(
-                onClick = {
-                    context.startActivity(Intent(context, AppProfileActivity::class.java))
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Icon(Icons.Filled.Tune, contentDescription = null, Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("アプリ別設定を管理")
-            }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(if (count == 0) "設定なし" else "$count アプリに設定済み", style = MaterialTheme.typography.bodySmall)
+        Text("入力方式・片手モード・高さ・シークレットモードをアプリごとに切替",
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        OutlinedButton(onClick = { context.startActivity(Intent(context, AppProfileActivity::class.java)) },
+            modifier = Modifier.fillMaxWidth()) {
+            Text("管理する", style = MaterialTheme.typography.labelMedium)
         }
     }
 }
 
+// ── User dictionary content ──
 @Composable
-private fun AboutSection() {
+private fun UserDictContent() {
     val context = LocalContext.current
-    val uriHandler = LocalUriHandler.current
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SectionHeader(Icons.Filled.Info, Icons.Outlined.Info, "このアプリについて")
-            Text(
-                "ZenSky Project が soichi11208/Zinna-IME をフォークし、変更・配布している版です。",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Text(
-                "ライセンス: Apache License 2.0\nパッケージ: me.zssu.ime\n連絡先: support@zslink.xyz",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            FilledTonalButton(
-                onClick = {
-                    context.startActivity(Intent(context, LegalActivity::class.java))
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Icon(Icons.Filled.Description, contentDescription = null, Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("オープンソースライセンス")
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(
-                    onClick = {
-                        uriHandler.openUri("https://github.com/soichi11208/Zinna-IME")
-                    },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Icon(Icons.Filled.Share, contentDescription = null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text("フォーク元")
-                }
-                OutlinedButton(
-                    onClick = { uriHandler.openUri("mailto:support@zslink.xyz") },
-                    modifier = Modifier.weight(1f),
-                ) { Text("問い合わせ") }
-            }
-        }
-    }
-
-    Spacer(Modifier.height(8.dp))
-
-    // User Dictionary
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-    ) {
-        val userContext = LocalContext.current
-        val userCount = remember { UserDictionary(userContext).entries().size }
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SectionHeader(Icons.Filled.Edit, Icons.Outlined.Edit, "ユーザー辞書")
-            Text(
-                if (userCount == 0) "登録された単語はありません" else "$userCount 語を登録済み",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            FilledTonalButton(
-                onClick = {
-                    userContext.startActivity(Intent(userContext, UserDictionaryActivity::class.java))
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Icon(Icons.Filled.Edit, contentDescription = null, Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("単語を編集")
-            }
-        }
-    }
-
-    Spacer(Modifier.height(8.dp))
-
-    // Meaning Dictionary (now with short code)
-    val meanContext = LocalContext.current
-    val meanCount = me.zssu.ime.dictionary.MeaningDictionaryRepository(meanContext)
-        .dictionaries().sumOf { it.entries.size }
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SectionHeader(Icons.Filled.GTranslate, Icons.Outlined.GTranslate, "意味辞書")
-            Text(
-                "$meanCount 語の意味を候補長押しで表示できます",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            FilledTonalButton(
-                onClick = {
-                    meanContext.startActivity(Intent(meanContext, MeaningDictionaryActivity::class.java))
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("意味辞書を管理")
-            }
-        }
-    }
-
-    Spacer(Modifier.height(8.dp))
-
-    // Test input
-    var text by remember { mutableStateOf("") }
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SectionHeader(Icons.Filled.Keyboard, Icons.Outlined.Keyboard, "試し入力")
-            OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 100.dp),
-                placeholder = { Text("ここで入力を試せます") },
-                singleLine = false,
-            )
+    val count = remember { UserDictionary(context).entries().size }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(if (count == 0) "登録された単語はありません" else "$count 語を登録済み", style = MaterialTheme.typography.bodySmall)
+        OutlinedButton(onClick = { context.startActivity(Intent(context, UserDictionaryActivity::class.java)) },
+            modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.Filled.Edit, contentDescription = null, Modifier.size(16.dp))
+            Spacer(Modifier.width(4.dp))
+            Text("単語を編集", style = MaterialTheme.typography.labelMedium)
         }
     }
 }
 
-// ── Reusable components ──
-
+// ── Meaning dictionary content ──
 @Composable
-private fun SectionHeader(
-    filledIcon: ImageVector,
-    outlinedIcon: ImageVector,
-    title: String,
-) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(
-            filledIcon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(22.dp),
-        )
-        Spacer(Modifier.width(10.dp))
-        Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+private fun MeaningDictContent() {
+    val context = LocalContext.current
+    val count = me.zssu.ime.dictionary.MeaningDictionaryRepository(context).dictionaries().sumOf { it.entries.size }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text("$count 語の意味を候補長押しで表示できます", style = MaterialTheme.typography.bodySmall)
+        OutlinedButton(onClick = { context.startActivity(Intent(context, MeaningDictionaryActivity::class.java)) },
+            modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, Modifier.size(16.dp))
+            Spacer(Modifier.width(4.dp))
+            Text("管理する", style = MaterialTheme.typography.labelMedium)
+        }
     }
 }
 
+// ── Reusable micro-components ──
+
 @Composable
-private fun SwitchRow(
+private fun MiniSwitchRow(
     title: String,
     subtitle: String,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
     enabled: Boolean = true,
+    onCheckedChange: (Boolean) -> Unit,
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Text(title, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Medium)
+            Text(subtitle, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
     }
 }
 
 @Composable
-private fun FilterChoice(
-    selected: Boolean,
-    label: String,
-    onClick: () -> Unit,
-) {
+private fun MiniChip(selected: Boolean, label: String, onClick: () -> Unit) {
     FilterChip(
         selected = selected,
         onClick = onClick,
-        label = { Text(label) },
+        label = { Text(label, style = MaterialTheme.typography.labelSmall) },
         colors = FilterChipDefaults.filterChipColors(
             selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
             selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -1019,7 +672,7 @@ private fun describeDictionaries(context: Context): String {
 
 private fun describeEngine(context: Context): String {
     val engine = MozcEngine.get(context)
-        ?: return "読み込み失敗 — libmozc.so が見つかりません (scripts/build_mozc.sh を実行)"
+        ?: return "読み込み失敗 — libmozc.so が見つかりません"
     val version = engine.dataVersion.ifEmpty { "unknown" }
     return "オフライン動作中 / 辞書 v$version"
 }

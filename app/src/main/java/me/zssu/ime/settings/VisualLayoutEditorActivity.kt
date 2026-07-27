@@ -6,20 +6,39 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.NavigateNext
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -27,15 +46,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import me.zssu.ime.keyboard.KeyAction
 import me.zssu.ime.keyboard.KeyOutput
@@ -45,41 +66,26 @@ import me.zssu.ime.keyboard.KeyboardLayout
 import me.zssu.ime.keyboard.LayoutRepository
 import me.zssu.ime.theme.ZinnaTheme
 
-/** Human-readable label for each action type, used in the dropdown. */
 private data class ActionChoice(val type: String, val label: String)
-
 private val ACTION_CHOICES = listOf(
-    ActionChoice("input", "文字入力 (Input)"),
-    ActionChoice("backspace", "バックスペース"),
-    ActionChoice("enter", "Enter（改行・確定）"),
-    ActionChoice("space", "スペース"),
-    ActionChoice("convert", "変換"),
-    ActionChoice("cursor", "カーソル移動"),
-    ActionChoice("undo", "元に戻す"),
-    ActionChoice("modify", "゛小゜"),
-    ActionChoice("layout", "配列切替"),
-    ActionChoice("shift", "Shift"),
-    ActionChoice("symbol", "記号直接入力"),
-    ActionChoice("ime_picker", "IME切替"),
+    ActionChoice("input", "文字入力 (Input)"), ActionChoice("backspace", "バックスペース"),
+    ActionChoice("enter", "Enter（改行・確定）"), ActionChoice("space", "スペース"),
+    ActionChoice("convert", "変換"), ActionChoice("cursor", "カーソル移動"),
+    ActionChoice("undo", "元に戻す"), ActionChoice("modify", "゛小゜"),
+    ActionChoice("layout", "配列切替"), ActionChoice("shift", "Shift"),
+    ActionChoice("symbol", "記号直接入力"), ActionChoice("ime_picker", "IME切替"),
 )
 
-/**
- * Visual keyboard-layout editor.
- *
- * Select a key, then adjust its action type, style, weight, repeat behaviour, and flick outputs.
- * Keys can be added, removed, duplicated, and rearranged with arrow buttons. Every change is
- * applied to the live [KeyboardLayout] model; saving writes a user override.
- */
 class VisualLayoutEditorActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { ZinnaTheme { Scaffold { VisualEditor(Modifier.padding(it)) } } }
+        setContent { ZinnaTheme { LayoutEditorScreen() } }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-private fun VisualEditor(modifier: Modifier = Modifier) {
+private fun LayoutEditorScreen() {
     val context = LocalContext.current
     val repository = remember { LayoutRepository(context) }
     val settings = remember { ImeSettings(context) }
@@ -90,463 +96,319 @@ private fun VisualEditor(modifier: Modifier = Modifier) {
     var message by remember { mutableStateOf("配列を選択してください") }
     val ids = remember(refresh) { repository.availableLayoutIds() }
 
-    Column(
-        modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text("視覚的な配列エディタ", style = MaterialTheme.typography.headlineSmall)
-        Text("キーを選び、アクション・スタイル・幅を変更できます。追加・削除・複製・移動も可能です。")
-        Row(
-            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            ids.forEach { id ->
-                OutlinedButton(onClick = {
-                    layout = repository.loadLayout(id)
-                    rowIndex = -1
-                    keyIndex = -1
-                    message = "$id を読み込みました"
-                }) { Text(id) }
-            }
-        }
-
-        layout?.let { current ->
-            Text(current.label, style = MaterialTheme.typography.titleMedium)
-            current.rows.forEachIndexed { r, keyRow ->
-                Row(
-                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    keyRow.keys.forEachIndexed { k, key ->
-                        val selected = r == rowIndex && k == keyIndex
-                        if (selected) {
-                            Button(
-                                onClick = { rowIndex = r; keyIndex = k },
-                                modifier = Modifier.width((56 * key.weight).dp),
-                            ) {
-                                Text(key.faceLabel, maxLines = 1)
-                            }
-                        } else {
-                            OutlinedButton(
-                                onClick = { rowIndex = r; keyIndex = k },
-                                modifier = Modifier.width((56 * key.weight).dp),
-                            ) {
-                                Text(key.faceLabel, maxLines = 1)
-                            }
-                        }
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("配列エディタ") },
+                navigationIcon = {
+                    IconButton(onClick = { (context as? ComponentActivity)?.finish() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
                     }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
+            )
+        },
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 12.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Spacer(Modifier.height(4.dp))
+
+            // Layout selector
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                ids.forEach { id ->
+                    FilterChip(
+                        selected = layout?.id == id,
+                        onClick = {
+                            layout = repository.loadLayout(id); rowIndex = -1; keyIndex = -1
+                            message = "$id を読み込みました"
+                        },
+                        label = { Text(id, style = MaterialTheme.typography.labelSmall) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        ),
+                    )
                 }
             }
 
-            val selected = current.rows.getOrNull(rowIndex)?.keys?.getOrNull(keyIndex)
-            if (selected != null) {
-                Card(Modifier.fillMaxWidth()) {
-                    Column(
-                        Modifier.padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Text("選択中: ${selected.faceLabel}", style = MaterialTheme.typography.titleSmall)
+            layout?.let { current ->
+                Text(current.label, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
 
-                        // ── action type ──
-                        Text("アクション種別", style = MaterialTheme.typography.bodyLarge)
-                        var actionExpanded by remember { mutableStateOf(false) }
-                        val currentType = actionType(selected.center)
-                        ExposedDropdownMenuBox(
-                            expanded = actionExpanded,
-                            onExpandedChange = { actionExpanded = it },
-                        ) {
-                            OutlinedTextField(
-                                value = ACTION_CHOICES.firstOrNull { it.type == currentType }?.label
-                                    ?: currentType,
-                                onValueChange = {},
-                                readOnly = true,
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = actionExpanded) },
-                                modifier = Modifier.menuAnchor().fillMaxWidth(),
-                                textStyle = MaterialTheme.typography.bodySmall,
-                            )
-                            ExposedDropdownMenu(
-                                expanded = actionExpanded,
-                                onDismissRequest = { actionExpanded = false },
-                            ) {
-                                ACTION_CHOICES.forEach { choice ->
-                                    DropdownMenuItem(
-                                        text = { Text(choice.label) },
-                                        onClick = {
-                                            actionExpanded = false
-                                            layout = replaceAction(current, rowIndex, keyIndex, choice.type)
-                                        },
+                // Key grid
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))) {
+                    Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        current.rows.forEachIndexed { r, keyRow ->
+                            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                keyRow.keys.forEachIndexed { k, key ->
+                                    FilterChip(
+                                        selected = r == rowIndex && k == keyIndex,
+                                        onClick = { rowIndex = r; keyIndex = k },
+                                        label = { Text(key.faceLabel, maxLines = 1, style = MaterialTheme.typography.labelSmall) },
+                                        modifier = Modifier.width((52 * key.weight).dp),
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        ),
                                     )
                                 }
                             }
                         }
+                    }
+                }
 
-                        // ── action-specific fields ──
-                        when (val action = selected.center.action) {
-                            is KeyAction.Input -> {
+                val selected = current.rows.getOrNull(rowIndex)?.keys?.getOrNull(keyIndex)
+                if (selected != null) {
+                    Card(shape = RoundedCornerShape(16.dp)) {
+                        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("選択中: ${selected.faceLabel}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+
+                            // Action type
+                            Text("アクション種別", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                            var actionExpanded by remember { mutableStateOf(false) }
+                            val currentType = actionType(selected.center)
+                            ExposedDropdownMenuBox(expanded = actionExpanded, onExpandedChange = { actionExpanded = it }) {
                                 OutlinedTextField(
-                                    value = action.text,
-                                    onValueChange = { text ->
+                                    value = ACTION_CHOICES.firstOrNull { it.type == currentType }?.label ?: currentType,
+                                    onValueChange = {}, readOnly = true,
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = actionExpanded) },
+                                    modifier = Modifier.menuAnchor().fillMaxWidth(),
+                                    textStyle = MaterialTheme.typography.bodySmall,
+                                )
+                                ExposedDropdownMenu(expanded = actionExpanded, onDismissRequest = { actionExpanded = false }) {
+                                    ACTION_CHOICES.forEach { choice ->
+                                        DropdownMenuItem(text = { Text(choice.label) }, onClick = {
+                                            actionExpanded = false; layout = replaceAction(current, rowIndex, keyIndex, choice.type)
+                                        })
+                                    }
+                                }
+                            }
+
+                            // Action-specific fields
+                            when (val action = selected.center.action) {
+                                is KeyAction.Input -> OutlinedTextField(
+                                    value = action.text, onValueChange = { text ->
                                         layout = updateSelected(current, rowIndex, keyIndex) {
                                             it.copy(center = it.center.copy(
                                                 label = if (it.label != null || it.center.label != action.text) text else it.center.label,
                                                 action = KeyAction.Input(text),
                                             ))
                                         }
-                                    },
-                                    label = { Text("入力テキスト（mozcテーブルキー）") },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    singleLine = true,
-                                )
-                            }
-                            is KeyAction.InsertSymbol -> {
-                                OutlinedTextField(
-                                    value = action.text,
-                                    onValueChange = { text ->
+                                    }, label = { Text("入力テキスト") }, modifier = Modifier.fillMaxWidth(), singleLine = true, textStyle = MaterialTheme.typography.bodySmall)
+
+                                is KeyAction.InsertSymbol -> OutlinedTextField(
+                                    value = action.text, onValueChange = { text ->
                                         layout = updateSelected(current, rowIndex, keyIndex) {
-                                            it.copy(center = KeyOutput(
-                                                label = text.ifEmpty { "記号" },
-                                                action = KeyAction.InsertSymbol(text),
-                                            ))
+                                            it.copy(center = KeyOutput(label = text.ifEmpty { "記号" }, action = KeyAction.InsertSymbol(text)))
                                         }
-                                    },
-                                    label = { Text("直接入力する記号") },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    singleLine = true,
-                                )
-                            }
-                            is KeyAction.MoveCursor -> {
-                                OutlinedTextField(
-                                    value = action.delta.toString(),
-                                    onValueChange = { text ->
+                                    }, label = { Text("直接入力する記号") }, modifier = Modifier.fillMaxWidth(), singleLine = true, textStyle = MaterialTheme.typography.bodySmall)
+
+                                is KeyAction.MoveCursor -> OutlinedTextField(
+                                    value = action.delta.toString(), onValueChange = { text ->
                                         val delta = text.toIntOrNull() ?: return@OutlinedTextField
                                         layout = updateSelected(current, rowIndex, keyIndex) {
-                                            it.copy(center = it.center.copy(
-                                                action = KeyAction.MoveCursor(delta),
-                                            ))
+                                            it.copy(center = it.center.copy(action = KeyAction.MoveCursor(delta)))
                                         }
-                                    },
-                                    label = { Text("移動量（マイナスで左）") },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    singleLine = true,
-                                )
-                            }
-                            is KeyAction.SwitchLayout -> {
-                                OutlinedTextField(
-                                    value = action.layoutId,
-                                    onValueChange = { id ->
+                                    }, label = { Text("移動量（マイナスで左）") }, modifier = Modifier.fillMaxWidth(), singleLine = true, textStyle = MaterialTheme.typography.bodySmall)
+
+                                is KeyAction.SwitchLayout -> OutlinedTextField(
+                                    value = action.layoutId, onValueChange = { id ->
                                         layout = updateSelected(current, rowIndex, keyIndex) {
-                                            it.copy(center = it.center.copy(
-                                                action = KeyAction.SwitchLayout(id),
-                                            ))
+                                            it.copy(center = it.center.copy(action = KeyAction.SwitchLayout(id)))
                                         }
-                                    },
-                                    label = { Text("切替先の配列ID") },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    singleLine = true,
-                                )
+                                    }, label = { Text("切替先の配列ID") }, modifier = Modifier.fillMaxWidth(), singleLine = true, textStyle = MaterialTheme.typography.bodySmall)
+
+                                else -> {}
                             }
-                            else -> {}
-                        }
 
-                        // ── style ──
-                        Text("キースタイル", style = MaterialTheme.typography.bodyLarge)
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            KeyStyle.entries.forEach { style ->
-                                val label = when (style) {
-                                    KeyStyle.CHARACTER -> "文字"
-                                    KeyStyle.MODIFIER -> "修飾"
-                                    KeyStyle.ACTION -> "操作"
-                                }
-                                val select = {
-                                    layout = updateSelected(current, rowIndex, keyIndex) {
-                                        it.copy(style = style)
-                                    }
-                                }
-                                if (selected.style == style) {
-                                    Button(onClick = select, modifier = Modifier.weight(1f)) { Text(label) }
-                                } else {
-                                    OutlinedButton(onClick = select, modifier = Modifier.weight(1f)) { Text(label) }
-                                }
-                            }
-                        }
-
-                        // ── repeatable ──
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                        ) {
-                            Text("リピート", Modifier.weight(1f))
-                            Switch(
-                                checked = selected.repeatable,
-                                onCheckedChange = { checked ->
-                                    layout = updateSelected(current, rowIndex, keyIndex) {
-                                        it.copy(repeatable = checked)
-                                    }
-                                },
-                            )
-                        }
-
-                        // ── label ──
-                        OutlinedTextField(
-                            value = selected.label.orEmpty(),
-                            onValueChange = { label ->
-                                layout = updateSelected(current, rowIndex, keyIndex) {
-                                    it.copy(label = label.ifBlank { null })
-                                }
-                            },
-                            label = { Text("表面ラベル（空欄で自動）") },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                        )
-
-                        // ── weight ──
-                        Text("キー幅 ${(selected.weight * 100).toInt()}%")
-                        Slider(
-                            value = selected.weight.coerceIn(0.5f, 4f),
-                            onValueChange = { weight ->
-                                layout = updateSelected(current, rowIndex, keyIndex) {
-                                    it.copy(weight = weight)
-                                }
-                            },
-                            valueRange = 0.5f..4f,
-                        )
-
-                        HorizontalDivider()
-
-                        // ── flick outputs ──
-                        Text("フリック方向の出力", style = MaterialTheme.typography.bodySmall)
-                        Text("各方向のテキストを設定（空欄でその方向のフリックを解除）", style = MaterialTheme.typography.bodySmall)
-                        listOf<Triple<String, KeyOutput?, (KeySpec, KeyOutput?) -> KeySpec>>(
-                            Triple("左", selected.left) { s, v -> s.copy(left = v) },
-                            Triple("上", selected.up) { s, v -> s.copy(up = v) },
-                            Triple("右", selected.right) { s, v -> s.copy(right = v) },
-                            Triple("下", selected.down) { s, v -> s.copy(down = v) },
-                        ).forEach { (dir, output, setter) ->
-                            val currentFlickText = remember(output) {
-                                (output?.action as? KeyAction.Input)?.text ?: ""
-                            }
-                            var flickText by remember(output) { mutableStateOf(currentFlickText) }
-                            OutlinedTextField(
-                                value = flickText,
-                                onValueChange = { value ->
-                                    flickText = value
-                                    layout = updateSelected(current, rowIndex, keyIndex) { spec ->
-                                        setter(spec, if (value.isBlank()) null
-                                        else KeyOutput(value, KeyAction.Input(value)))
-                                    }
-                                },
-                                label = { Text("${dir}フリックのテキスト") },
-                                modifier = Modifier.fillMaxWidth(),
-                                singleLine = true,
-                                textStyle = MaterialTheme.typography.bodySmall,
-                            )
-                        }
-
-                        // ── long press ──
-                        OutlinedTextField(
-                            value = (selected.longPress?.action as? KeyAction.InsertSymbol)?.text.orEmpty(),
-                            onValueChange = { symbol ->
-                                layout = updateSelected(current, rowIndex, keyIndex) {
-                                    it.copy(
-                                        longPress = symbol.takeIf(String::isNotEmpty)?.let { value ->
-                                            KeyOutput(value, KeyAction.InsertSymbol(value))
+                            // Style
+                            Text("キースタイル", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                KeyStyle.entries.forEach { style ->
+                                    FilterChip(
+                                        selected = selected.style == style,
+                                        onClick = {
+                                            layout = updateSelected(current, rowIndex, keyIndex) { it.copy(style = style) }
                                         },
+                                        label = {
+                                            Text(when (style) { KeyStyle.CHARACTER -> "文字"; KeyStyle.MODIFIER -> "修飾"; KeyStyle.ACTION -> "操作" },
+                                                style = MaterialTheme.typography.labelSmall)
+                                        },
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                            selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        ),
                                     )
                                 }
-                            },
-                            label = { Text("長押しで直接入力する記号") },
-                            supportingText = { Text("空欄にすると長押し割り当てを解除") },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                        )
-
-                        HorizontalDivider()
-
-                        // ── move keys ──
-                        Text("キーを移動")
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            listOf("←", "↑", "↓", "→").forEach { direction ->
-                                OutlinedButton(
-                                    onClick = {
-                                        val moved = moveKey(current, rowIndex, keyIndex, direction)
-                                        layout = moved.layout
-                                        rowIndex = moved.row
-                                        keyIndex = moved.key
-                                    },
-                                    modifier = Modifier.weight(1f),
-                                ) { Text(direction) }
                             }
-                        }
 
-                        // ── duplicate / insert / delete ──
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            OutlinedButton(
-                                onClick = {
-                                    val result = duplicateKey(current, rowIndex, keyIndex)
-                                    layout = result.layout
-                                    rowIndex = result.row
-                                    keyIndex = result.key
-                                },
-                                modifier = Modifier.weight(1f),
-                            ) { Text("複製") }
-                            OutlinedButton(
-                                onClick = {
-                                    val result = insertKey(current, rowIndex, keyIndex)
-                                    layout = result.layout
-                                    rowIndex = result.row
-                                    keyIndex = result.key
-                                },
-                                modifier = Modifier.weight(1f),
-                            ) { Text("追加") }
-                            OutlinedButton(
-                                onClick = {
-                                    val result = deleteKey(current, rowIndex, keyIndex)
-                                    if (result != null) {
-                                        layout = result.layout
-                                        rowIndex = result.row
-                                        keyIndex = result.key
-                                    } else {
-                                        message = "最後のキーは削除できません"
+                            // Repeatable
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                Text("リピート", Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                                Switch(checked = selected.repeatable, onCheckedChange = { checked ->
+                                    layout = updateSelected(current, rowIndex, keyIndex) { it.copy(repeatable = checked) }
+                                })
+                            }
+
+                            // Label
+                            OutlinedTextField(
+                                value = selected.label.orEmpty(), onValueChange = { label ->
+                                    layout = updateSelected(current, rowIndex, keyIndex) { it.copy(label = label.ifBlank { null }) }
+                                }, label = { Text("表面ラベル（空欄で自動）") }, modifier = Modifier.fillMaxWidth(), singleLine = true,
+                                textStyle = MaterialTheme.typography.bodySmall)
+
+                            // Weight
+                            Text("キー幅 ${(selected.weight * 100).toInt()}%", style = MaterialTheme.typography.labelSmall)
+                            Slider(value = selected.weight.coerceIn(0.5f, 4f), onValueChange = { weight ->
+                                layout = updateSelected(current, rowIndex, keyIndex) { it.copy(weight = weight) }
+                            }, valueRange = 0.5f..4f)
+
+                            HorizontalDivider()
+
+                            // Flick outputs
+                            Text("フリック方向の出力（空欄で解除）", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            listOf("左" to { s: KeySpec, v: KeyOutput? -> s.copy(left = v) },
+                                "上" to { s, v -> s.copy(up = v) },
+                                "右" to { s, v -> s.copy(right = v) },
+                                "下" to { s, v -> s.copy(down = v) }).forEach { (dir, setter) ->
+                                val output = when (dir) { "左" -> selected.left; "上" -> selected.up; "右" -> selected.right; else -> selected.down }
+                                var flickText by remember(output) { mutableStateOf((output?.action as? KeyAction.Input)?.text.orEmpty()) }
+                                OutlinedTextField(value = flickText, onValueChange = { value ->
+                                    flickText = value
+                                    layout = updateSelected(current, rowIndex, keyIndex) { spec ->
+                                        setter(spec, if (value.isBlank()) null else KeyOutput(value, KeyAction.Input(value)))
                                     }
-                                },
-                                modifier = Modifier.weight(1f),
-                            ) { Text("削除") }
+                                }, label = { Text("${dir}フリック") }, modifier = Modifier.fillMaxWidth(), singleLine = true,
+                                    textStyle = MaterialTheme.typography.bodySmall)
+                            }
+
+                            // Long press
+                            OutlinedTextField(
+                                value = (selected.longPress?.action as? KeyAction.InsertSymbol)?.text.orEmpty(),
+                                onValueChange = { symbol ->
+                                    layout = updateSelected(current, rowIndex, keyIndex) {
+                                        it.copy(longPress = symbol.takeIf(String::isNotEmpty)?.let { v -> KeyOutput(v, KeyAction.InsertSymbol(v)) })
+                                    }
+                                }, label = { Text("長押しで直接入力する記号") },
+                                supportingText = { Text("空欄で解除") }, modifier = Modifier.fillMaxWidth(), singleLine = true, textStyle = MaterialTheme.typography.bodySmall)
+
+                            HorizontalDivider()
+
+                            // Move
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                listOf("←", "↑", "↓", "→").forEach { dir ->
+                                    OutlinedButton(onClick = {
+                                        val m = moveKey(current, rowIndex, keyIndex, dir); layout = m.layout; rowIndex = m.row; keyIndex = m.key
+                                    }, modifier = Modifier.weight(1f), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)) {
+                                        Text(dir, style = MaterialTheme.typography.labelSmall)
+                                    }
+                                }
+                            }
+
+                            // Duplicate / Insert / Delete
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                OutlinedButton(onClick = {
+                                    val r = duplicateKey(current, rowIndex, keyIndex); layout = r.layout; rowIndex = r.row; keyIndex = r.key
+                                }, modifier = Modifier.weight(1f), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)) {
+                                    Icon(Icons.Outlined.ContentCopy, contentDescription = null, Modifier.size(14.dp))
+                                    Spacer(Modifier.width(2.dp))
+                                    Text("複製", style = MaterialTheme.typography.labelSmall)
+                                }
+                                OutlinedButton(onClick = {
+                                    val r = insertKey(current, rowIndex, keyIndex); layout = r.layout; rowIndex = r.row; keyIndex = r.key
+                                }, modifier = Modifier.weight(1f), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)) {
+                                    Icon(Icons.Outlined.Add, contentDescription = null, Modifier.size(14.dp))
+                                    Spacer(Modifier.width(2.dp))
+                                    Text("追加", style = MaterialTheme.typography.labelSmall)
+                                }
+                                OutlinedButton(onClick = {
+                                    val r = deleteKey(current, rowIndex, keyIndex)
+                                    if (r != null) { layout = r.layout; rowIndex = r.row; keyIndex = r.key }
+                                    else message = "最後のキーは削除できません"
+                                }, modifier = Modifier.weight(1f), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)) {
+                                    Icon(Icons.Outlined.Delete, contentDescription = null, Modifier.size(14.dp))
+                                    Spacer(Modifier.width(2.dp))
+                                    Text("削除", style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
                         }
                     }
                 }
+
+                Button(onClick = {
+                    repository.saveLayout(current); settings.activeLayoutId = current.id
+                    message = "${current.id} を保存して使用します"; refresh++
+                }, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Filled.Save, contentDescription = null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("保存して使用")
+                }
             }
 
-            Button(
-                onClick = {
-                    repository.saveLayout(current)
-                    settings.activeLayoutId = current.id
-                    message = "${current.id} を保存して使用します"
-                    refresh++
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text("ユーザー版として保存して使用") }
+            message?.let {
+                Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
+                    Text(it, modifier = Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer)
+                }
+            }
         }
-        Text(message, style = MaterialTheme.typography.bodySmall)
     }
 }
 
 private fun actionType(output: KeyOutput): String = when (output.action) {
-    is KeyAction.Input -> "input"
-    is KeyAction.Backspace -> "backspace"
-    is KeyAction.Enter -> "enter"
-    is KeyAction.Space -> "space"
-    is KeyAction.Convert -> "convert"
-    is KeyAction.MoveCursor -> "cursor"
-    is KeyAction.Undo -> "undo"
-    is KeyAction.ModifyChar -> "modify"
-    is KeyAction.SwitchLayout -> "layout"
-    is KeyAction.Shift -> "shift"
-    is KeyAction.InsertSymbol -> "symbol"
-    is KeyAction.ShowImePicker -> "ime_picker"
+    is KeyAction.Input -> "input"; is KeyAction.Backspace -> "backspace"; is KeyAction.Enter -> "enter"
+    is KeyAction.Space -> "space"; is KeyAction.Convert -> "convert"; is KeyAction.MoveCursor -> "cursor"
+    is KeyAction.Undo -> "undo"; is KeyAction.ModifyChar -> "modify"; is KeyAction.SwitchLayout -> "layout"
+    is KeyAction.Shift -> "shift"; is KeyAction.InsertSymbol -> "symbol"; is KeyAction.ShowImePicker -> "ime_picker"
 }
 
 private fun makeAction(type: String, prev: KeyAction): KeyAction = when (type) {
-    "input" -> KeyAction.Input((prev as? KeyAction.Input)?.text ?: "")
-    "backspace" -> KeyAction.Backspace
-    "enter" -> KeyAction.Enter
-    "space" -> KeyAction.Space
-    "convert" -> KeyAction.Convert
-    "cursor" -> KeyAction.MoveCursor((prev as? KeyAction.MoveCursor)?.delta ?: -1)
-    "undo" -> KeyAction.Undo
-    "modify" -> KeyAction.ModifyChar
-    "layout" -> KeyAction.SwitchLayout((prev as? KeyAction.SwitchLayout)?.layoutId ?: "")
-    "shift" -> KeyAction.Shift
-    "symbol" -> KeyAction.InsertSymbol((prev as? KeyAction.InsertSymbol)?.text ?: "")
-    "ime_picker" -> KeyAction.ShowImePicker
-    else -> prev
-}
-
-private fun defaultLabelForAction(action: KeyAction): String = when (action) {
-    is KeyAction.Input -> action.text.ifEmpty { "文字" }
-    is KeyAction.Backspace -> "⌫"
-    is KeyAction.Enter -> "↵"
-    is KeyAction.Space -> "空白"
-    is KeyAction.Convert -> "変換"
-    is KeyAction.MoveCursor -> if (action.delta < 0) "◀" else "▶"
-    is KeyAction.Undo -> "↶"
-    is KeyAction.ModifyChar -> "゛小゜"
-    is KeyAction.Shift -> "⬆"
-    is KeyAction.ShowImePicker -> "IME"
-    is KeyAction.InsertSymbol -> action.text.ifEmpty { "記号" }
-    is KeyAction.SwitchLayout -> "切替"
-}
-
-private fun replaceAction(
-    layout: KeyboardLayout,
-    row: Int,
-    key: Int,
-    type: String,
-): KeyboardLayout {
-    if (row !in layout.rows.indices || key !in layout.rows[row].keys.indices) return layout
-    val keys = layout.rows[row].keys.toMutableList()
-    val spec = keys[key]
-    val newAction = makeAction(type, spec.center.action)
-    val newLabel = if (spec.label != null) spec.label else defaultLabelForAction(newAction)
-    val newCenter = KeyOutput(newLabel, newAction)
-
-    // Clear flick directions when switching to non-input action
-    val clearsFlicks = type != "input"
-    keys[key] = spec.copy(
-        center = newCenter,
-        left = if (clearsFlicks) null else spec.left,
-        up = if (clearsFlicks) null else spec.up,
-        right = if (clearsFlicks) null else spec.right,
-        down = if (clearsFlicks) null else spec.down,
-    )
-    val rows = layout.rows.toMutableList()
-    rows[row] = rows[row].copy(keys = keys)
-    return layout.copy(rows = rows)
+    "input" -> KeyAction.Input((prev as? KeyAction.Input)?.text ?: ""); "backspace" -> KeyAction.Backspace
+    "enter" -> KeyAction.Enter; "space" -> KeyAction.Space; "convert" -> KeyAction.Convert
+    "cursor" -> KeyAction.MoveCursor((prev as? KeyAction.MoveCursor)?.delta ?: -1); "undo" -> KeyAction.Undo
+    "modify" -> KeyAction.ModifyChar; "layout" -> KeyAction.SwitchLayout((prev as? KeyAction.SwitchLayout)?.layoutId ?: "")
+    "shift" -> KeyAction.Shift; "symbol" -> KeyAction.InsertSymbol((prev as? KeyAction.InsertSymbol)?.text ?: "")
+    "ime_picker" -> KeyAction.ShowImePicker; else -> prev
 }
 
 private data class MoveResult(val layout: KeyboardLayout, val row: Int, val key: Int)
 
-private fun moveKey(
-    layout: KeyboardLayout,
-    row: Int,
-    key: Int,
-    direction: String,
-): MoveResult {
-    if (row !in layout.rows.indices || key !in layout.rows[row].keys.indices) {
-        return MoveResult(layout, row, key)
-    }
+private fun replaceAction(layout: KeyboardLayout, row: Int, key: Int, type: String): KeyboardLayout {
+    if (row !in layout.rows.indices || key !in layout.rows[row].keys.indices) return layout
+    val keys = layout.rows[row].keys.toMutableList()
+    val spec = keys[key]; val newAction = makeAction(type, spec.center.action)
+    val newCenter = KeyOutput(if (spec.label != null) spec.label!! else when (newAction) {
+        is KeyAction.Input -> newAction.text.ifEmpty { "文字" }; is KeyAction.Backspace -> "⌫"; is KeyAction.Enter -> "↵"
+        is KeyAction.Space -> "空白"; is KeyAction.Convert -> "変換"; is KeyAction.MoveCursor -> if (newAction.delta < 0) "◀" else "▶"
+        is KeyAction.Undo -> "↶"; is KeyAction.ModifyChar -> "゛小゜"; is KeyAction.Shift -> "⬆"
+        is KeyAction.ShowImePicker -> "IME"; is KeyAction.InsertSymbol -> newAction.text.ifEmpty { "記号" }; else -> "切替"
+    }, newAction)
+    val clearsFlicks = type != "input"
+    keys[key] = spec.copy(center = newCenter, left = if (clearsFlicks) null else spec.left, up = if (clearsFlicks) null else spec.up,
+        right = if (clearsFlicks) null else spec.right, down = if (clearsFlicks) null else spec.down)
+    val rows = layout.rows.toMutableList(); rows[row] = rows[row].copy(keys = keys)
+    return layout.copy(rows = rows)
+}
+
+private fun moveKey(layout: KeyboardLayout, row: Int, key: Int, direction: String): MoveResult {
+    if (row !in layout.rows.indices || key !in layout.rows[row].keys.indices) return MoveResult(layout, row, key)
     val rows = layout.rows.map { it.copy(keys = it.keys.toMutableList()) }.toMutableList()
-    val source = rows[row].keys.toMutableList()
-    val value = source[key]
+    val source = rows[row].keys.toMutableList(); val value = source[key]
     return when (direction) {
-        "←" -> {
-            if (key == 0) MoveResult(layout, row, key)
-            else {
-                source[key] = source[key - 1]
-                source[key - 1] = value
-                rows[row] = rows[row].copy(keys = source)
-                MoveResult(layout.copy(rows = rows), row, key - 1)
-            }
-        }
-        "→" -> {
-            if (key == source.lastIndex) MoveResult(layout, row, key)
-            else {
-                source[key] = source[key + 1]
-                source[key + 1] = value
-                rows[row] = rows[row].copy(keys = source)
-                MoveResult(layout.copy(rows = rows), row, key + 1)
-            }
-        }
+        "←" -> if (key == 0) MoveResult(layout, row, key) else { source[key] = source[key - 1]; source[key - 1] = value; rows[row] = rows[row].copy(keys = source); MoveResult(layout.copy(rows = rows), row, key - 1) }
+        "→" -> if (key == source.lastIndex) MoveResult(layout, row, key) else { source[key] = source[key + 1]; source[key + 1] = value; rows[row] = rows[row].copy(keys = source); MoveResult(layout.copy(rows = rows), row, key + 1) }
         "↑", "↓" -> {
-            val targetRow = row + if (direction == "↑") -1 else 1
-            if (targetRow !in rows.indices || source.size == 1) MoveResult(layout, row, key)
-            else {
-                source.removeAt(key)
-                rows[row] = rows[row].copy(keys = source)
-                val target = rows[targetRow].keys.toMutableList()
-                val targetIndex = key.coerceAtMost(target.size)
-                target.add(targetIndex, value)
-                rows[targetRow] = rows[targetRow].copy(keys = target)
-                MoveResult(layout.copy(rows = rows), targetRow, targetIndex)
+            val tr = row + if (direction == "↑") -1 else 1
+            if (tr !in rows.indices || source.size == 1) MoveResult(layout, row, key) else {
+                source.removeAt(key); rows[row] = rows[row].copy(keys = source)
+                val target = rows[tr].keys.toMutableList(); val ti = key.coerceAtMost(target.size); target.add(ti, value)
+                rows[tr] = rows[tr].copy(keys = target); MoveResult(layout.copy(rows = rows), tr, ti)
             }
         }
         else -> MoveResult(layout, row, key)
@@ -554,27 +416,20 @@ private fun moveKey(
 }
 
 private fun duplicateKey(layout: KeyboardLayout, row: Int, key: Int): MoveResult {
-    if (row !in layout.rows.indices || key !in layout.rows[row].keys.indices) {
-        return MoveResult(layout, row, key)
-    }
+    if (row !in layout.rows.indices || key !in layout.rows[row].keys.indices) return MoveResult(layout, row, key)
     val rows = layout.rows.map { it.copy(keys = it.keys.toMutableList()) }.toMutableList()
-    val source = rows[row].keys.toMutableList()
-    source.add(key + 1, source[key])
-    rows[row] = rows[row].copy(keys = source)
-    return MoveResult(layout.copy(rows = rows), row, key + 1)
+    val source = rows[row].keys.toMutableList(); source.add(key + 1, source[key])
+    rows[row] = rows[row].copy(keys = source); return MoveResult(layout.copy(rows = rows), row, key + 1)
 }
 
 private fun insertKey(layout: KeyboardLayout, row: Int, key: Int): MoveResult {
     if (row !in layout.rows.indices) return MoveResult(layout, row, key)
     val idx = key.coerceIn(0, layout.rows[row].keys.size - 1)
     val rows = layout.rows.map { it.copy(keys = it.keys.toMutableList()) }.toMutableList()
-    val source = rows[row].keys.toMutableList()
-    source.add(idx + 1, me.zssu.ime.keyboard.KeySpec(
-        weight = 1f,
-        center = KeyOutput("新規", KeyAction.Input("")),
-        style = KeyStyle.CHARACTER,
-    ))
-    rows[row] = rows[row].copy(keys = source)
+    rows[row].keys.toMutableList().also {
+        it.add(idx + 1, KeySpec(weight = 1f, center = KeyOutput("新規", KeyAction.Input("")), style = KeyStyle.CHARACTER))
+        rows[row] = rows[row].copy(keys = it)
+    }
     return MoveResult(layout.copy(rows = rows), row, idx + 1)
 }
 
@@ -582,23 +437,14 @@ private fun deleteKey(layout: KeyboardLayout, row: Int, key: Int): MoveResult? {
     if (row !in layout.rows.indices || key !in layout.rows[row].keys.indices) return null
     val rows = layout.rows.map { it.copy(keys = it.keys.toMutableList()) }.toMutableList()
     val source = rows[row].keys.toMutableList()
-    if (source.size <= 1) return null
-    source.removeAt(key)
+    if (source.size <= 1) return null; source.removeAt(key)
     rows[row] = rows[row].copy(keys = source)
-    val newKey = (key - 1).coerceAtLeast(0)
-    return MoveResult(layout.copy(rows = rows), row, newKey)
+    return MoveResult(layout.copy(rows = rows), row, (key - 1).coerceAtLeast(0))
 }
 
-private fun updateSelected(
-    layout: KeyboardLayout,
-    row: Int,
-    key: Int,
-    transform: (me.zssu.ime.keyboard.KeySpec) -> me.zssu.ime.keyboard.KeySpec,
-): KeyboardLayout {
+private fun updateSelected(layout: KeyboardLayout, row: Int, key: Int, transform: (KeySpec) -> KeySpec): KeyboardLayout {
     if (row !in layout.rows.indices || key !in layout.rows[row].keys.indices) return layout
     val rows = layout.rows.toMutableList()
-    val keys = rows[row].keys.toMutableList()
-    keys[key] = transform(keys[key])
-    rows[row] = rows[row].copy(keys = keys)
-    return layout.copy(rows = rows)
+    val keys = rows[row].keys.toMutableList(); keys[key] = transform(keys[key])
+    rows[row] = rows[row].copy(keys = keys); return layout.copy(rows = rows)
 }
