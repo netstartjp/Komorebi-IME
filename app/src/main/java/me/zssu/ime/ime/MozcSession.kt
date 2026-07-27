@@ -298,12 +298,9 @@ class MozcSession(context: Context) {
      * (it covers both longer readings like でんわばんごう and shorter partial ones like こんにち),
      * so it is the signal for pushing those below the exact matches.
      */
-    private fun idsExtendingReading(reading: String): Set<Int> {
-        val metadata = if (hasAllCandidateWords()) {
-            allCandidateWords.candidatesList.take(CandidateRanking.MAX_LIVE_POOL_SIZE)
-        } else {
-            return emptySet()
-        }
+    private fun Output.idsExtendingReading(reading: String): Set<Int> {
+        if (!hasAllCandidateWords()) return emptySet()
+        val metadata = allCandidateWords.candidatesList.take(CandidateRanking.MAX_LIVE_POOL_SIZE)
         var ids: MutableSet<Int>? = null
         for (word in metadata) {
             if (word.hasKey() && word.key != reading) {
