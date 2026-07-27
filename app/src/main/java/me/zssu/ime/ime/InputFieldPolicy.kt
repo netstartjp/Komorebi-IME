@@ -13,6 +13,8 @@ data class InputFieldPolicy(
     val plane: Plane,
     val showCandidates: Boolean,
     val incognito: Boolean,
+    /** TYPE_NULL editors (notably terminals) accept raw keys, not surrounding-text edits. */
+    val rawKeyEvents: Boolean = false,
 ) {
     enum class Plane { USER_DEFAULT, ASCII, NUMERIC }
 
@@ -23,6 +25,11 @@ data class InputFieldPolicy(
             if (info == null) return DEFAULT
 
             val typeClass = info.inputType and InputType.TYPE_MASK_CLASS
+            if (typeClass == InputType.TYPE_NULL) {
+                // Android defines TYPE_NULL as a non-rich InputConnection. Keep the user's normal
+                // keyboard plane, but deliver editor commands as physical-style key events.
+                return DEFAULT.copy(rawKeyEvents = true)
+            }
             val variation = info.inputType and InputType.TYPE_MASK_VARIATION
             val isTextPassword = typeClass == InputType.TYPE_CLASS_TEXT && variation in setOf(
                 InputType.TYPE_TEXT_VARIATION_PASSWORD,

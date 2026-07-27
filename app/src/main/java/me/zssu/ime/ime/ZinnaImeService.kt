@@ -664,19 +664,36 @@ class ZinnaImeService : InputMethodService() {
         // idle — and inspecting only that response used to delete one extra editor character.
         val hadComposition = isComposing
         val ic = currentInputConnection
-        val hasSelection = if (hadComposition) {
+        val rawKeyEvents = fieldPolicy.rawKeyEvents
+        val hasSelection = if (hadComposition || rawKeyEvents) {
             false
         } else {
             runCatching { !ic?.getSelectedText(0).isNullOrEmpty() }.getOrDefault(false)
         }
         val state = session.sendSpecialKey(KeyEvent.SpecialKey.BACKSPACE)
-        when (BackspaceRouting.target(hadComposition, hasSelection)) {
+        when (BackspaceRouting.target(hadComposition, hasSelection, rawKeyEvents)) {
             BackspaceRouting.Target.MOZC_COMPOSITION -> Unit
             BackspaceRouting.Target.EDITOR_SELECTION -> ic?.commitText("", 1)
-            BackspaceRouting.Target.EDITOR_PREVIOUS_CODE_POINT ->
-                ic?.deleteSurroundingTextInCodePoints(1, 0)
+            BackspaceRouting.Target.EDITOR_PREVIOUS_CODE_POINT -> {
+                if (ic != null && !ic.deleteSurroundingTextInCodePoints(1, 0)) {
+                    // Some older/custom InputConnections implement only the legacy UTF-16 API.
+                    if (!ic.deleteSurroundingText(1, 0)) sendRawBackspace(ic)
+                }
+            }
+            BackspaceRouting.Target.RAW_KEY_EVENT -> ic?.let(::sendRawBackspace)
         }
         render(state)
+    }
+
+    private fun sendRawBackspace(ic: android.view.inputmethod.InputConnection) {
+        val now = android.os.SystemClock.uptimeMillis()
+        val keyCode = android.view.KeyEvent.KEYCODE_DEL
+        ic.sendKeyEvent(
+            android.view.KeyEvent(now, now, android.view.KeyEvent.ACTION_DOWN, keyCode, 0)
+        )
+        ic.sendKeyEvent(
+            android.view.KeyEvent(now, now, android.view.KeyEvent.ACTION_UP, keyCode, 0)
+        )
     }
 
     /**

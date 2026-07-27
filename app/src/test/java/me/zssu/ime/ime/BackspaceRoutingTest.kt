@@ -33,7 +33,35 @@ class BackspaceRoutingTest {
     fun `composition remains authoritative even if editor reports a selection`() {
         assertEquals(
             BackspaceRouting.Target.MOZC_COMPOSITION,
-            BackspaceRouting.target(hadComposition = true, hasSelection = true),
+            BackspaceRouting.target(
+                hadComposition = true,
+                hasSelection = true,
+                rawKeyEvents = true,
+            ),
+        )
+    }
+
+    @Test
+    fun `idle terminal receives a raw backspace key event`() {
+        assertEquals(
+            BackspaceRouting.Target.RAW_KEY_EVENT,
+            BackspaceRouting.target(
+                hadComposition = false,
+                hasSelection = false,
+                rawKeyEvents = true,
+            ),
+        )
+    }
+
+    @Test
+    fun `raw terminal mode does not query or replace an editor selection`() {
+        assertEquals(
+            BackspaceRouting.Target.RAW_KEY_EVENT,
+            BackspaceRouting.target(
+                hadComposition = false,
+                hasSelection = true,
+                rawKeyEvents = true,
+            ),
         )
     }
 

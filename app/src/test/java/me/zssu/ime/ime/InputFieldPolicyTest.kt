@@ -15,6 +15,14 @@ class InputFieldPolicyTest {
     }
 
     @Test
+    fun typeNullTerminalUsesRawKeyEvents() {
+        assertEquals(
+            InputFieldPolicy.DEFAULT.copy(rawKeyEvents = true),
+            policy(InputType.TYPE_NULL),
+        )
+    }
+
+    @Test
     fun passwordUsesAsciiWithoutCandidatesOrLearning() {
         assertEquals(
             InputFieldPolicy(

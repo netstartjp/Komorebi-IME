@@ -12,10 +12,16 @@ internal object BackspaceRouting {
         MOZC_COMPOSITION,
         EDITOR_SELECTION,
         EDITOR_PREVIOUS_CODE_POINT,
+        RAW_KEY_EVENT,
     }
 
-    fun target(hadComposition: Boolean, hasSelection: Boolean): Target = when {
+    fun target(
+        hadComposition: Boolean,
+        hasSelection: Boolean,
+        rawKeyEvents: Boolean = false,
+    ): Target = when {
         hadComposition -> Target.MOZC_COMPOSITION
+        rawKeyEvents -> Target.RAW_KEY_EVENT
         hasSelection -> Target.EDITOR_SELECTION
         else -> Target.EDITOR_PREVIOUS_CODE_POINT
     }
