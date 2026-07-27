@@ -458,7 +458,10 @@ class ZinnaImeService : InputMethodService() {
             repository.loadTheme(selected)
                 ?: MaterialYouTheme.create(this, forceDark = settings.pureBlack)
         }
-        val sized = base.copy(keyHeightDp = base.keyHeightDp * effectiveKeyHeightScale())
+        val sized = base.copy(
+            keyHeightDp = base.keyHeightDp * effectiveKeyHeightScale(),
+            hapticFeedback = settings.hapticFeedbackEnabled,
+        )
         return if (settings.pureBlack) sized.asPureBlack() else sized
     }
 

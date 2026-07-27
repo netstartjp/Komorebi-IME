@@ -2,6 +2,7 @@ package me.zssu.ime.settings
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import me.zssu.ime.keyboard.FlickGuideStyle
 import me.zssu.ime.keyboard.KeyboardStyle
 import java.io.File
@@ -124,6 +125,14 @@ class ImeSettings(context: Context) {
             bumpRevision()
         }
 
+    /** Global key vibration switch, independent of the selected visual theme. */
+    var hapticFeedbackEnabled: Boolean
+        get() = prefs.getBoolean(KEY_HAPTIC_FEEDBACK, true)
+        set(value) {
+            prefs.edit { putBoolean(KEY_HAPTIC_FEEDBACK, value) }
+            bumpRevision()
+        }
+
     /**
      * The keyboard background image, or null for a plain colour.
      *
@@ -209,6 +218,7 @@ class ImeSettings(context: Context) {
         private const val KEY_ACTIVE_LAYOUT = "active_layout"
         private const val KEY_ONE_HAND_MODE = "one_hand_mode"
         private const val KEY_FLICK_GUIDE = "flick_guide_style"
+        private const val KEY_HAPTIC_FEEDBACK = "haptic_feedback"
         private const val KEY_BACKGROUND_PRESET = "background_preset"
         private const val KEY_USE_PRONOUN_DICT = "use_pronoun_dict"
         private const val KEY_USE_AI_TECH_DICT = "use_ai_tech_dict"

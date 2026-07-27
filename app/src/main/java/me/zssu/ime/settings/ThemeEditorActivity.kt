@@ -242,10 +242,6 @@ private fun ThemeEditorScreen(initialThemeId: String?) {
             Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Text("触覚フィードバック", Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                        Switch(checked = theme.hapticFeedback, onCheckedChange = { theme = theme.copy(hapticFeedback = it) })
-                    }
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Text("フラットキー", Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
                         Switch(checked = theme.flatKeys, onCheckedChange = { theme = theme.copy(flatKeys = it) })
                     }

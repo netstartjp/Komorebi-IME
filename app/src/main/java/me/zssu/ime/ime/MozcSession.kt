@@ -68,6 +68,8 @@ class MozcSession(
         internal val fromUserDictionary: Boolean = false,
         /** Reading currently present in the composition, used when explicitly pinning this value. */
         val inputReading: String = "",
+        /** Mozc's reading for this candidate; differs from [inputReading] for prediction/correction. */
+        internal val sourceReading: String = "",
         /** True only for candidates produced by Mozc's typo/spelling correction paths. */
         internal val correction: Boolean = false,
         /** True for a prediction whose reading differs from the current composition. */
@@ -352,6 +354,8 @@ class MozcSession(
                     id in deletableCandidateIds,
                 fromUserDictionary = CandidateAttribute.USER_DICTIONARY in attributes,
                 inputReading = reading,
+                sourceReading =
+                    if (metadata?.hasKey() == true) metadata.key else reading,
                 correction = corrected,
                 prediction = differentReading && !corrected,
                 priorityMatch = priorityLookup(reading, value),
@@ -454,10 +458,10 @@ internal object FlickTableInput {
 /**
  * Provenance-aware client-side adjustment for the unfocused Japanese toolbar.
  *
- * Explicit pins come first, followed by literal conversions, typo corrections, and predictions of
- * text the user has not typed yet. Native order is stable within each lane. This prevents a more
- * aggressive corrector from hiding intentional input while keeping genuine recovery candidates
- * ahead of speculative completions.
+ * Explicit pins come first, followed by useful full-reading conversions, the verbatim reading,
+ * typo corrections, and predictions of text the user has not typed yet. Native order is stable
+ * within each lane. This prevents a more aggressive corrector from hiding intentional input while
+ * keeping genuine recovery candidates ahead of speculative completions.
  */
 internal object CandidateRanking {
     const val MAX_LIVE_POOL_SIZE = 32
@@ -486,9 +490,59 @@ internal object CandidateRanking {
     private fun lane(candidate: MozcSession.Candidate): Int = when {
         candidate.priorityMatch == PriorityMatch.EXACT -> 0
         candidate.priorityMatch == PriorityMatch.SIMILAR -> 1
-        !candidate.correction && !candidate.prediction -> 2
-        candidate.correction -> 3
-        else -> 4
+        hasKatakanaGrammarInPrediction(candidate) -> 6
+        isFullReadingConversion(candidate) -> 2
+        !candidate.correction && !candidate.prediction -> 3
+        candidate.correction -> 4
+        else -> 5
+    }
+
+    /**
+     * Promotes "了解です" above the verbatim "りょうかいです" without promoting a longer
+     * completion such as "了解ですので". Mozc sometimes marks a same-length alternate reading as
+     * prediction, so source/input length is the reliable distinction for this toolbar.
+     */
+    private fun isFullReadingConversion(candidate: MozcSession.Candidate): Boolean {
+        if (candidate.correction || isLatinUserDictionaryEntry(candidate)) return false
+        val input = ReadingSimilarity.normalize(candidate.inputReading)
+        if (input.isEmpty()) return false
+        if (ReadingSimilarity.normalize(candidate.text) == input) return false
+        if (!candidate.prediction) return true
+
+        val source = ReadingSimilarity.normalize(candidate.sourceReading)
+        return (source.isNotEmpty() && source.length == input.length) ||
+            preservesTypedHiraganaSuffix(candidate.text, input)
+    }
+
+    /**
+     * Mozc can represent "了解です" as a prediction from the shorter key "りょうかい", even though
+     * the visible candidate covers the already typed "りょうかいです". Keeping a two-kana suffix
+     * proves this is a full phrase conversion rather than a continuation such as "了解ですので".
+     */
+    private fun preservesTypedHiraganaSuffix(text: String, input: String): Boolean {
+        if (!text.any(::isKanji)) return false
+        var textIndex = text.lastIndex
+        var inputIndex = input.lastIndex
+        var matched = 0
+        while (textIndex >= 0 && inputIndex >= 0) {
+            val textChar = text[textIndex]
+            val inputChar = input[inputIndex]
+            if (textChar != inputChar || textChar !in '\u3040'..'\u309f') break
+            matched++
+            textIndex--
+            inputIndex--
+        }
+        return matched >= 2
+    }
+
+    /**
+     * Mixed-script predictions such as "了解デス" are almost always accidental grammatical
+     * suffixes, while legitimate words such as "六本木ヒルズ" contain a longer Katakana run.
+     * Keep these candidates available at the end instead of letting them displace natural text.
+     */
+    private fun hasKatakanaGrammarInPrediction(candidate: MozcSession.Candidate): Boolean {
+        if (!candidate.prediction || !candidate.text.any(::isKanjiOrHiragana)) return false
+        return KATAKANA_RUN.findAll(candidate.text).any { it.value in KATAKANA_GRAMMAR }
     }
 
     private fun isLatinUserDictionaryEntry(candidate: MozcSession.Candidate): Boolean =
@@ -496,10 +550,23 @@ internal object CandidateRanking {
             candidate.text.any { it in 'A'..'Z' || it in 'a'..'z' } &&
             !containsJapaneseScript(candidate.text)
 
+    private fun isKanjiOrHiragana(ch: Char): Boolean =
+        ch in '\u3040'..'\u309f' ||
+            isKanji(ch)
+
+    private fun isKanji(ch: Char): Boolean =
+        ch in '\u3400'..'\u4dbf' || ch in '\u4e00'..'\u9fff'
+
     private fun containsJapaneseScript(text: String): Boolean = text.any { ch ->
         ch in '\u3040'..'\u30ff' || // Hiragana, Katakana
             ch in '\u3400'..'\u4dbf' || // CJK Extension A
             ch in '\u4e00'..'\u9fff' || // CJK Unified Ideographs
             ch == '\u3005' || ch == '\u3006' || ch == '\u303b'
     }
+
+    private val KATAKANA_RUN = Regex("[\\u30a0-\\u30ffー]+")
+    private val KATAKANA_GRAMMAR = setOf(
+        "ハ", "ガ", "ヲ", "ニ", "ヘ", "ト", "デ", "ノ", "モ", "ヤ", "カ", "ネ", "ヨ",
+        "デス", "デシタ", "マス", "マシタ", "ダ", "ナイ", "タイ",
+    )
 }

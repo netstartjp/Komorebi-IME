@@ -59,6 +59,7 @@ private fun InputSettingsScreen() {
     var style by remember { mutableStateOf(settings.keyboardStyle) }
     var flickInputMode by remember { mutableStateOf(settings.flickInputMode) }
     var guide by remember { mutableStateOf(settings.flickGuideStyle) }
+    var hapticFeedback by remember { mutableStateOf(settings.hapticFeedbackEnabled) }
 
     Scaffold(
         topBar = {
@@ -114,6 +115,26 @@ private fun InputSettingsScreen() {
                         }
                         Chip(guide == FlickGuideStyle.DIRECTIONS, "4方向表示") {
                             guide = FlickGuideStyle.DIRECTIONS; settings.flickGuideStyle = FlickGuideStyle.DIRECTIONS
+                        }
+                    }
+                }
+            }
+
+            Card(shape = RoundedCornerShape(14.dp)) {
+                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("キー操作のバイブ", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "キー、候補、ツールボタンを押したときの触覚フィードバック",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Chip(hapticFeedback, "オン") {
+                            hapticFeedback = true
+                            settings.hapticFeedbackEnabled = true
+                        }
+                        Chip(!hapticFeedback, "オフ") {
+                            hapticFeedback = false
+                            settings.hapticFeedbackEnabled = false
                         }
                     }
                 }

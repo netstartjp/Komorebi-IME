@@ -82,6 +82,113 @@ class CandidateRankingTest {
         assertEquals(listOf("完全登録", "類似登録", "通常"), ranked.map { it.text })
     }
 
+    @Test
+    fun fullReadingConversionBeatsVerbatimAndCorrections() {
+        val reading = "りょうかいです"
+        val candidates = listOf(
+            candidate(1, reading, inputReading = reading),
+            candidate(
+                2,
+                "利用開始です",
+                correction = true,
+                inputReading = reading,
+                sourceReading = "りようかいしです",
+            ),
+            candidate(
+                3,
+                "領海です",
+                correction = true,
+                inputReading = reading,
+                sourceReading = "りょうかいでし",
+            ),
+            candidate(
+                4,
+                "了解です",
+                prediction = true,
+                inputReading = reading,
+                sourceReading = "りょうかい",
+            ),
+        )
+
+        val ranked = CandidateRanking.rankLiveJapaneseSuggestions(candidates, limit = 4)
+
+        assertEquals(
+            listOf("了解です", "りょうかいです", "利用開始です", "領海です"),
+            ranked.map { it.text },
+        )
+    }
+
+    @Test
+    fun longerPredictionStaysBehindLiteralReading() {
+        val reading = "りょうかいです"
+        val candidates = listOf(
+            candidate(
+                1,
+                "了解ですので",
+                prediction = true,
+                inputReading = reading,
+                sourceReading = "りょうかいですので",
+            ),
+            candidate(2, reading, inputReading = reading),
+            candidate(3, "了解です", inputReading = reading),
+        )
+
+        val ranked = CandidateRanking.rankLiveJapaneseSuggestions(candidates, limit = 3)
+
+        assertEquals(
+            listOf("了解です", "りょうかいです", "了解ですので"),
+            ranked.map { it.text },
+        )
+    }
+
+    @Test
+    fun katakanaGrammarPredictionFallsBehindNaturalPrediction() {
+        val reading = "りょうかい"
+        val candidates = listOf(
+            candidate(
+                1,
+                "了解デス",
+                prediction = true,
+                inputReading = reading,
+                sourceReading = "りょうかいです",
+            ),
+            candidate(
+                2,
+                "了解です",
+                prediction = true,
+                inputReading = reading,
+                sourceReading = "りょうかいです",
+            ),
+            candidate(3, reading, inputReading = reading),
+        )
+
+        val ranked = CandidateRanking.rankLiveJapaneseSuggestions(candidates, limit = 3)
+
+        assertEquals(
+            listOf("りょうかい", "了解です", "了解デス"),
+            ranked.map { it.text },
+        )
+    }
+
+    @Test
+    fun legitimateKatakanaNounAfterKanjiIsNotPenalized() {
+        val reading = "ろっぽんぎひるず"
+        val candidates = listOf(
+            candidate(
+                1,
+                "六本木ヒルズ",
+                prediction = true,
+                inputReading = reading,
+                sourceReading = reading,
+            ),
+            candidate(2, reading, inputReading = reading),
+        )
+
+        val ranked = CandidateRanking.rankLiveJapaneseSuggestions(candidates, limit = 2)
+
+        assertEquals(listOf("六本木ヒルズ", reading), ranked.map { it.text })
+    }
+
     private fun candidate(
         id: Int,
         text: String,
@@ -89,10 +196,14 @@ class CandidateRankingTest {
         correction: Boolean = false,
         prediction: Boolean = false,
         priorityMatch: PriorityMatch = PriorityMatch.NONE,
+        inputReading: String = "",
+        sourceReading: String = inputReading,
     ) = MozcSession.Candidate(
         id = id,
         text = text,
         fromUserDictionary = userDictionary,
+        inputReading = inputReading,
+        sourceReading = sourceReading,
         correction = correction,
         prediction = prediction,
         priorityMatch = priorityMatch,
