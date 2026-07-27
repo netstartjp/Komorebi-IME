@@ -14,7 +14,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "zinna-ime-zensky"
+rootProject.name = "komorebi-ime"
 
 include(":app")
 include(":mozc")

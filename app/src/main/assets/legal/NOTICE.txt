@@ -1,4 +1,4 @@
-zinna-IME — ZenSky Project edition
+Komorebi IME
 Copyright 2026 ZenSky Project
 
 This product is a modified version of:
@@ -43,7 +43,7 @@ Bundled supplementary dictionary:
   attribution, source, license URL, and modification summary are also embedded
   as comment lines in the distributed dictionary itself.
 
-  zinna-IME — ZenSky Project edition remains Apache 2.0.
+  Komorebi IME remains Apache 2.0.
 
 Complete terms for Mozc, its OSS dictionary, Protocol Buffers, and the other
 runtime dependencies are shipped in assets/legal/ and can be read from the

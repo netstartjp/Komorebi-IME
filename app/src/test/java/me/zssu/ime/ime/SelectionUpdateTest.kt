@@ -13,7 +13,9 @@ class SelectionUpdateTest {
                 isComposing = true,
                 newSelectionStart = 5,
                 newSelectionEnd = 5,
+                composingStart = 2,
                 composingEnd = 5,
+                preeditCursor = 3,
             )
         )
     }
@@ -25,7 +27,9 @@ class SelectionUpdateTest {
                 isComposing = true,
                 newSelectionStart = 0,
                 newSelectionEnd = 0,
+                composingStart = -1,
                 composingEnd = -1,
+                preeditCursor = 0,
             )
         )
     }
@@ -37,7 +41,9 @@ class SelectionUpdateTest {
                 isComposing = true,
                 newSelectionStart = 3,
                 newSelectionEnd = 3,
+                composingStart = 0,
                 composingEnd = 5,
+                preeditCursor = 5,
             )
         )
         assertTrue(
@@ -45,7 +51,9 @@ class SelectionUpdateTest {
                 isComposing = true,
                 newSelectionStart = 2,
                 newSelectionEnd = 5,
+                composingStart = 0,
                 composingEnd = 5,
+                preeditCursor = 5,
             )
         )
     }
@@ -57,7 +65,23 @@ class SelectionUpdateTest {
                 isComposing = false,
                 newSelectionStart = 1,
                 newSelectionEnd = 4,
+                composingStart = -1,
                 composingEnd = -1,
+                preeditCursor = 0,
+            )
+        )
+    }
+
+    @Test
+    fun `caret at mozc cursor inside composition stays synchronized`() {
+        assertFalse(
+            SelectionUpdate.invalidatesComposition(
+                isComposing = true,
+                newSelectionStart = 3,
+                newSelectionEnd = 3,
+                composingStart = 1,
+                composingEnd = 6,
+                preeditCursor = 2,
             )
         )
     }

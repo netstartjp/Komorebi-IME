@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.ClipboardManager
 import android.content.Intent
 import android.inputmethodservice.InputMethodService
+import android.graphics.Color
 import android.text.SpannableString
 import android.text.Spanned
+import android.text.style.BackgroundColorSpan
 import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.View
@@ -58,6 +60,8 @@ class ZinnaImeService : InputMethodService() {
      * decide between 確定 and the editor's action *before* it submits and destroys the evidence.
      */
     private var isComposing = false
+    private var isConverting = false
+    private var renderedPreeditCursor = 0
 
     /**
      * Set while a state we rendered is still settling in the editor.
@@ -286,6 +290,8 @@ class ZinnaImeService : InputMethodService() {
         session.setIncognitoMode(nextPolicy.incognito)
         if (!restarting) session.resetContext()
         isComposing = false
+        isConverting = false
+        renderedPreeditCursor = 0
         ownSelectionUpdatePending = false
         candidateView?.clear()
     }
@@ -305,6 +311,8 @@ class ZinnaImeService : InputMethodService() {
         // Anything half-composed at this point can no longer be committed anywhere sensible.
         session.resetContext()
         isComposing = false
+        isConverting = false
+        renderedPreeditCursor = 0
         ownSelectionUpdatePending = false
         currentInputConnection?.finishComposingText()
         candidateView?.clear()
@@ -317,9 +325,9 @@ class ZinnaImeService : InputMethodService() {
      * clear button is a common example: without this callback, the underline disappears from the
      * editor but the old reading remains inside mozc and is prepended to the next word.
      *
-     * Updates produced by our own [render] leave the selection collapsed at [candidatesEnd], so
-     * they are ignored. Any other selection means the editor is now authoritative and retaining
-     * the native composition would make the two sides disagree.
+     * Updates produced by our own [render] leave the selection collapsed at Mozc's cursor inside
+     * the composing span, so they are ignored. Any other selection means the editor is now
+     * authoritative and retaining the native composition would make the two sides disagree.
      */
     override fun onUpdateSelection(
         oldSelStart: Int,
@@ -346,7 +354,9 @@ class ZinnaImeService : InputMethodService() {
                 isComposing = isComposing,
                 newSelectionStart = newSelStart,
                 newSelectionEnd = newSelEnd,
+                composingStart = candidatesStart,
                 composingEnd = candidatesEnd,
+                preeditCursor = renderedPreeditCursor,
             )
         ) {
             return
@@ -355,6 +365,8 @@ class ZinnaImeService : InputMethodService() {
         // Clear the guard first: finishComposingText can synchronously cause another selection
         // callback in some editors.
         isComposing = false
+        isConverting = false
+        renderedPreeditCursor = 0
         session.resetContext()
         currentInputConnection?.finishComposingText()
         candidateView?.clear()
@@ -390,7 +402,13 @@ class ZinnaImeService : InputMethodService() {
 
             is KeyAction.Enter -> handleEnter()
 
-            is KeyAction.MoveCursor -> handleCursorMove(action.delta)
+            is KeyAction.MoveCursor -> handleCursorMove(
+                delta = action.delta,
+                adjustSegment = isConverting &&
+                    direction != FlickDirection.CENTER &&
+                    (key.center.action is KeyAction.Space ||
+                        key.center.action is KeyAction.Convert),
+            )
 
             is KeyAction.SwitchLayout -> switchLayout(action.layoutId)
 
@@ -469,10 +487,12 @@ class ZinnaImeService : InputMethodService() {
         if (wantsAction) ic.performEditorAction(action) else ic.commitText("\n", 1)
     }
 
-    private fun handleCursorMove(delta: Int) {
+    private fun handleCursorMove(delta: Int, adjustSegment: Boolean) {
         session.stopKeyToggling()
         val special = if (delta < 0) KeyEvent.SpecialKey.LEFT else KeyEvent.SpecialKey.RIGHT
-        val state = session.sendSpecialKey(special)
+        // In conversion, ordinary arrows move the focused clause. A sideways space flick supplies
+        // Shift+Arrow, Mozc's standard command for shrinking/expanding that clause boundary.
+        val state = session.sendSpecialKey(special, shift = adjustSegment)
         if (state != null && state.hasComposition) {
             render(state)
             return
@@ -516,6 +536,9 @@ class ZinnaImeService : InputMethodService() {
         if (state == null) return
 
         ownSelectionUpdatePending = true
+        isComposing = state.hasComposition
+        isConverting = state.isConverting
+        renderedPreeditCursor = state.preeditCursor
         ic.beginBatchEdit()
         if (state.committedText.isNotEmpty()) {
             ic.commitText(state.committedText, 1)
@@ -524,13 +547,46 @@ class ZinnaImeService : InputMethodService() {
             ic.finishComposingText()
         } else {
             val styled = SpannableString(state.preedit).apply {
-                setSpan(UnderlineSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                if (state.isConverting && isNotEmpty()) {
+                    setSpan(
+                        BackgroundColorSpan(CONVERSION_RANGE_COLOR),
+                        0,
+                        length,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+                    )
+                }
+                var start = 0
+                for (segment in state.segments) {
+                    val end = (start + segment.text.length).coerceAtMost(length)
+                    if (end > start) {
+                        setSpan(
+                            UnderlineSpan(),
+                            start,
+                            end,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+                        )
+                        if (segment.highlighted) {
+                            setSpan(
+                                BackgroundColorSpan(CONVERSION_FOCUSED_COLOR),
+                                start,
+                                end,
+                                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+                            )
+                        }
+                    }
+                    start = end
+                }
+                if (state.segments.isEmpty() && isNotEmpty()) {
+                    setSpan(UnderlineSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
             }
-            ic.setComposingText(styled, 1)
+            // InputConnection expresses this relative to the end of the inserted composing text:
+            // 1 means the end, 0 means one character before it.
+            val cursorPosition = state.preeditCursor - state.preedit.length + 1
+            ic.setComposingText(styled, cursorPosition)
         }
         ic.endBatchEdit()
 
-        isComposing = state.hasComposition
         candidateView?.setCandidates(state.candidates, state.focusedCandidateIndex)
     }
 
@@ -543,5 +599,7 @@ class ZinnaImeService : InputMethodService() {
         /** U+3000 IDEOGRAPHIC SPACE, what a Japanese input mode types for the space key. */
         private const val FULL_WIDTH_SPACE = "　"
         private const val ONE_HAND_WIDTH = 0.82f
+        private val CONVERSION_RANGE_COLOR = Color.argb(72, 255, 152, 0)
+        private val CONVERSION_FOCUSED_COLOR = Color.argb(184, 255, 122, 0)
     }
 }

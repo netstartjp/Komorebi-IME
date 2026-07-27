@@ -10,6 +10,7 @@ import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.KeyEvent
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.Output
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.Request
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.SessionCommand
+import org.mozc.android.inputmethod.japanese.protobuf.ProtoCandidateWindow.Category
 
 /**
  * Task-level view of a mozc session: sends key events and session commands, and flattens the
@@ -35,6 +36,10 @@ class MozcSession(context: Context) {
         val preeditCursor: Int = 0,
         val candidates: List<Candidate> = emptyList(),
         val focusedCandidateIndex: Int = -1,
+        /** Mozc's visible preedit/conversion segments, retained so the client can draw boundaries. */
+        val segments: List<Segment> = emptyList(),
+        /** True after conversion starts; suggestions and predictions do not count as conversion. */
+        val isConverting: Boolean = false,
         /**
          * Whether mozc handled the key at all.
          *
@@ -48,6 +53,7 @@ class MozcSession(context: Context) {
     }
 
     data class Candidate(val id: Int, val text: String)
+    data class Segment(val text: String, val highlighted: Boolean)
 
     private var currentStyle: InputStyle? = null
     private var configApplied = false
@@ -115,8 +121,14 @@ class MozcSession(context: Context) {
         return engine?.sendKey(key.build())?.toState()
     }
 
-    fun sendSpecialKey(specialKey: KeyEvent.SpecialKey): State? =
-        engine?.sendKey(KeyEvent.newBuilder().setSpecialKey(specialKey).build())?.toState()
+    fun sendSpecialKey(
+        specialKey: KeyEvent.SpecialKey,
+        shift: Boolean = false,
+    ): State? {
+        val key = KeyEvent.newBuilder().setSpecialKey(specialKey)
+        if (shift) key.addModifierKeys(KeyEvent.ModifierKey.SHIFT)
+        return engine?.sendKey(key.build())?.toState()
+    }
 
     /**
      * Turns on the two correction features. Both are AND-ed with the Request flags above and both
@@ -219,6 +231,18 @@ class MozcSession(context: Context) {
         } else {
             emptyList()
         }
+        val segments = if (hasPreedit()) {
+            preedit.segmentList.map {
+                Segment(
+                    text = it.value,
+                    highlighted = it.annotation ==
+                        org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.Preedit
+                            .Segment.Annotation.HIGHLIGHT,
+                )
+            }
+        } else {
+            emptyList()
+        }
 
         val focused = if (hasCandidateWindow() && candidateWindow.hasFocusedIndex()) {
             candidateWindow.focusedIndex
@@ -232,6 +256,10 @@ class MozcSession(context: Context) {
             preeditCursor = cursor.coerceIn(0, preeditText.length),
             candidates = candidates,
             focusedCandidateIndex = focused,
+            segments = segments,
+            isConverting = hasCandidateWindow() &&
+                candidateWindow.category == Category.CONVERSION &&
+                candidateWindow.hasFocusedIndex(),
             consumed = consumed,
         )
     }

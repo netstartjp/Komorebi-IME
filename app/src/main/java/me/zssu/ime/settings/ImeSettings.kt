@@ -20,10 +20,11 @@ class ImeSettings(context: Context) {
 
     enum class OneHandMode { OFF, LEFT, RIGHT }
 
+    private val appContext = context.applicationContext
     private val prefs: SharedPreferences =
-        context.applicationContext.getSharedPreferences(NAME, Context.MODE_PRIVATE)
+        appContext.getSharedPreferences(NAME, Context.MODE_PRIVATE)
 
-    private val backgroundDir = File(context.applicationContext.filesDir, BACKGROUND_DIR)
+    private val backgroundDir = File(appContext.filesDir, BACKGROUND_DIR)
 
     /** Forces a true-black panel. On OLED those pixels are switched off entirely. */
     var pureBlack: Boolean
@@ -101,15 +102,32 @@ class ImeSettings(context: Context) {
     val backgroundImage: File?
         get() = File(backgroundDir, BACKGROUND_FILE).takeIf { it.isFile }
 
+    val backgroundPresetId: String?
+        get() = prefs.getString(KEY_BACKGROUND_PRESET, null)
+
     /** Replaces the background image with [bytes]. */
     fun setBackgroundImage(bytes: ByteArray) {
         backgroundDir.mkdirs()
         File(backgroundDir, BACKGROUND_FILE).writeBytes(bytes)
+        prefs.edit().remove(KEY_BACKGROUND_PRESET).apply()
         bumpRevision()
+    }
+
+    fun setBackgroundPreset(id: String): Boolean {
+        val preset = BACKGROUND_PRESETS.firstOrNull { it.id == id } ?: return false
+        val bytes = runCatching {
+            appContext.assets.open(preset.assetPath).use { it.readBytes() }
+        }.getOrNull() ?: return false
+        backgroundDir.mkdirs()
+        File(backgroundDir, BACKGROUND_FILE).writeBytes(bytes)
+        prefs.edit().putString(KEY_BACKGROUND_PRESET, id).apply()
+        bumpRevision()
+        return true
     }
 
     fun clearBackgroundImage() {
         File(backgroundDir, BACKGROUND_FILE).delete()
+        prefs.edit().remove(KEY_BACKGROUND_PRESET).apply()
         bumpRevision()
     }
 
@@ -141,9 +159,27 @@ class ImeSettings(context: Context) {
         private const val KEY_ACTIVE_THEME = "active_theme"
         private const val KEY_ACTIVE_LAYOUT = "active_layout"
         private const val KEY_ONE_HAND_MODE = "one_hand_mode"
+        private const val KEY_BACKGROUND_PRESET = "background_preset"
         const val DEFAULT_THEME_ID = "material_you"
         const val DEFAULT_BACKGROUND_OPACITY = 0.45f
         const val MIN_KEY_HEIGHT_SCALE = 0.7f
         const val MAX_KEY_HEIGHT_SCALE = 1.5f
+
+        val BACKGROUND_PRESETS = listOf(
+            BackgroundPreset("cozy_friends", "森のともだち", "backgrounds/cozy_friends.webp"),
+            BackgroundPreset(
+                "crystal_wisteria",
+                "水晶の藤",
+                "backgrounds/crystal_wisteria.webp",
+            ),
+            BackgroundPreset("cyber_ink", "サイバー墨", "backgrounds/cyber_ink.webp"),
+            BackgroundPreset(
+                "moonlit_forest",
+                "月夜のこもれび",
+                "backgrounds/moonlit_forest.webp",
+            ),
+        )
     }
 }
+
+data class BackgroundPreset(val id: String, val label: String, val assetPath: String)

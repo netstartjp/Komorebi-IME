@@ -7,15 +7,23 @@ package me.zssu.ime.ime
 internal object SelectionUpdate {
 
     /**
-     * A composing editor normally reports a collapsed selection at the end of its composing span.
-     * A moved caret, a range selection, or a missing span means the editor changed independently.
+     * A composing editor normally reports a collapsed selection at Mozc's cursor inside its
+     * composing span. A different caret, a range selection, or a missing span means the editor
+     * changed independently.
      */
     fun invalidatesComposition(
         isComposing: Boolean,
         newSelectionStart: Int,
         newSelectionEnd: Int,
+        composingStart: Int,
         composingEnd: Int,
+        preeditCursor: Int,
     ): Boolean =
         isComposing &&
-            (newSelectionStart != composingEnd || newSelectionEnd != composingEnd)
+            (
+                composingStart < 0 ||
+                    composingEnd < composingStart ||
+                    newSelectionStart != newSelectionEnd ||
+                    newSelectionStart != composingStart + preeditCursor
+                )
 }

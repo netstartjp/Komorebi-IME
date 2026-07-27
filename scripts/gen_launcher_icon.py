@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""Generates the zinna-IME launcher icon from one description of the flower.
+"""Legacy generator for the pre-Komorebi flower icon.
 
-The app is named after the zinnia (ヒャクニチソウ), so the icon is one: a dense double ring of
+The active launcher artwork is the generated raster image at
+app/src/main/res/drawable-nodpi/komorebi_launcher_art.png. This script remains
+only to make the former vector artwork reproducible from repository history.
+
+The former app name referenced the zinnia (ヒャクニチソウ), so the icon is one: a dense double ring of
 broad, notch-tipped ray petals around a disc ringed with tiny gold florets.
 
 Everything is derived from the constants below rather than drawn by hand, so the petal count or

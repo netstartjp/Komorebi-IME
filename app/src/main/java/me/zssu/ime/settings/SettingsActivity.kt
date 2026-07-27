@@ -2,6 +2,7 @@ package me.zssu.ime.settings
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.provider.Settings
 import android.view.inputmethod.InputMethodManager
@@ -9,6 +10,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +19,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -37,6 +42,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
@@ -79,8 +86,8 @@ private fun SettingsScreen(modifier: Modifier = Modifier) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("zinna-IME", style = MaterialTheme.typography.headlineMedium)
-        Text("ZenSky Project版", style = MaterialTheme.typography.titleMedium)
+        Text("Komorebi IME", style = MaterialTheme.typography.headlineMedium)
+        Text("言葉をそっと照らす、日本語入力", style = MaterialTheme.typography.titleMedium)
 
         InfoCard(title = "変換エンジン", body = engineStatus)
         InfoCard(title = "追加辞書", body = describeDictionaries(context))
@@ -354,6 +361,7 @@ private fun AppearanceCard() {
     var pureBlack by remember { mutableStateOf(settings.pureBlack) }
     var opacity by remember { mutableStateOf(settings.backgroundOpacity) }
     var hasImage by remember { mutableStateOf(settings.backgroundImage != null) }
+    var selectedPreset by remember { mutableStateOf(settings.backgroundPresetId) }
 
     val pickImage = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
@@ -367,6 +375,7 @@ private fun AppearanceCard() {
         if (bytes != null) {
             settings.setBackgroundImage(bytes)
             hasImage = true
+            selectedPreset = null
         }
     }
 
@@ -397,6 +406,54 @@ private fun AppearanceCard() {
             HorizontalDivider()
 
             Text("キーボードの背景画像", style = MaterialTheme.typography.bodyLarge)
+            Text("生成アート・プリセット", style = MaterialTheme.typography.bodySmall)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                ImeSettings.BACKGROUND_PRESETS.forEach { preset ->
+                    val thumbnail = remember(preset.id) {
+                        context.assets.open(preset.assetPath).use {
+                            requireNotNull(
+                                BitmapFactory.decodeStream(
+                                    it,
+                                    null,
+                                    BitmapFactory.Options().apply { inSampleSize = 4 },
+                                )
+                            ) { "背景プリセットを読み込めません: ${preset.assetPath}" }
+                                .asImageBitmap()
+                        }
+                    }
+                    Card(
+                        onClick = {
+                            if (settings.setBackgroundPreset(preset.id)) {
+                                selectedPreset = preset.id
+                                hasImage = true
+                            }
+                        },
+                        modifier = Modifier.width(144.dp),
+                    ) {
+                        Image(
+                            bitmap = thumbnail,
+                            contentDescription = "${preset.label} 背景",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(72.dp),
+                        )
+                        Text(
+                            if (selectedPreset == preset.id) "${preset.label}・選択中"
+                            else preset.label,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(8.dp),
+                        )
+                    }
+                }
+            }
+
+            Text("自分の画像", style = MaterialTheme.typography.bodySmall)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = { pickImage.launch(arrayOf("image/*")) },
@@ -406,6 +463,7 @@ private fun AppearanceCard() {
                     onClick = {
                         settings.clearBackgroundImage()
                         hasImage = false
+                        selectedPreset = null
                     },
                     enabled = hasImage,
                     modifier = Modifier.weight(1f),

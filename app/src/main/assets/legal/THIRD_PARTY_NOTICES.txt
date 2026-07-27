@@ -1,8 +1,8 @@
 THIRD-PARTY SOFTWARE NOTICES
 ============================
 
-This file records the runtime software incorporated into zinna-IME — ZenSky
-Project edition. Build-only tools are not part of the APK. The dependency graph
+This file records the runtime software incorporated into Komorebi IME.
+Build-only tools are not part of the APK. The dependency graph
 was reviewed against debugRuntimeClasspath on 2026-07-27. Refresh this file when
 dependencies change.
 

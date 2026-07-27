@@ -2,7 +2,7 @@
 
 最終更新日: 2026年7月27日
 
-この文書は、ZenSky Project が変更・配布する「zinna-IME — ZenSky Project版」
+この文書は、ZenSky Project が変更・配布する「Komorebi IME」
 （Android application ID: `me.zssu.ime`）に適用されます。
 
 ## データの送信

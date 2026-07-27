@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">zinna-IME — ZenSky Project版</string>
-    <string name="ime_name">zinna-IME (ZenSky)</string>
+    <string name="app_name">Komorebi IME</string>
+    <string name="ime_name">Komorebi IME</string>
     <string name="subtype_ja">日本語</string>
-    <string name="settings_title">zinna-IME — ZenSky Project版 設定</string>
+    <string name="settings_title">Komorebi IME 設定</string>
     <string name="enable_ime">キーボードを有効化</string>
     <string name="select_ime">キーボードを選択</string>
     <string name="engine_status">変換エンジン</string>

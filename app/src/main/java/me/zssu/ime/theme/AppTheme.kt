@@ -32,25 +32,23 @@ fun ZinnaTheme(
             if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
 
         dark -> darkColorScheme(
-            primary = ZinnaPink,
-            secondary = ZinnaGold,
-            tertiary = ZinnaGreen,
+            primary = KomorebiJade,
+            secondary = KomorebiGold,
+            tertiary = KomorebiCoral,
         )
 
         else -> lightColorScheme(
-            primary = ZinnaDeepPink,
-            secondary = ZinnaBrown,
-            tertiary = ZinnaGreen,
+            primary = KomorebiForest,
+            secondary = KomorebiGoldDark,
+            tertiary = KomorebiCoral,
         )
     }
     MaterialTheme(colorScheme = colors, content = content)
 }
 
-// The launcher icon's palette, so the pre-Android-12 fallback still looks like this app rather than
-// like an unstyled Compose sample. Kept in sync with scripts/gen_launcher_icon.py by hand — there
-// are five values and they change roughly never.
-private val ZinnaPink = Color(0xFFFA7C93)
-private val ZinnaDeepPink = Color(0xFFC62E63)
-private val ZinnaGold = Color(0xFFFFC64A)
-private val ZinnaBrown = Color(0xFF7E4126)
-private val ZinnaGreen = Color(0xFF37795A)
+// Static fallback palette sampled from the generated Komorebi launcher artwork.
+private val KomorebiForest = Color(0xFF075149)
+private val KomorebiJade = Color(0xFF8FCB78)
+private val KomorebiGold = Color(0xFFFFE47A)
+private val KomorebiGoldDark = Color(0xFF8A6A13)
+private val KomorebiCoral = Color(0xFFFF7258)
