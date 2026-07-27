@@ -16,6 +16,7 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import me.zssu.ime.R
 import me.zssu.ime.ime.MozcSession
+import me.zssu.ime.style.TextStyle
 import me.zssu.ime.theme.KeyboardTheme
 
 /**
@@ -28,7 +29,7 @@ import me.zssu.ime.theme.KeyboardTheme
 @SuppressLint("ViewConstructor")
 class CandidateStripView(context: Context) : HorizontalScrollView(context) {
 
-    enum class ToolAction { CLIPBOARD, EMOJI, ONE_HAND_CYCLE, SETTINGS }
+    enum class ToolAction { CLIPBOARD, EMOJI, ONE_HAND_CYCLE, SETTINGS, AI_STYLE }
     enum class OneHandDisplayMode { FULL, LEFT, RIGHT }
     enum class EmojiPage { RECENT, EMOJI, KAOMOJI, FAVORITE }
 
@@ -167,6 +168,11 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
         setContainerFillWidth(true)
         scrollTo(0, 0)
         container.addView(
+            iconButton(R.drawable.ic_ai_style, "文体補正", true) {
+                onToolAction?.invoke(ToolAction.AI_STYLE)
+            }
+        )
+        container.addView(
             iconButton(R.drawable.ic_material_content_paste, "クリップボードを貼り付け", true) {
                 onToolAction?.invoke(ToolAction.CLIPBOARD)
             }
@@ -186,6 +192,30 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
                 onToolAction?.invoke(ToolAction.SETTINGS)
             }
         )
+    }
+
+    fun showStyleSelector() {
+        focusedChild = -1
+        container.removeAllViews()
+        setContainerFillWidth(false)
+        scrollTo(0, 0)
+        container.addView(
+            iconButton(R.drawable.ic_material_arrow_back, "ツールバーに戻る") { showTools() }
+        )
+        for (style in TextStyle.entries) {
+            container.addView(TextView(context).apply {
+                text = style.label
+                applyTheme(this)
+                gravity = Gravity.CENTER
+                isSingleLine = true
+                setOnClickListener {
+                    if (theme.hapticFeedback) {
+                        it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                    }
+                    onStyleSelected?.invoke(style)
+                }
+            })
+        }
     }
 
     fun showClipboardHistory(items: List<String>) {
@@ -337,6 +367,7 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
 
     var onCandidateDeleteRequested: ((MozcSession.Candidate) -> Unit)? = null
     var onCandidateDetailsClosed: (() -> Unit)? = null
+    var onStyleSelected: ((TextStyle) -> Unit)? = null
 
     private fun iconButton(
         @DrawableRes icon: Int,

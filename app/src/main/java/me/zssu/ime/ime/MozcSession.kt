@@ -91,6 +91,11 @@ class MozcSession(
     /** Last literal composition reading, retained while conversion preedit displays kanji. */
     private var lastInputReading = ""
 
+    /** Current preedit text from the last state. Empty when not composing. */
+    private var currentPreeditText: String = ""
+
+    fun currentPreedit(): String = currentPreeditText
+
     fun applyInputStyle(style: InputStyle) {
         requestedStyle = style
         val effectiveStyle = if (phoneToggleEnabled && style == InputStyle.FLICK_HIRAGANA) {
@@ -323,6 +328,7 @@ class MozcSession(
         }
 
         val displayedPreedit = preeditText.toString()
+        currentPreeditText = displayedPreedit
         val convertingOutput = hasCandidateWindow() &&
             candidateWindow.category == Category.CONVERSION &&
             candidateWindow.hasFocusedIndex()

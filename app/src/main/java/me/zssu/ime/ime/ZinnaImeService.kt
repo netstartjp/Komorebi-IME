@@ -39,6 +39,8 @@ import me.zssu.ime.settings.SettingsActivity
 import me.zssu.ime.dictionary.MeaningDictionaryRepository
 import me.zssu.ime.theme.KeyboardTheme
 import me.zssu.ime.theme.MaterialYouTheme
+import me.zssu.ime.style.TextStyle
+import me.zssu.ime.style.TextStyleEngine
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.KeyEvent
 
 /**
@@ -268,6 +270,10 @@ class ZinnaImeService : InputMethodService() {
                 setCandidates(lastCandidates, lastFocusedCandidateIndex)
             }
             onToolAction = ::handleToolAction
+            onStyleSelected = { style ->
+                applyStyleCorrection(style)
+                candidateView?.showTools()
+            }
             onClipboardItemSelected = { text ->
                 currentInputConnection?.commitText(text, 1)
                 showTools()
@@ -399,6 +405,7 @@ class ZinnaImeService : InputMethodService() {
 
     private fun handleToolAction(action: CandidateStripView.ToolAction) {
         when (action) {
+            CandidateStripView.ToolAction.AI_STYLE -> candidateView?.showStyleSelector()
             CandidateStripView.ToolAction.CLIPBOARD -> {
                 clipboardHistory.record(
                     this,
@@ -417,6 +424,44 @@ class ZinnaImeService : InputMethodService() {
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         }
+    }
+
+    /**
+     * Applies the selected [style] to the current text. If Mozc holds a composition its preedit
+     * is transformed; otherwise the text immediately before the cursor is rewritten.
+     */
+    private fun applyStyleCorrection(style: TextStyle) {
+        val ic = currentInputConnection ?: return
+        if (isComposing) {
+            val preedit = session.currentPreedit()
+            if (preedit.isNotEmpty()) {
+                val corrected = TextStyleEngine.apply(preedit, style)
+                session.resetContext()
+                isComposing = false
+                isConverting = false
+                renderedPreeditCursor = 0
+                keyboardView?.isConversionAvailable = false
+                ic.commitText(corrected, 1)
+                candidateView?.clear()
+            }
+        } else {
+            val before = ic.getTextBeforeCursor(MAX_STYLE_CORRECTION_LENGTH, 0) ?: return
+            if (before.isBlank()) return
+            val text = before.toString()
+            val leading = text.trimStart()
+            val prefixLen = text.length - leading.length
+            val corrected = TextStyleEngine.apply(leading, style)
+            if (corrected != leading) {
+                ic.deleteSurroundingText(text.length, 0)
+                val prefix = text.take(prefixLen)
+                ic.commitText(prefix + corrected, 1)
+            }
+        }
+        Toast.makeText(
+            this,
+            "「${style.label}」に補正しました",
+            Toast.LENGTH_SHORT,
+        ).show()
     }
 
     /**
@@ -686,8 +731,14 @@ class ZinnaImeService : InputMethodService() {
     }
 
     private fun sendRawBackspace(ic: android.view.inputmethod.InputConnection) {
+        sendRawKeyPress(ic, android.view.KeyEvent.KEYCODE_DEL)
+    }
+
+    private fun sendRawKeyPress(
+        ic: android.view.inputmethod.InputConnection,
+        keyCode: Int,
+    ) {
         val now = android.os.SystemClock.uptimeMillis()
-        val keyCode = android.view.KeyEvent.KEYCODE_DEL
         ic.sendKeyEvent(
             android.view.KeyEvent(now, now, android.view.KeyEvent.ACTION_DOWN, keyCode, 0)
         )
@@ -705,43 +756,28 @@ class ZinnaImeService : InputMethodService() {
      */
     private fun handleEnter() {
         val ic = currentInputConnection ?: return
-        if (isComposing) {
-            render(session.submit())
-            return
-        }
         val info = currentInputEditorInfo
         val imeOptions = info?.imeOptions ?: 0
         val action = imeOptions and EditorInfo.IME_MASK_ACTION
-
-        // Only a field that can hold a newline gets one. Deciding this first is the whole fix: a
-        // search bar that never set imeOptions reports IME_ACTION_UNSPECIFIED, and treating that
-        // as "no action, so type a newline" stuffed a line break into a single-line box instead of
-        // searching.
-        if ((info?.inputType ?: 0) and EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE != 0) {
-            ic.commitText("\n", 1)
-            return
-        }
-
-        val wantsAction = action != EditorInfo.IME_ACTION_NONE &&
+        val hasEnabledEditorAction = action != EditorInfo.IME_ACTION_NONE &&
             action != EditorInfo.IME_ACTION_UNSPECIFIED &&
             imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION == 0
-
-        if (wantsAction) {
-            ic.performEditorAction(action)
-            return
+        val multiline =
+            (info?.inputType ?: 0) and EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE != 0
+        when (
+            EnterRouting.target(
+                hadComposition = isComposing,
+                rawKeyEvents = fieldPolicy.rawKeyEvents,
+                hasEnabledEditorAction = hasEnabledEditorAction,
+                multiline = multiline,
+            )
+        ) {
+            EnterRouting.Target.SUBMIT_COMPOSITION -> render(session.submit())
+            EnterRouting.Target.EDITOR_ACTION -> ic.performEditorAction(action)
+            EnterRouting.Target.NEWLINE -> ic.commitText("\n", 1)
+            EnterRouting.Target.RAW_KEY_EVENT ->
+                sendRawKeyPress(ic, android.view.KeyEvent.KEYCODE_ENTER)
         }
-
-        // No action declared, but the field cannot take a newline either. Send a real Enter and let
-        // the editor do whatever it does with one — that is how a hardware keyboard reaches these
-        // fields, and it is what makes an unlabelled search box submit.
-        val now = android.os.SystemClock.uptimeMillis()
-        val enter = android.view.KeyEvent.KEYCODE_ENTER
-        ic.sendKeyEvent(
-            android.view.KeyEvent(now, now, android.view.KeyEvent.ACTION_DOWN, enter, 0)
-        )
-        ic.sendKeyEvent(
-            android.view.KeyEvent(now, now, android.view.KeyEvent.ACTION_UP, enter, 0)
-        )
     }
 
     private fun handleCursorMove(delta: Int, adjustSegment: Boolean) {
@@ -943,6 +979,7 @@ class ZinnaImeService : InputMethodService() {
         /** U+3000 IDEOGRAPHIC SPACE, what a Japanese input mode types for the space key. */
         private const val FULL_WIDTH_SPACE = "　"
         private const val ONE_HAND_WIDTH = 0.82f
+        private const val MAX_STYLE_CORRECTION_LENGTH = 500
         private val CONVERSION_RANGE_COLOR = Color.argb(72, 255, 152, 0)
         private val CONVERSION_FOCUSED_COLOR = Color.argb(184, 255, 122, 0)
     }
