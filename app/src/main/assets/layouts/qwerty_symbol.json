@@ -338,7 +338,21 @@
               "type": "space"
             }
           },
-          "repeatable": true
+          "repeatable": true,
+          "left": {
+            "label": "◀",
+            "action": {
+              "type": "cursor",
+              "delta": -1
+            }
+          },
+          "right": {
+            "label": "▶",
+            "action": {
+              "type": "cursor",
+              "delta": 1
+            }
+          }
         },
         {
           "weight": 1.0,

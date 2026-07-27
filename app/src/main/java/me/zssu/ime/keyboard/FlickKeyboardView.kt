@@ -90,6 +90,8 @@ class FlickKeyboardView @JvmOverloads constructor(
         var direction: FlickDirection = FlickDirection.CENTER,
         /** Set for repeatable keys, which emit on press instead of on release. */
         var firedOnPress: Boolean = false,
+        /** Set once a hold-to-repeat has fired, so release does not add one extra centre hit. */
+        var repeated: Boolean = false,
     )
 
     private var placedKeys: List<PlacedKey> = emptyList()
@@ -311,13 +313,19 @@ class FlickKeyboardView @JvmOverloads constructor(
         if (theme.hapticFeedback) performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
 
         if (key.spec.repeatable) {
-            // Repeatable keys fire on press, not on release. Backspace has to delete the moment it
-            // is touched, and firing again on release would delete one extra character after every
-            // hold. Character keys keep firing on release, because the flick is not resolved until
-            // the finger lifts.
-            touch.firedOnPress = true
-            emit(touch)
-            scheduleRepeat(key.spec)
+            if (key.spec.hasFlicks) {
+                // A repeatable key that also flicks — the space bar — cannot fire on press, or a
+                // sideways swipe would insert a stray space before the cursor move. Resolve on
+                // release like a character key; holding still repeats the centre action below.
+                scheduleRepeat(touch)
+            } else {
+                // Plain repeatable keys fire on press, not on release. Backspace has to delete the
+                // moment it is touched, and firing again on release would delete one extra
+                // character after every hold.
+                touch.firedOnPress = true
+                emit(touch)
+                scheduleRepeat(touch)
+            }
         }
         invalidate()
     }
@@ -350,6 +358,9 @@ class FlickKeyboardView @JvmOverloads constructor(
 
     private fun commit(touch: Touch) {
         if (touch.firedOnPress) return
+        // A flickable repeatable key that already repeated its centre on hold must not add one
+        // more on release; a resolved flick (non-centre) still emits normally.
+        if (touch.repeated && touch.direction == FlickDirection.CENTER) return
         emit(touch)
     }
 
@@ -400,9 +411,11 @@ class FlickKeyboardView @JvmOverloads constructor(
         return output.copy(label = upper, action = KeyAction.Input(upper))
     }
 
-    private fun scheduleRepeat(key: KeySpec) {
+    private fun scheduleRepeat(touch: Touch) {
+        val key = touch.key.spec
         val runnable = object : Runnable {
             override fun run() {
+                touch.repeated = true
                 listener?.onKeyOutput(key.center, key, FlickDirection.CENTER)
                 if (theme.hapticFeedback) {
                     performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)

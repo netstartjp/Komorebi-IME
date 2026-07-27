@@ -18,6 +18,8 @@ import java.io.File
  */
 class ImeSettings(context: Context) {
 
+    enum class OneHandMode { OFF, LEFT, RIGHT }
+
     private val prefs: SharedPreferences =
         context.applicationContext.getSharedPreferences(NAME, Context.MODE_PRIVATE)
 
@@ -80,6 +82,15 @@ class ImeSettings(context: Context) {
             bumpRevision()
         }
 
+    var oneHandMode: OneHandMode
+        get() = runCatching {
+            OneHandMode.valueOf(prefs.getString(KEY_ONE_HAND_MODE, OneHandMode.OFF.name)!!)
+        }.getOrDefault(OneHandMode.OFF)
+        set(value) {
+            prefs.edit().putString(KEY_ONE_HAND_MODE, value.name).apply()
+            bumpRevision()
+        }
+
     /**
      * The keyboard background image, or null for a plain colour.
      *
@@ -129,6 +140,7 @@ class ImeSettings(context: Context) {
         private const val KEY_KEYBOARD_STYLE = "keyboard_style"
         private const val KEY_ACTIVE_THEME = "active_theme"
         private const val KEY_ACTIVE_LAYOUT = "active_layout"
+        private const val KEY_ONE_HAND_MODE = "one_hand_mode"
         const val DEFAULT_THEME_ID = "material_you"
         const val DEFAULT_BACKGROUND_OPACITY = 0.45f
         const val MIN_KEY_HEIGHT_SCALE = 0.7f

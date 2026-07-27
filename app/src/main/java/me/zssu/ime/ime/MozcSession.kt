@@ -185,6 +185,13 @@ class MozcSession(context: Context) {
             .build()
     )?.toState()
 
+    fun deleteCandidateFromHistory(candidateId: Int): State? = engine?.sendCommand(
+        SessionCommand.newBuilder()
+            .setType(SessionCommand.CommandType.DELETE_CANDIDATE_FROM_HISTORY)
+            .setId(candidateId)
+            .build()
+    )?.toState()
+
     /**
      * Ends any toggle-in-progress. Flick input still needs this: a same-key tap sequence is what
      * mozc uses to cycle characters, and moving the caret must not be absorbed by that cycle.

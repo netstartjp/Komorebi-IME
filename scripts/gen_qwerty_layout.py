@@ -75,6 +75,10 @@ def space_row(leading, trailing, middle=(), space_label="␣", space_action=None
     fixed = sum(k["weight"] for k in keys) + sum(k["weight"] for k in trailing)
     space = key(space_label, space_action or {"type": "space"}, WIDTH - fixed,
                 repeatable=True)
+    # Flick the space bar sideways to nudge the caret: fine cursor control without leaving the
+    # home position. A tap still spaces/converts — only the swipe changes.
+    space["left"] = {"label": "◀", "action": {"type": "cursor", "delta": -1}}
+    space["right"] = {"label": "▶", "action": {"type": "cursor", "delta": 1}}
     return row(keys + [space] + list(trailing))
 
 

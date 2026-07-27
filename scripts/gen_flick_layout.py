@@ -152,7 +152,17 @@ BACKSPACE = lambda: action_key("⌫", {"type": "backspace"}, repeatable=True)
 CURSOR_LEFT = lambda: action_key("◀", {"type": "cursor", "delta": -1}, style="MODIFIER",
                                  repeatable=True)
 CURSOR_RIGHT = lambda: action_key("▶", {"type": "cursor", "delta": 1}, repeatable=True)
-SPACE = lambda: action_key("␣", {"type": "space"}, repeatable=True)
+
+
+def SPACE():
+    # Flick the space key sideways to nudge the caret: fine cursor control without leaving the
+    # home position. A tap still spaces — only the swipe changes.
+    key = action_key("␣", {"type": "space"}, repeatable=True)
+    key["left"] = {"label": "◀", "action": {"type": "cursor", "delta": -1}}
+    key["right"] = {"label": "▶", "action": {"type": "cursor", "delta": 1}}
+    return key
+
+
 ENTER = lambda: action_key("↵", {"type": "enter"})
 
 

@@ -57,6 +57,29 @@ class LayoutParseTest {
         }
     }
 
+    /** The space bar flicks sideways to nudge the caret on every plane that has one. */
+    @Test
+    fun spaceBarFlicksMoveCursor() {
+        for ((name, layout) in layouts()) {
+            val spaceBars = layout.rows.flatMap { it.keys }.filter {
+                it.center.action is KeyAction.Space || it.center.action is KeyAction.Convert
+            }
+            assertTrue("$name has no space bar", spaceBars.isNotEmpty())
+            for (bar in spaceBars) {
+                assertEquals(
+                    "$name space left flick must move the cursor left",
+                    KeyAction.MoveCursor(-1),
+                    bar.output(FlickDirection.LEFT)?.action,
+                )
+                assertEquals(
+                    "$name space right flick must move the cursor right",
+                    KeyAction.MoveCursor(1),
+                    bar.output(FlickDirection.RIGHT)?.action,
+                )
+            }
+        }
+    }
+
     /** Shift only belongs where mozc's table actually composes upper case. */
     @Test
     fun shiftOnlyOnLatinPlanes() {

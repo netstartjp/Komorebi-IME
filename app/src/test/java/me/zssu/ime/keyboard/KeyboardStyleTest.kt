@@ -1,9 +1,21 @@
 package me.zssu.ime.keyboard
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
 import org.junit.Test
 
 class KeyboardStyleTest {
+    private val symbol = KeySpec(
+        center = KeyOutput("?123", KeyAction.SwitchLayout("qwerty_symbol")),
+    )
+    private val kana = KeySpec(
+        center = KeyOutput("かな", KeyAction.SwitchLayout("qwerty_kana")),
+    )
+    private val source = KeyboardLayout(
+        id = "qwerty_ascii",
+        label = "English",
+        rows = listOf(KeyRow(listOf(symbol, kana))),
+    )
 
     @Test
     fun flickKeepsEverythingOnTheFlickPad() {
@@ -23,22 +35,15 @@ class KeyboardStyleTest {
         }
     }
 
-    /** The point of the mode: kana on the flick pad, latin on qwerty, both directions. */
     @Test
     fun mixedSplitsKanaFromLatin() {
         with(KeyboardStyle.MIXED) {
             assertEquals("flick_kana", defaultLayoutId)
-            // 英数 on the flick pad must land on the qwerty alphabet…
             assertEquals("qwerty_ascii", resolve("flick_ascii"))
-            // …and かな on that qwerty plane must come back to the flick pad.
             assertEquals("flick_kana", resolve("qwerty_kana"))
         }
     }
 
-    /**
-     * Symbol pages are reached from inside a family and must not be redirected: ?123 on the qwerty
-     * alphabet has to open the qwerty symbol page, not the flick number pad.
-     */
     @Test
     fun symbolPagesAreNeverRedirected() {
         for (style in KeyboardStyle.entries) {
@@ -48,7 +53,6 @@ class KeyboardStyleTest {
         }
     }
 
-    /** A layout the user dropped in themselves is none of our business. */
     @Test
     fun unknownLayoutsPassThrough() {
         for (style in KeyboardStyle.entries) {
@@ -61,5 +65,19 @@ class KeyboardStyleTest {
         assertEquals(KeyboardStyle.FLICK, KeyboardStyle.of(null))
         assertEquals(KeyboardStyle.FLICK, KeyboardStyle.of("NONSENSE"))
         assertEquals(KeyboardStyle.MIXED, KeyboardStyle.of("MIXED"))
+    }
+
+    @Test
+    fun mixedPutsLanguageSwitchAtBottomLeft() {
+        val adapted = KeyboardStyle.MIXED.adapt(source)
+
+        assertEquals("かな", adapted.rows.last().keys[0].faceLabel)
+        assertEquals("?123", adapted.rows.last().keys[1].faceLabel)
+    }
+
+    @Test
+    fun otherStylesKeepBundledOrder() {
+        assertSame(source, KeyboardStyle.QWERTY.adapt(source))
+        assertSame(source, KeyboardStyle.FLICK.adapt(source))
     }
 }

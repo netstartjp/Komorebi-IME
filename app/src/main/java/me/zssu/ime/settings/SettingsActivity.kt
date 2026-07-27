@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
@@ -28,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -85,6 +87,8 @@ private fun SettingsScreen(modifier: Modifier = Modifier) {
         CustomizationCard(repository)
 
         UserDictionaryCard()
+
+        LearningCard()
 
         KeyboardCard()
 
@@ -224,6 +228,7 @@ private fun KeyboardCard() {
 
     var style by remember { mutableStateOf(settings.keyboardStyle) }
     var heightScale by remember { mutableStateOf(settings.keyHeightScale) }
+    var oneHandMode by remember { mutableStateOf(settings.oneHandMode) }
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -265,7 +270,73 @@ private fun KeyboardCard() {
                 onValueChangeFinished = { settings.keyHeightScale = heightScale },
                 valueRange = ImeSettings.MIN_KEY_HEIGHT_SCALE..ImeSettings.MAX_KEY_HEIGHT_SCALE,
             )
+
+            HorizontalDivider()
+            Text("片手モード", style = MaterialTheme.typography.bodyLarge)
+            Text(
+                "候補がないときのツールバーからも左右を切り替えられます",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                for ((option, label) in listOf(
+                    ImeSettings.OneHandMode.LEFT to "左寄せ",
+                    ImeSettings.OneHandMode.OFF to "全幅",
+                    ImeSettings.OneHandMode.RIGHT to "右寄せ",
+                )) {
+                    val select = {
+                        oneHandMode = option
+                        settings.oneHandMode = option
+                    }
+                    if (oneHandMode == option) {
+                        Button(onClick = select, modifier = Modifier.weight(1f)) { Text(label) }
+                    } else {
+                        OutlinedButton(onClick = select, modifier = Modifier.weight(1f)) {
+                            Text(label)
+                        }
+                    }
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun LearningCard() {
+    val context = LocalContext.current
+    var confirmReset by remember { mutableStateOf(false) }
+    var result by remember { mutableStateOf<String?>(null) }
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("変換学習", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "候補を長押しすると、その候補だけを学習履歴から削除できます。",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            OutlinedButton(
+                onClick = { confirmReset = true },
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text("変換学習をすべてリセット") }
+            result?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+        }
+    }
+    if (confirmReset) {
+        AlertDialog(
+            onDismissRequest = { confirmReset = false },
+            title = { Text("変換学習をリセットしますか？") },
+            text = { Text("ユーザー辞書は残り、変換履歴と予測履歴だけが削除されます。") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val ok = MozcEngine.get(context)?.clearLearning() == true
+                        result = if (ok) "変換学習をリセットしました" else "リセットに失敗しました"
+                        confirmReset = false
+                    },
+                ) { Text("リセット") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmReset = false }) { Text("キャンセル") }
+            },
+        )
     }
 }
 

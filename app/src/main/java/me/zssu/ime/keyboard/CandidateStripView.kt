@@ -21,17 +21,27 @@ import me.zssu.ime.theme.KeyboardTheme
 @SuppressLint("ViewConstructor")
 class CandidateStripView(context: Context) : HorizontalScrollView(context) {
 
+    enum class ToolAction { CLIPBOARD, EMOJI, ONE_HAND_CYCLE, SETTINGS }
+
     fun interface OnCandidateSelectedListener {
         fun onCandidateSelected(candidate: MozcSession.Candidate)
     }
 
     var listener: OnCandidateSelectedListener? = null
+    var onCandidateLongPressed: ((MozcSession.Candidate) -> Unit)? = null
+    var onToolAction: ((ToolAction) -> Unit)? = null
 
     var theme: KeyboardTheme = KeyboardTheme.Default
         set(value) {
             field = value
             invalidate()
         }
+
+    /**
+     * Label for the single one-hand toggle in the toolbar. The service renders the current mode
+     * into it (全幅/左/右) so tapping always shows where you are and, by cycling, how to get back.
+     */
+    var oneHandLabel: String = "片手"
 
     private val container = LinearLayout(context).apply {
         orientation = LinearLayout.HORIZONTAL
@@ -71,6 +81,13 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
                     }
                     listener?.onCandidateSelected(candidate)
                 }
+                setOnLongClickListener {
+                    if (theme.hapticFeedback) {
+                        it.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                    }
+                    onCandidateLongPressed?.invoke(candidate)
+                    true
+                }
             }
             container.addView(
                 view,
@@ -80,7 +97,58 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
                 ),
             )
         }
+        if (candidates.isEmpty()) showTools()
     }
 
     fun clear() = setCandidates(emptyList(), -1)
+
+    fun showTools() {
+        showItems(
+            listOf(
+                "📋" to ToolAction.CLIPBOARD,
+                "😀" to ToolAction.EMOJI,
+                oneHandLabel to ToolAction.ONE_HAND_CYCLE,
+                "⚙" to ToolAction.SETTINGS,
+            )
+        )
+    }
+
+    fun showEmoji() {
+        container.removeAllViews()
+        scrollTo(0, 0)
+        val padding = (12 * resources.displayMetrics.density).toInt()
+        listOf("😀", "😂", "🥰", "😊", "😭", "👍", "🙏", "🎉", "❤️", "✨", "🔥", "✅", "💡", "👀").forEach { emoji ->
+            container.addView(TextView(context).apply {
+                text = emoji
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, theme.labelSizeSp + 4f)
+                setPadding(padding, padding / 2, padding, padding / 2)
+                gravity = Gravity.CENTER
+                setOnClickListener { onEmojiSelected?.invoke(emoji) }
+            })
+        }
+        container.addView(toolView("戻る") { showTools() })
+    }
+
+    var onEmojiSelected: ((String) -> Unit)? = null
+
+    private fun showItems(items: List<Pair<String, ToolAction>>) {
+        container.removeAllViews()
+        scrollTo(0, 0)
+        items.forEach { (label, action) ->
+            container.addView(toolView(label) { onToolAction?.invoke(action) })
+        }
+    }
+
+    private fun toolView(label: String, action: () -> Unit): TextView = TextView(context).apply {
+        text = label
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, theme.labelSizeSp)
+        setTextColor(theme.candidateTextColor)
+        val horizontal = (18 * resources.displayMetrics.density).toInt()
+        setPadding(horizontal, 0, horizontal, 0)
+        gravity = Gravity.CENTER
+        setOnClickListener {
+            if (theme.hapticFeedback) it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            action()
+        }
+    }
 }

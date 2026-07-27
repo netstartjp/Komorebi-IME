@@ -1,6 +1,8 @@
 package me.zssu.ime.ime
 
 import android.content.Context
+import android.content.ClipboardManager
+import android.content.Intent
 import android.inputmethodservice.InputMethodService
 import android.text.SpannableString
 import android.text.Spanned
@@ -10,6 +12,8 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
+import android.view.Gravity
+import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnAttach
@@ -24,6 +28,7 @@ import me.zssu.ime.keyboard.KeyboardLayout
 import me.zssu.ime.keyboard.KeyboardPanelView
 import me.zssu.ime.keyboard.LayoutRepository
 import me.zssu.ime.settings.ImeSettings
+import me.zssu.ime.settings.SettingsActivity
 import me.zssu.ime.theme.KeyboardTheme
 import me.zssu.ime.theme.MaterialYouTheme
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.KeyEvent
@@ -53,6 +58,18 @@ class ZinnaImeService : InputMethodService() {
      * decide between 確定 and the editor's action *before* it submits and destroys the evidence.
      */
     private var isComposing = false
+
+    /**
+     * Set while a state we rendered is still settling in the editor.
+     *
+     * commitText + setComposingText inside one batch edit make the editor post a selection
+     * callback whose composing-span coordinates can lag the text we just wrote. Comparing that
+     * stale span against the new caret made the callback look like an external edit, so the
+     * continuation candidates a conversion just produced were cleared and the toolbar flashed
+     * back over them. A collapsed-caret update that arrives while this is set is our own echo and
+     * is ignored; a range selection is still the user grabbing the text, so it is honoured.
+     */
+    private var ownSelectionUpdatePending = false
 
     /** [ImeSettings.revision] the current input view was built from. */
     private var builtFromRevision = Int.MIN_VALUE
@@ -127,6 +144,21 @@ class ZinnaImeService : InputMethodService() {
             listener = CandidateStripView.OnCandidateSelectedListener { candidate ->
                 render(session.selectCandidate(candidate.id))
             }
+            onCandidateLongPressed = { candidate ->
+                render(session.deleteCandidateFromHistory(candidate.id))
+                Toast.makeText(
+                    this@ZinnaImeService,
+                    "「${candidate.text}」を学習候補から削除しました",
+                    Toast.LENGTH_SHORT,
+                ).show()
+            }
+            onToolAction = ::handleToolAction
+            onEmojiSelected = { emoji -> currentInputConnection?.commitText(emoji, 1) }
+            oneHandLabel = when (settings.oneHandMode) {
+                ImeSettings.OneHandMode.OFF -> "片手:全幅"
+                ImeSettings.OneHandMode.LEFT -> "片手:左"
+                ImeSettings.OneHandMode.RIGHT -> "片手:右"
+            }
         }
         val stripHeight = if (fieldPolicy.showCandidates) {
             (theme.keyHeightDp * 0.8f * resources.displayMetrics.density).toInt()
@@ -136,19 +168,45 @@ class ZinnaImeService : InputMethodService() {
 
         val keyboard = FlickKeyboardView(this).apply {
             theme = this@ZinnaImeService.theme
-            layout = loaded
+            layout = loaded?.let(::adaptLayoutForStyle)
             guideOverflowTop = stripHeight.toFloat()
             listener = FlickKeyboardView.OnKeyOutputListener(::onKeyOutput)
         }
 
-        root.addView(
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            clipChildren = false
+            clipToPadding = false
+            gravity = when (settings.oneHandMode) {
+                ImeSettings.OneHandMode.LEFT -> Gravity.START
+                ImeSettings.OneHandMode.RIGHT -> Gravity.END
+                ImeSettings.OneHandMode.OFF -> Gravity.CENTER_HORIZONTAL
+            }
+        }
+        root.gravity = when (settings.oneHandMode) {
+            ImeSettings.OneHandMode.LEFT -> Gravity.START
+            ImeSettings.OneHandMode.RIGHT -> Gravity.END
+            ImeSettings.OneHandMode.OFF -> Gravity.CENTER_HORIZONTAL
+        }
+        content.addView(
             candidates,
             LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, stripHeight),
         )
-        root.addView(
+        content.addView(
             keyboard,
             LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ),
+        )
+        root.addView(
+            content,
+            LinearLayout.LayoutParams(
+                if (settings.oneHandMode == ImeSettings.OneHandMode.OFF) {
+                    LinearLayout.LayoutParams.MATCH_PARENT
+                } else {
+                    (resources.displayMetrics.widthPixels * ONE_HAND_WIDTH).toInt()
+                },
                 LinearLayout.LayoutParams.WRAP_CONTENT,
             ),
         )
@@ -158,7 +216,44 @@ class ZinnaImeService : InputMethodService() {
         builtFromRevision = settings.revision
         session.setIncognitoMode(fieldPolicy.incognito)
         loaded?.let { session.applyInputStyle(it.inputStyle) }
+        candidates.showTools()
         return root
+    }
+
+    private fun handleToolAction(action: CandidateStripView.ToolAction) {
+        when (action) {
+            CandidateStripView.ToolAction.CLIPBOARD -> {
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val text = clipboard.primaryClip?.getItemAt(0)?.coerceToText(this)?.toString()
+                if (!text.isNullOrEmpty()) currentInputConnection?.commitText(text, 1)
+                else Toast.makeText(this, "クリップボードは空です", Toast.LENGTH_SHORT).show()
+            }
+            CandidateStripView.ToolAction.EMOJI -> candidateView?.showEmoji()
+            CandidateStripView.ToolAction.ONE_HAND_CYCLE -> cycleOneHandMode()
+            CandidateStripView.ToolAction.SETTINGS -> startActivity(
+                Intent(this, SettingsActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }
+    }
+
+    /**
+     * One toolbar button walks 全幅 → 左 → 右 → 全幅. Cycling (rather than two directional
+     * buttons) means the way back is the same tap that got you here, so nobody is stranded in a
+     * narrow keyboard with no obvious exit.
+     */
+    private fun cycleOneHandMode() {
+        settings.oneHandMode = when (settings.oneHandMode) {
+            ImeSettings.OneHandMode.OFF -> ImeSettings.OneHandMode.LEFT
+            ImeSettings.OneHandMode.LEFT -> ImeSettings.OneHandMode.RIGHT
+            ImeSettings.OneHandMode.RIGHT -> ImeSettings.OneHandMode.OFF
+        }
+        setInputView(onCreateInputView())
+    }
+
+    /** Keeps the bottom-left key as the language switch on the mixed QWERTY alphabet plane. */
+    private fun adaptLayoutForStyle(source: KeyboardLayout): KeyboardLayout {
+        return settings.keyboardStyle.adapt(source)
     }
 
     /**
@@ -191,6 +286,7 @@ class ZinnaImeService : InputMethodService() {
         session.setIncognitoMode(nextPolicy.incognito)
         if (!restarting) session.resetContext()
         isComposing = false
+        ownSelectionUpdatePending = false
         candidateView?.clear()
     }
 
@@ -209,6 +305,7 @@ class ZinnaImeService : InputMethodService() {
         // Anything half-composed at this point can no longer be committed anywhere sensible.
         session.resetContext()
         isComposing = false
+        ownSelectionUpdatePending = false
         currentInputConnection?.finishComposingText()
         candidateView?.clear()
     }
@@ -240,6 +337,11 @@ class ZinnaImeService : InputMethodService() {
             candidatesStart,
             candidatesEnd,
         )
+        if (ownSelectionUpdatePending) {
+            ownSelectionUpdatePending = false
+            // Our render leaves the caret collapsed; a range selection means the user intervened.
+            if (newSelStart == newSelEnd) return
+        }
         if (!SelectionUpdate.invalidatesComposition(
                 isComposing = isComposing,
                 newSelectionStart = newSelStart,
@@ -394,7 +496,7 @@ class ZinnaImeService : InputMethodService() {
         // Finalise before swapping planes so a half-typed kana is not silently discarded.
         render(session.submit())
         layout = next
-        keyboardView?.layout = next
+        keyboardView?.layout = adaptLayoutForStyle(next)
         session.applyInputStyle(next.inputStyle)
     }
 
@@ -413,6 +515,7 @@ class ZinnaImeService : InputMethodService() {
         val ic = currentInputConnection ?: return
         if (state == null) return
 
+        ownSelectionUpdatePending = true
         ic.beginBatchEdit()
         if (state.committedText.isNotEmpty()) {
             ic.commitText(state.committedText, 1)
@@ -439,5 +542,6 @@ class ZinnaImeService : InputMethodService() {
 
         /** U+3000 IDEOGRAPHIC SPACE, what a Japanese input mode types for the space key. */
         private const val FULL_WIDTH_SPACE = "　"
+        private const val ONE_HAND_WIDTH = 0.82f
     }
 }

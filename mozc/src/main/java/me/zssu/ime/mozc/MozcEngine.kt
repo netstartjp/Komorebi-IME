@@ -71,6 +71,14 @@ class MozcEngine private constructor() {
         )
     }
 
+    /** Removes learned conversion and prediction history while preserving user dictionaries. */
+    fun clearLearning(): Boolean = synchronized(lock) {
+        val history = evalLocked(Input.newBuilder().setType(Input.CommandType.CLEAR_USER_HISTORY))
+        val prediction =
+            evalLocked(Input.newBuilder().setType(Input.CommandType.CLEAR_USER_PREDICTION))
+        history != null && prediction != null
+    }
+
     /** Escape hatch for inputs this facade does not model yet (config, user dictionary, …). */
     fun eval(input: Input.Builder): Output? = synchronized(lock) { evalLocked(input) }
 
