@@ -200,7 +200,7 @@ class ZinnaImeService : InputMethodService() {
         val candidates = CandidateStripView(this).apply {
             theme = this@ZinnaImeService.theme
             listener = CandidateStripView.OnCandidateSelectedListener { candidate ->
-                render(session.selectCandidate(candidate.id))
+                render(session.selectCandidate(candidate))
             }
             onCandidateLongPressed = { candidate ->
                 val entries = meaningDictionaries.lookup(candidate.text)

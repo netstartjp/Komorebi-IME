@@ -3,6 +3,7 @@ package me.zssu.ime.ime
 import android.content.Context
 import me.zssu.ime.keyboard.InputStyle
 import me.zssu.ime.mozc.MozcEngine
+import java.text.Normalizer
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoConfig.Config
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.CompositionMode
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.DecoderExperimentParams
@@ -76,6 +77,8 @@ class MozcSession(
         internal val prediction: Boolean = false,
         /** Explicit user priority; exact pins outrank fuzzy recovery matches. */
         val priorityMatch: PriorityMatch = PriorityMatch.NONE,
+        /** Client-generated kana spelling that commits directly instead of addressing a Mozc id. */
+        internal val directCommit: Boolean = false,
     )
     data class Segment(val text: String, val highlighted: Boolean)
 
@@ -263,12 +266,23 @@ class MozcSession(
     /** Backspace on an empty composition is the editor's problem, not mozc's. */
     fun undoOrRewind(): State? = sendSessionCommand(SessionCommand.CommandType.UNDO_OR_REWIND)
 
-    fun selectCandidate(candidateId: Int): State? = engine?.sendCommand(
-        SessionCommand.newBuilder()
-            .setType(SessionCommand.CommandType.SUBMIT_CANDIDATE)
-            .setId(candidateId)
-            .build()
-    )?.toState()
+    fun selectCandidate(candidate: Candidate): State? {
+        if (!candidate.directCommit) {
+            return engine?.sendCommand(
+                SessionCommand.newBuilder()
+                    .setType(SessionCommand.CommandType.SUBMIT_CANDIDATE)
+                    .setId(candidate.id)
+                    .build()
+            )?.toState()
+        }
+
+        // Script fallbacks may not exist in Mozc's bounded candidate result. Clear its composition
+        // before returning the selected spelling as a normal commit, otherwise the old reading
+        // would remain alive behind the editor text and reappear on the next key.
+        resetContext()
+        lastInputReading = ""
+        return State(committedText = candidate.text, consumed = true)
+    }
 
     fun highlightCandidate(candidateId: Int): State? = engine?.sendCommand(
         SessionCommand.newBuilder()
@@ -474,7 +488,7 @@ internal object CandidateRanking {
     ): List<MozcSession.Candidate> {
         if (limit <= 0 || candidates.isEmpty()) return emptyList()
 
-        return candidates.withIndex()
+        val ranked = candidates.withIndex()
             .sortedBy { indexed ->
                 lane(indexed.value) * LANE_STRIDE +
                     indexed.index + if (isLatinUserDictionaryEntry(indexed.value)) {
@@ -484,7 +498,8 @@ internal object CandidateRanking {
                 }
             }
             .map { it.value }
-            .take(limit)
+
+        return KanaScriptVariants.ensurePresentAtEnd(ranked, limit)
     }
 
     private fun lane(candidate: MozcSession.Candidate): Int = when {
@@ -569,4 +584,103 @@ internal object CandidateRanking {
         "ハ", "ガ", "ヲ", "ニ", "ヘ", "ト", "デ", "ノ", "モ", "ヤ", "カ", "ネ", "ヨ",
         "デス", "デシタ", "マス", "マシタ", "ダ", "ナイ", "タイ",
     )
+}
+
+/**
+ * Guarantees direct hiragana, full-width Katakana, and half-width Katakana spellings in a live
+ * Japanese candidate list. A spelling that naturally won ranking remains the answer at the front;
+ * the remaining spellings are fallbacks and therefore sit at the end without displacing useful
+ * conversion candidates any earlier than necessary.
+ */
+internal object KanaScriptVariants {
+    private const val HIRAGANA_ID = -1
+    private const val KATAKANA_ID = -2
+    private const val HALF_KATAKANA_ID = -3
+
+    fun ensurePresentAtEnd(
+        ranked: List<MozcSession.Candidate>,
+        limit: Int,
+    ): List<MozcSession.Candidate> {
+        if (ranked.isEmpty() || limit <= 0) return emptyList()
+        val reading = ranked.firstNotNullOfOrNull { it.inputReading.takeIf(String::isNotEmpty) }
+            ?: return ranked.take(limit)
+        val variants = variants(reading)
+        if (variants.isEmpty()) return ranked.take(limit)
+
+        val naturalAnswer = ranked.firstOrNull()?.text
+        val required = variants.map { (id, text) ->
+            ranked.firstOrNull { it.text == text } ?: MozcSession.Candidate(
+                id = id,
+                text = text,
+                inputReading = reading,
+                sourceReading = reading,
+                directCommit = true,
+            )
+        }
+        val frontVariants = required.filter {
+            it.text == naturalAnswer || it.priorityMatch != PriorityMatch.NONE
+        }
+        val fallbackVariants = required.filterNot { it in frontVariants }
+        val requiredTexts = required.mapTo(mutableSetOf()) { it.text }
+        val ordinary = ranked.filterNot { it.text in requiredTexts }
+        val mustKeepNaturalAnswer = naturalAnswer != null && naturalAnswer !in requiredTexts
+        val minimumSize = required.size + if (mustKeepNaturalAnswer) 1 else 0
+        val resultLimit = maxOf(limit, minimumSize)
+        val front = (frontVariants + ordinary)
+            .distinctBy { it.text }
+            .take((resultLimit - fallbackVariants.size).coerceAtLeast(0))
+        return (front + fallbackVariants)
+            .distinctBy { it.text }
+            .take(resultLimit)
+    }
+
+    private fun variants(reading: String): List<Pair<Int, String>> {
+        if (reading.none(::isKana)) return emptyList()
+        val hiragana = reading.map { ch ->
+            when (ch) {
+                in '\u30a1'..'\u30f6' -> (ch.code - 0x60).toChar()
+                '\u30fd' -> '\u309d'
+                '\u30fe' -> '\u309e'
+                else -> ch
+            }
+        }.joinToString("")
+        val katakana = hiragana.map { ch ->
+            when (ch) {
+                in '\u3041'..'\u3096' -> (ch.code + 0x60).toChar()
+                '\u309d' -> '\u30fd'
+                '\u309e' -> '\u30fe'
+                else -> ch
+            }
+        }.joinToString("")
+        val halfKatakana = toHalfWidthKatakana(katakana)
+        return listOf(
+            HIRAGANA_ID to hiragana,
+            KATAKANA_ID to katakana,
+            HALF_KATAKANA_ID to halfKatakana,
+        ).distinctBy { it.second }
+    }
+
+    private fun toHalfWidthKatakana(text: String): String {
+        val decomposed = Normalizer.normalize(text, Normalizer.Form.NFD)
+        return buildString(decomposed.length) {
+            decomposed.forEach { ch ->
+                append(FULL_TO_HALF_KATAKANA[ch] ?: ch)
+            }
+        }
+    }
+
+    private fun isKana(ch: Char): Boolean =
+        ch in '\u3041'..'\u3096' || ch in '\u30a1'..'\u30fa'
+
+    private val FULL_TO_HALF_KATAKANA: Map<Char, Char> = buildMap {
+        val full = "。「」、・ヲァィゥェォャュョッーアイウエオカキクケコサシスセソ" +
+            "タチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン"
+        val half = "｡｢｣､･ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿ" +
+            "ﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ"
+        full.zip(half).forEach { (source, target) -> put(source, target) }
+        put('ヵ', 'ｶ')
+        put('ヶ', 'ｹ')
+        put('\u3099', 'ﾞ')
+        put('\u309a', 'ﾟ')
+    }
 }

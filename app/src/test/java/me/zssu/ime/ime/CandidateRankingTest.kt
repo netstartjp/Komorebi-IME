@@ -110,10 +110,17 @@ class CandidateRankingTest {
             ),
         )
 
-        val ranked = CandidateRanking.rankLiveJapaneseSuggestions(candidates, limit = 4)
+        val ranked = CandidateRanking.rankLiveJapaneseSuggestions(candidates, limit = 6)
 
         assertEquals(
-            listOf("了解です", "りょうかいです", "利用開始です", "領海です"),
+            listOf(
+                "了解です",
+                "利用開始です",
+                "領海です",
+                "りょうかいです",
+                "リョウカイデス",
+                "ﾘｮｳｶｲﾃﾞｽ",
+            ),
             ranked.map { it.text },
         )
     }
@@ -133,10 +140,16 @@ class CandidateRankingTest {
             candidate(3, "了解です", inputReading = reading),
         )
 
-        val ranked = CandidateRanking.rankLiveJapaneseSuggestions(candidates, limit = 3)
+        val ranked = CandidateRanking.rankLiveJapaneseSuggestions(candidates, limit = 5)
 
         assertEquals(
-            listOf("了解です", "りょうかいです", "了解ですので"),
+            listOf(
+                "了解です",
+                "了解ですので",
+                "りょうかいです",
+                "リョウカイデス",
+                "ﾘｮｳｶｲﾃﾞｽ",
+            ),
             ranked.map { it.text },
         )
     }
@@ -162,10 +175,10 @@ class CandidateRankingTest {
             candidate(3, reading, inputReading = reading),
         )
 
-        val ranked = CandidateRanking.rankLiveJapaneseSuggestions(candidates, limit = 3)
+        val ranked = CandidateRanking.rankLiveJapaneseSuggestions(candidates, limit = 5)
 
         assertEquals(
-            listOf("りょうかい", "了解です", "了解デス"),
+            listOf("りょうかい", "了解です", "了解デス", "リョウカイ", "ﾘｮｳｶｲ"),
             ranked.map { it.text },
         )
     }
@@ -184,9 +197,54 @@ class CandidateRankingTest {
             candidate(2, reading, inputReading = reading),
         )
 
-        val ranked = CandidateRanking.rankLiveJapaneseSuggestions(candidates, limit = 2)
+        val ranked = CandidateRanking.rankLiveJapaneseSuggestions(candidates, limit = 4)
 
-        assertEquals(listOf("六本木ヒルズ", reading), ranked.map { it.text })
+        assertEquals(
+            listOf("六本木ヒルズ", reading, "ロッポンギヒルズ", "ﾛｯﾎﾟﾝｷﾞﾋﾙｽﾞ"),
+            ranked.map { it.text },
+        )
+    }
+
+    @Test
+    fun allKanaSpellingsAreReservedAtTheEndWithVoicingPreserved() {
+        val reading = "がっこう"
+        val candidates = listOf(
+            candidate(1, "学校", inputReading = reading),
+            candidate(2, "月光", inputReading = reading),
+            candidate(3, reading, inputReading = reading),
+        )
+
+        val ranked = CandidateRanking.rankLiveJapaneseSuggestions(candidates, limit = 5)
+
+        assertEquals(
+            listOf("学校", "月光", "がっこう", "ガッコウ", "ｶﾞｯｺｳ"),
+            ranked.map { it.text },
+        )
+        assertEquals(false, ranked[2].directCommit)
+        assertEquals(true, ranked[3].directCommit)
+        assertEquals(true, ranked[4].directCommit)
+    }
+
+    @Test
+    fun naturallyWinningKatakanaStaysFirstWhileOtherSpellingsGoLast() {
+        val reading = "あぷり"
+        val candidates = listOf(
+            candidate(1, "アプリ", inputReading = reading),
+            candidate(
+                2,
+                "アプリケーション",
+                prediction = true,
+                inputReading = reading,
+                sourceReading = "あぷりけーしょん",
+            ),
+        )
+
+        val ranked = CandidateRanking.rankLiveJapaneseSuggestions(candidates, limit = 4)
+
+        assertEquals(
+            listOf("アプリ", "アプリケーション", "あぷり", "ｱﾌﾟﾘ"),
+            ranked.map { it.text },
+        )
     }
 
     private fun candidate(

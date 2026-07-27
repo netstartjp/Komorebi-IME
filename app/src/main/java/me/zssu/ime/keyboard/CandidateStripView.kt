@@ -88,6 +88,7 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
             showTools()
             return
         }
+        setContainerFillWidth(false)
         // Tear down any non-chip children left by showTools / showEmoji.
         for (i in container.childCount - 1 downTo 0) {
             if (container.getChildAt(i) !is TextView) container.removeViewAt(i)
@@ -163,24 +164,25 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
     fun showTools() {
         focusedChild = -1
         container.removeAllViews()
+        setContainerFillWidth(true)
         scrollTo(0, 0)
         container.addView(
-            iconButton(R.drawable.ic_material_content_paste, "クリップボードを貼り付け") {
+            iconButton(R.drawable.ic_material_content_paste, "クリップボードを貼り付け", true) {
                 onToolAction?.invoke(ToolAction.CLIPBOARD)
             }
         )
         container.addView(
-            iconButton(R.drawable.ic_material_face, "絵文字") {
+            iconButton(R.drawable.ic_material_face, "絵文字", true) {
                 onToolAction?.invoke(ToolAction.EMOJI)
             }
         )
         container.addView(
-            oneHandButton {
+            oneHandButton(expand = true) {
                 onToolAction?.invoke(ToolAction.ONE_HAND_CYCLE)
             }
         )
         container.addView(
-            iconButton(R.drawable.ic_material_settings, "設定") {
+            iconButton(R.drawable.ic_material_settings, "設定", true) {
                 onToolAction?.invoke(ToolAction.SETTINGS)
             }
         )
@@ -189,6 +191,7 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
     fun showClipboardHistory(items: List<String>) {
         focusedChild = -1
         container.removeAllViews()
+        setContainerFillWidth(false)
         scrollTo(0, 0)
         val padding = (12 * resources.displayMetrics.density).toInt()
         container.addView(
@@ -243,6 +246,7 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
         val selectedPage = page ?: currentEmojiPage
         currentEmojiPage = selectedPage
         container.removeAllViews()
+        setContainerFillWidth(false)
         scrollTo(0, 0)
         val padding = (12 * resources.displayMetrics.density).toInt()
         val pages = listOf(
@@ -296,6 +300,7 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
         definitions: List<String>,
     ) {
         container.removeAllViews()
+        setContainerFillWidth(false)
         scrollTo(0, 0)
         val padding = (12 * resources.displayMetrics.density).toInt()
         container.addView(
@@ -336,6 +341,7 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
     private fun iconButton(
         @DrawableRes icon: Int,
         description: String,
+        expand: Boolean = false,
         action: () -> Unit,
     ): ImageButton = ImageButton(context).apply {
         setImageDrawable(ContextCompat.getDrawable(context, icon))
@@ -349,10 +355,13 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
             if (theme.hapticFeedback) it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             action()
         }
-        layoutParams = toolbarItemLayoutParams()
+        layoutParams = toolbarItemLayoutParams(expand)
     }
 
-    private fun oneHandButton(action: () -> Unit): ImageButton = ImageButton(context).apply {
+    private fun oneHandButton(
+        expand: Boolean = false,
+        action: () -> Unit,
+    ): ImageButton = ImageButton(context).apply {
         setImageDrawable(
             OneHandModeDrawable(
                 oneHandMode,
@@ -373,11 +382,27 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
             if (theme.hapticFeedback) it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             action()
         }
-        layoutParams = toolbarItemLayoutParams()
+        layoutParams = toolbarItemLayoutParams(expand)
     }
 
-    private fun toolbarItemLayoutParams() = LinearLayout.LayoutParams(
-        (56 * resources.displayMetrics.density).toInt(),
-        LinearLayout.LayoutParams.MATCH_PARENT,
-    )
+    private fun toolbarItemLayoutParams(expand: Boolean) =
+        if (expand) {
+            LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                1f,
+            )
+        } else {
+            LinearLayout.LayoutParams(
+                (56 * resources.displayMetrics.density).toInt(),
+                LinearLayout.LayoutParams.MATCH_PARENT,
+            )
+        }
+
+    private fun setContainerFillWidth(fill: Boolean) {
+        val width = if (fill) LayoutParams.MATCH_PARENT else LayoutParams.WRAP_CONTENT
+        if (container.layoutParams.width != width) {
+            container.layoutParams = LayoutParams(width, LayoutParams.MATCH_PARENT)
+        }
+    }
 }
