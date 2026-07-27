@@ -39,7 +39,7 @@ class InputFieldPolicyTest {
     }
 
     @Test
-    fun urlAndEmailUseAsciiWithoutCandidates() {
+    fun urlAndEmailUseAsciiWithToolbarAndCandidates() {
         listOf(
             InputType.TYPE_TEXT_VARIATION_URI,
             InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS,
@@ -48,7 +48,7 @@ class InputFieldPolicyTest {
             assertEquals(
                 InputFieldPolicy(
                     InputFieldPolicy.Plane.ASCII,
-                    showCandidates = false,
+                    showCandidates = true,
                     incognito = false,
                 ),
                 policy(InputType.TYPE_CLASS_TEXT or variation),

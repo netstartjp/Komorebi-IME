@@ -12,6 +12,11 @@ interface, documentation, input behavior, and other implementation details.
 The modifications are maintained independently from the original project.
 Support contact for this edition: support@zslink.xyz
 
+The keyboard toolbar includes selected AndroidX Material Icons Core 1.7.6
+designs, adapted from Compose vector path data to Android VectorDrawable XML:
+  Copyright 2024 The Android Open Source Project
+  Licensed under the Apache License, Version 2.0.
+
 This product bundles software from the Mozc project:
   https://github.com/google/mozc
   Copyright 2010-2021, Google Inc. All rights reserved.

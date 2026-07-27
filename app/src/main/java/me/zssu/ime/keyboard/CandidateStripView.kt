@@ -1,13 +1,19 @@
 package me.zssu.ime.keyboard
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
 import android.content.Context
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.widget.HorizontalScrollView
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
+import me.zssu.ime.R
 import me.zssu.ime.ime.MozcSession
 import me.zssu.ime.theme.KeyboardTheme
 
@@ -22,6 +28,7 @@ import me.zssu.ime.theme.KeyboardTheme
 class CandidateStripView(context: Context) : HorizontalScrollView(context) {
 
     enum class ToolAction { CLIPBOARD, EMOJI, ONE_HAND_CYCLE, SETTINGS }
+    enum class OneHandDisplayMode { FULL, LEFT, RIGHT }
 
     fun interface OnCandidateSelectedListener {
         fun onCandidateSelected(candidate: MozcSession.Candidate)
@@ -37,11 +44,7 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
             invalidate()
         }
 
-    /**
-     * Label for the single one-hand toggle in the toolbar. The service renders the current mode
-     * into it (全幅/左/右) so tapping always shows where you are and, by cycling, how to get back.
-     */
-    var oneHandLabel: String = "片手"
+    var oneHandMode: OneHandDisplayMode = OneHandDisplayMode.FULL
 
     private val container = LinearLayout(context).apply {
         orientation = LinearLayout.HORIZONTAL
@@ -103,13 +106,27 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
     fun clear() = setCandidates(emptyList(), -1)
 
     fun showTools() {
-        showItems(
-            listOf(
-                "📋" to ToolAction.CLIPBOARD,
-                "😀" to ToolAction.EMOJI,
-                oneHandLabel to ToolAction.ONE_HAND_CYCLE,
-                "⚙" to ToolAction.SETTINGS,
-            )
+        container.removeAllViews()
+        scrollTo(0, 0)
+        container.addView(
+            iconButton(R.drawable.ic_material_content_paste, "クリップボードを貼り付け") {
+                onToolAction?.invoke(ToolAction.CLIPBOARD)
+            }
+        )
+        container.addView(
+            iconButton(R.drawable.ic_material_face, "絵文字") {
+                onToolAction?.invoke(ToolAction.EMOJI)
+            }
+        )
+        container.addView(
+            oneHandButton {
+                onToolAction?.invoke(ToolAction.ONE_HAND_CYCLE)
+            }
+        )
+        container.addView(
+            iconButton(R.drawable.ic_material_settings, "設定") {
+                onToolAction?.invoke(ToolAction.SETTINGS)
+            }
         )
     }
 
@@ -126,29 +143,58 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
                 setOnClickListener { onEmojiSelected?.invoke(emoji) }
             })
         }
-        container.addView(toolView("戻る") { showTools() })
+        container.addView(
+            iconButton(R.drawable.ic_material_arrow_back, "ツールバーに戻る") { showTools() }
+        )
     }
 
     var onEmojiSelected: ((String) -> Unit)? = null
 
-    private fun showItems(items: List<Pair<String, ToolAction>>) {
-        container.removeAllViews()
-        scrollTo(0, 0)
-        items.forEach { (label, action) ->
-            container.addView(toolView(label) { onToolAction?.invoke(action) })
-        }
-    }
-
-    private fun toolView(label: String, action: () -> Unit): TextView = TextView(context).apply {
-        text = label
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, theme.labelSizeSp)
-        setTextColor(theme.candidateTextColor)
-        val horizontal = (18 * resources.displayMetrics.density).toInt()
-        setPadding(horizontal, 0, horizontal, 0)
-        gravity = Gravity.CENTER
+    private fun iconButton(
+        @DrawableRes icon: Int,
+        description: String,
+        action: () -> Unit,
+    ): ImageButton = ImageButton(context).apply {
+        setImageDrawable(ContextCompat.getDrawable(context, icon))
+        imageTintList = ColorStateList.valueOf(theme.candidateTextColor)
+        contentDescription = description
+        background = null
+        val padding = (12 * resources.displayMetrics.density).toInt()
+        setPadding(padding, padding, padding, padding)
+        scaleType = ImageView.ScaleType.CENTER_INSIDE
         setOnClickListener {
             if (theme.hapticFeedback) it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             action()
         }
+        layoutParams = toolbarItemLayoutParams()
     }
+
+    private fun oneHandButton(action: () -> Unit): ImageButton = ImageButton(context).apply {
+        setImageDrawable(
+            OneHandModeDrawable(
+                oneHandMode,
+                theme.candidateTextColor,
+                resources.displayMetrics.density,
+            )
+        )
+        contentDescription = when (oneHandMode) {
+            OneHandDisplayMode.FULL -> "片手モード: 全幅。タップして左寄せ"
+            OneHandDisplayMode.LEFT -> "片手モード: 左寄せ。タップして右寄せ"
+            OneHandDisplayMode.RIGHT -> "片手モード: 右寄せ。タップして全幅"
+        }
+        background = null
+        val padding = (11 * resources.displayMetrics.density).toInt()
+        setPadding(padding, padding, padding, padding)
+        scaleType = ImageView.ScaleType.CENTER_INSIDE
+        setOnClickListener {
+            if (theme.hapticFeedback) it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            action()
+        }
+        layoutParams = toolbarItemLayoutParams()
+    }
+
+    private fun toolbarItemLayoutParams() = LinearLayout.LayoutParams(
+        (56 * resources.displayMetrics.density).toInt(),
+        LinearLayout.LayoutParams.MATCH_PARENT,
+    )
 }

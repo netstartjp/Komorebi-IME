@@ -15,7 +15,10 @@ This checklist is part of the release process. It is not legal advice.
    `assets/mozc.data`, and every `lib/*/libmozc.so` in the APK.
 6. Open Settings → Open source licenses on a device and verify every document is
    readable without network access.
-7. Do not add data whose upstream terms merely disclaim copyright or whose source
+7. Confirm copied Material icon vector files retain the AOSP copyright,
+   Apache-2.0 notice, and conversion note, and that Material Icons remains
+   listed in both NOTICE files and `THIRD_PARTY_NOTICES.txt`.
+8. Do not add data whose upstream terms merely disclaim copyright or whose source
    rights are unclear. Require an affirmative redistribution license.
 
 ## Files that must be in the APK

@@ -53,7 +53,10 @@ data class InputFieldPolicy(
                 InputType.TYPE_TEXT_VARIATION_URI,
             )
             return if (isNetworkText) {
-                InputFieldPolicy(Plane.ASCII, showCandidates = false, incognito = false)
+                // Keep the toolbar and Mozc's English suggestions available on the QWERTY plane.
+                // Passwords are handled above and remain the only ASCII fields where the strip is
+                // hidden and learning is disabled.
+                InputFieldPolicy(Plane.ASCII, showCandidates = true, incognito = false)
             } else {
                 DEFAULT
             }

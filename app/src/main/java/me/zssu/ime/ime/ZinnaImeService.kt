@@ -154,10 +154,10 @@ class ZinnaImeService : InputMethodService() {
             }
             onToolAction = ::handleToolAction
             onEmojiSelected = { emoji -> currentInputConnection?.commitText(emoji, 1) }
-            oneHandLabel = when (settings.oneHandMode) {
-                ImeSettings.OneHandMode.OFF -> "片手:全幅"
-                ImeSettings.OneHandMode.LEFT -> "片手:左"
-                ImeSettings.OneHandMode.RIGHT -> "片手:右"
+            oneHandMode = when (settings.oneHandMode) {
+                ImeSettings.OneHandMode.OFF -> CandidateStripView.OneHandDisplayMode.FULL
+                ImeSettings.OneHandMode.LEFT -> CandidateStripView.OneHandDisplayMode.LEFT
+                ImeSettings.OneHandMode.RIGHT -> CandidateStripView.OneHandDisplayMode.RIGHT
             }
         }
         val stripHeight = if (fieldPolicy.showCandidates) {

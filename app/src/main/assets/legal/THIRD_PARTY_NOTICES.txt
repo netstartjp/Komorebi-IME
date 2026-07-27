@@ -17,6 +17,12 @@ The complete Apache License 2.0 text is in LICENSE.txt.
   Copyright The Android Open Source Project.
   https://github.com/androidx/androidx
 
+* AndroidX Material Icons Core 1.7.6. Selected icon path data is distributed
+  as Android VectorDrawable XML; the file format was adapted for the keyboard
+  toolbar without changing the represented icon designs.
+  Copyright 2024 The Android Open Source Project.
+  https://developer.android.com/reference/kotlin/androidx/compose/material/icons/package-summary
+
 * Kotlin standard library 2.1.0.
   Copyright JetBrains s.r.o. and Kotlin contributors.
   https://github.com/JetBrains/kotlin
