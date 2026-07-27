@@ -99,11 +99,11 @@ class MozcSession(context: Context) {
             // nothing extra — it widens an existing dictionary lookup rather than adding one.
             .setKanaModifierInsensitiveConversion(true)
             // Let corrected readings consult learned history as well as the static dictionary.
-            // Two queries captures the most plausible geometric slips without turning each key
-            // into a large set of history lookups.
+            // One query retains the strongest learned correction without multiplying the work
+            // performed after every tap.
             .setDecoderExperimentParams(
                 DecoderExperimentParams.newBuilder()
-                    .setTypingCorrectionApplyUserHistorySize(2)
+                    .setTypingCorrectionApplyUserHistorySize(1)
             )
             .build()
         engine.eval(
@@ -291,18 +291,29 @@ class MozcSession(context: Context) {
             cursor = preedit.cursor
         }
 
+        val candidateMetadata = if (hasAllCandidateWords()) {
+            allCandidateWords.candidatesList.take(CandidateRanking.MAX_LIVE_POOL_SIZE)
+        } else {
+            emptyList()
+        }
         if (hasAllCandidateWords()) {
-            deletableCandidateIds = allCandidateWords.candidatesList
+            // The toolbar can display only a handful of candidates. Scanning and allocating
+            // metadata for Mozc's entire result on every keystroke adds latency without changing
+            // anything the user can act on.
+            deletableCandidateIds = candidateMetadata
                 .filter { CandidateAttribute.DELETABLE in it.attributesList }
                 .map { it.id }
                 .toSet()
         } else if (!hasCandidateWindow()) {
             deletableCandidateIds = emptySet()
         }
-        val candidateAttributes = if (hasAllCandidateWords()) {
-            allCandidateWords.candidatesList.associate { it.id to it.attributesList.toSet() }
+        val userDictionaryCandidateIds = if (candidateMetadata.isNotEmpty()) {
+            candidateMetadata.asSequence()
+                .filter { CandidateAttribute.USER_DICTIONARY in it.attributesList }
+                .map { it.id }
+                .toHashSet()
         } else {
-            emptyMap()
+            emptySet()
         }
         val candidates = if (hasCandidateWindow()) {
             val visible = candidateWindow.candidateList.map {
@@ -310,8 +321,7 @@ class MozcSession(context: Context) {
                     id = it.id,
                     text = it.value,
                     deletable = it.id in deletableCandidateIds,
-                    fromUserDictionary =
-                        CandidateAttribute.USER_DICTIONARY in candidateAttributes[it.id].orEmpty(),
+                    fromUserDictionary = it.id in userDictionaryCandidateIds,
                 )
             }
 
@@ -328,15 +338,17 @@ class MozcSession(context: Context) {
                         currentStyle == InputStyle.TOGGLE_FLICK_HIRAGANA)
             if (isLiveJapaneseSuggestion) {
                 val complete = if (hasAllCandidateWords()) {
-                    allCandidateWords.candidatesList.map {
-                        Candidate(
-                            id = it.id,
-                            text = it.value,
-                            deletable = CandidateAttribute.DELETABLE in it.attributesList,
-                            fromUserDictionary =
-                                CandidateAttribute.USER_DICTIONARY in it.attributesList,
-                        )
-                    }
+                    allCandidateWords.candidatesList.asSequence()
+                        .take(CandidateRanking.MAX_LIVE_POOL_SIZE)
+                        .map {
+                            Candidate(
+                                id = it.id,
+                                text = it.value,
+                                deletable = CandidateAttribute.DELETABLE in it.attributesList,
+                                fromUserDictionary = it.id in userDictionaryCandidateIds,
+                            )
+                        }
+                        .toList()
                 } else {
                     emptyList()
                 }
@@ -407,6 +419,7 @@ internal object FlickTableInput {
  * because supplemental dictionaries use Mozc's high-priority user-dictionary path.
  */
 internal object CandidateRanking {
+    const val MAX_LIVE_POOL_SIZE = 32
     private const val LATIN_USER_DICTIONARY_PENALTY = 6
 
     fun rankLiveJapaneseSuggestions(

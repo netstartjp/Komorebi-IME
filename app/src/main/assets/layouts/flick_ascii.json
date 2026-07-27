@@ -396,27 +396,13 @@
         {
           "weight": 1.0,
           "center": {
-            "label": "␣",
+            "label": "空白",
             "action": {
               "type": "space"
             }
           },
           "style": "ACTION",
-          "repeatable": true,
-          "left": {
-            "label": "◀",
-            "action": {
-              "type": "cursor",
-              "delta": -1
-            }
-          },
-          "right": {
-            "label": "▶",
-            "action": {
-              "type": "cursor",
-              "delta": 1
-            }
-          }
+          "repeatable": true
         }
       ]
     },

@@ -405,6 +405,7 @@ class ZinnaImeService : InputMethodService() {
         isComposing = false
         isConverting = false
         renderedPreeditCursor = 0
+        keyboardView?.isConversionAvailable = false
         ownSelectionUpdatePending = false
         candidateView?.clear()
     }
@@ -427,6 +428,7 @@ class ZinnaImeService : InputMethodService() {
         isComposing = false
         isConverting = false
         renderedPreeditCursor = 0
+        keyboardView?.isConversionAvailable = false
         ownSelectionUpdatePending = false
         currentInputConnection?.finishComposingText()
         candidateView?.clear()
@@ -488,6 +490,7 @@ class ZinnaImeService : InputMethodService() {
         isComposing = false
         isConverting = false
         renderedPreeditCursor = 0
+        keyboardView?.isConversionAvailable = false
         session.resetContext()
         currentInputConnection?.finishComposingText()
         candidateView?.clear()
@@ -514,12 +517,9 @@ class ZinnaImeService : InputMethodService() {
 
             is KeyAction.Space -> handleSpace()
 
-            // With something composing, this converts; with nothing to convert it behaves as
-            // Enter. Inserting a space there would be the desktop behaviour and is not what a
-            // 確定 key on a phone should do.
-            is KeyAction.Convert ->
-                if (isComposing) render(session.convertOrSpace())
-                else handleEnter()
+            // The state decides the visible operation: convert while composing and insert the
+            // plane's normal space while idle. Enter has its own key.
+            is KeyAction.Convert -> handleSpace()
 
             is KeyAction.Enter -> handleEnter()
 
@@ -661,6 +661,8 @@ class ZinnaImeService : InputMethodService() {
         isComposing = state.hasComposition
         isConverting = state.isConverting
         renderedPreeditCursor = state.preeditCursor
+        keyboardView?.isConversionAvailable =
+            state.hasComposition && layout?.inputStyle?.fullWidthSpace == true
         editorStateUpdateInProgress = true
         editorSelectionUpdateObserved = false
         ic.beginBatchEdit()

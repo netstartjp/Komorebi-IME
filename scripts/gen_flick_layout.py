@@ -158,12 +158,9 @@ CURSOR_RIGHT = lambda: action_key("▶", {"type": "cursor", "delta": 1}, repeata
 
 
 def SPACE():
-    # Flick the space key sideways to nudge the caret: fine cursor control without leaving the
-    # home position. A tap still spaces — only the swipe changes.
-    key = action_key("␣", {"type": "space"}, repeatable=True)
-    key["left"] = {"label": "◀", "action": {"type": "cursor", "delta": -1}}
-    key["right"] = {"label": "▶", "action": {"type": "cursor", "delta": 1}}
-    return key
+    # Cursor movement already has dedicated keys on both sides of the flick pad. Keeping another
+    # left/right gesture on Space made an intended conversion turn into caret movement.
+    return action_key("空白", {"type": "space"}, repeatable=True)
 
 
 ENTER = lambda: action_key("↵", {"type": "enter"})
@@ -174,7 +171,7 @@ def switch(label: str, layout_id: str) -> dict:
 
 
 def build(layout_id: str, label: str, input_style: str, keys: list[dict],
-          symbol_switch: dict, cycle_switch: dict) -> dict:
+          symbol_switch: dict, cycle_switch: dict, top_left: dict | None = None) -> dict:
     """Assembles the Gboard-shaped grid from ten character keys plus one modifier key.
 
     `keys` is [k1..k9, modifier, k10, k11] — nine keys for the first three rows, then the bottom
@@ -182,7 +179,7 @@ def build(layout_id: str, label: str, input_style: str, keys: list[dict],
     """
     k = keys
     rows = [
-        {"keys": [UNDO(), k[0], k[1], k[2], BACKSPACE()]},
+        {"keys": [top_left or UNDO(), k[0], k[1], k[2], BACKSPACE()]},
         {"keys": [CURSOR_LEFT(), k[3], k[4], k[5], CURSOR_RIGHT()]},
         {"keys": [symbol_switch, k[6], k[7], k[8], SPACE()]},
         {"keys": [cycle_switch, k[9], k[10], k[11], ENTER()]},
@@ -233,10 +230,22 @@ def build_symbol(table: dict[str, str]) -> dict:
     keys += [char_key(table, SYMBOL_KEYS["paren"], label="()[]"),
              char_key(table, SYMBOL_KEYS["0"]),
              char_key(table, SYMBOL_KEYS["punc"], label=".,-/")]
-    # Gboard puts a second symbol page behind !?# here. We have no such page yet, so the slot goes
-    # back to kana rather than advertising something that does not exist.
+    def add_long_press(key: dict, label: str) -> dict:
+        # Keep longPress next to the key style in generated JSON, before directional outputs.
+        result = {}
+        for field, value in key.items():
+            if field == "left":
+                result["longPress"] = {
+                    "label": label, "action": {"type": "symbol", "text": label},
+                }
+            result[field] = value
+        return result
+
+    keys[9] = add_long_press(keys[9], "{")
+    keys[11] = add_long_press(keys[11], "_")
     return build(SYMBOL_ID, "記号・数字", "TOGGLE_FLICK_NUMBER", keys,
-                 switch(KANA_LABEL, KANA_ID), switch(ASCII_LABEL, ASCII_ID))
+                 switch(KANA_LABEL, KANA_ID), switch(ASCII_LABEL, ASCII_ID),
+                 top_left=switch("2/2", "flick_symbol2"))
 
 
 # A kana is identified by which key it sits on and which flick direction reaches it. Keeping those

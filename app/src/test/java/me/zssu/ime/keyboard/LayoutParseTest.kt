@@ -2,6 +2,7 @@ package me.zssu.ime.keyboard
 
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
@@ -67,25 +68,30 @@ class LayoutParseTest {
         }
     }
 
-    /** The space bar flicks sideways to nudge the caret on every plane that has one. */
+    /** Flick pads use their dedicated arrow keys; QWERTY keeps its wide space-bar gesture. */
     @Test
-    fun spaceBarFlicksMoveCursor() {
+    fun spaceBarCursorGestureMatchesKeyboardFamily() {
         for ((name, layout) in layouts()) {
             val spaceBars = layout.rows.flatMap { it.keys }.filter {
                 it.center.action is KeyAction.Space || it.center.action is KeyAction.Convert
             }
             assertTrue("$name has no space bar", spaceBars.isNotEmpty())
             for (bar in spaceBars) {
-                assertEquals(
-                    "$name space left flick must move the cursor left",
-                    KeyAction.MoveCursor(-1),
-                    bar.output(FlickDirection.LEFT)?.action,
-                )
-                assertEquals(
-                    "$name space right flick must move the cursor right",
-                    KeyAction.MoveCursor(1),
-                    bar.output(FlickDirection.RIGHT)?.action,
-                )
+                if (name.startsWith("flick")) {
+                    assertNull("$name space left must be inert", bar.output(FlickDirection.LEFT))
+                    assertNull("$name space right must be inert", bar.output(FlickDirection.RIGHT))
+                } else {
+                    assertEquals(
+                        "$name space left flick must move the cursor left",
+                        KeyAction.MoveCursor(-1),
+                        bar.output(FlickDirection.LEFT)?.action,
+                    )
+                    assertEquals(
+                        "$name space right flick must move the cursor right",
+                        KeyAction.MoveCursor(1),
+                        bar.output(FlickDirection.RIGHT)?.action,
+                    )
+                }
             }
         }
     }

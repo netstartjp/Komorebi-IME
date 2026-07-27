@@ -35,11 +35,22 @@ class MeaningDictionaryRepository(private val context: Context) {
         encodeDefaults = true
     }
     private val userDir = File(context.filesDir, DIRECTORY)
+    @Volatile
+    private var cached: Snapshot? = null
 
     fun lookup(term: String): List<Entry> =
-        dictionaries().flatMap { it.entries }.filter { it.term == term }
+        snapshot().entriesByTerm[term].orEmpty()
 
-    fun dictionaries(): List<Dictionary> {
+    fun dictionaries(): List<Dictionary> = snapshot().dictionaries
+
+    private fun snapshot(): Snapshot {
+        cached?.let { return it }
+        return synchronized(this) {
+            cached ?: loadSnapshot().also { cached = it }
+        }
+    }
+
+    private fun loadSnapshot(): Snapshot {
         val assetNames = runCatching {
             context.assets.list(DIRECTORY)?.filter { it.endsWith(".json") }
         }.getOrNull().orEmpty()
@@ -53,7 +64,14 @@ class MeaningDictionaryRepository(private val context: Context) {
             ?.mapNotNull { decode(runCatching { it.readText() }.getOrNull(), it.name) }
             .orEmpty()
         // A user file with the same id intentionally overrides the bundled starter dictionary.
-        return (user + bundled).distinctBy { it.id }
+        val dictionaries = (user + bundled).distinctBy { it.id }
+        return Snapshot(
+            dictionaries = dictionaries,
+            entriesByTerm = dictionaries
+                .asSequence()
+                .flatMap { it.entries.asSequence() }
+                .groupBy { it.term },
+        )
     }
 
     fun importJson(text: String): Result<Dictionary> = runCatching {
@@ -64,11 +82,16 @@ class MeaningDictionaryRepository(private val context: Context) {
         File(userDir, "${dictionary.id}.json").writeText(
             json.encodeToString(Dictionary.serializer(), dictionary)
         )
+        cached = null
         dictionary
     }
 
-    fun deleteUserDictionary(id: String): Boolean = safeId(id) &&
-        File(userDir, "$id.json").delete()
+    fun deleteUserDictionary(id: String): Boolean {
+        if (!safeId(id)) return false
+        val deleted = File(userDir, "$id.json").delete()
+        if (deleted) cached = null
+        return deleted
+    }
 
     fun isUserDictionary(id: String): Boolean = safeId(id) &&
         File(userDir, "$id.json").isFile
@@ -109,6 +132,11 @@ class MeaningDictionaryRepository(private val context: Context) {
     }
 
     private fun safeId(id: String): Boolean = ID.matches(id)
+
+    private data class Snapshot(
+        val dictionaries: List<Dictionary>,
+        val entriesByTerm: Map<String, List<Entry>>,
+    )
 
     companion object {
         const val DIRECTORY = "meaning_dictionaries"

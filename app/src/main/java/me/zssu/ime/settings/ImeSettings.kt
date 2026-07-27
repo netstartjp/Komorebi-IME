@@ -157,6 +157,14 @@ class ImeSettings(context: Context) {
             bumpRevision()
         }
 
+    /** Whether the bundled AI/Tech dictionary is active. Defaults to true. */
+    var useAiTechDictionary: Boolean
+        get() = prefs.getBoolean(KEY_USE_AI_TECH_DICT, true)
+        set(value) {
+            prefs.edit().putBoolean(KEY_USE_AI_TECH_DICT, value).apply()
+            bumpRevision()
+        }
+
     /**
      * Changes whenever anything here does.
      *
@@ -188,6 +196,7 @@ class ImeSettings(context: Context) {
         private const val KEY_ONE_HAND_MODE = "one_hand_mode"
         private const val KEY_BACKGROUND_PRESET = "background_preset"
         private const val KEY_USE_PRONOUN_DICT = "use_pronoun_dict"
+        private const val KEY_USE_AI_TECH_DICT = "use_ai_tech_dict"
         const val DEFAULT_THEME_ID = "material_you"
         const val DEFAULT_BACKGROUND_OPACITY = 0.45f
         const val MIN_KEY_HEIGHT_SCALE = 0.7f

@@ -36,6 +36,14 @@ class FlickKeyboardView @JvmOverloads constructor(
 
     var listener: OnKeyOutputListener? = null
 
+    /** Relabels a space/convert key to match what pressing it will do right now. */
+    var isConversionAvailable: Boolean = false
+        set(value) {
+            if (field == value) return
+            field = value
+            invalidate()
+        }
+
     var theme: KeyboardTheme = KeyboardTheme.Default
         set(value) {
             field = value
@@ -458,6 +466,11 @@ class FlickKeyboardView @JvmOverloads constructor(
      * shift is invisible and the next capital looks like a bug.
      */
     private fun faceLabel(spec: KeySpec): String {
+        if (isConversionAvailable &&
+            (spec.center.action is KeyAction.Space || spec.center.action is KeyAction.Convert)
+        ) {
+            return CONVERT_LABEL
+        }
         if (spec.center.action is KeyAction.Shift) {
             return when (shift) {
                 ShiftState.OFF -> spec.faceLabel
@@ -533,6 +546,7 @@ class FlickKeyboardView @JvmOverloads constructor(
 
     companion object {
         private const val DEFAULT_FLICK_THRESHOLD_DP = 24f
+        private const val CONVERT_LABEL = "変換"
 
         /** Filled arrow while shift is armed for one letter, underlined arrow while it is locked. */
         private const val SHIFT_ONCE_LABEL = "⬆"

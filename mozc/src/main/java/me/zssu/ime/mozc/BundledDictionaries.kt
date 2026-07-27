@@ -28,6 +28,7 @@ object BundledDictionaries {
     private val DICTIONARIES = mapOf(
         "katakana-english.txt" to "カタカナ語→英語",
         "proper-nouns.txt" to "有名固有名詞",
+        "ai-tech-nouns.txt" to "AI・テクノロジー",
     )
 
     data class Status(val name: String, val entryCount: Int)

@@ -101,7 +101,7 @@ index 000000000..171ceda4a
 +// Every candidate costs a full dictionary lookup. Keep the live suggestion path deliberately
 +// smaller than explicit conversion: the former runs on every key, while the latter can spend more
 +// work after the user asks for it.
-+constexpr size_t kMaxRealtimeCandidates = 10;
++constexpr size_t kMaxRealtimeCandidates = 6;
 +constexpr size_t kMaxConversionCandidates = 18;
 +
 +// Substitutions are only considered on the last few kana. A mistake further back has usually already

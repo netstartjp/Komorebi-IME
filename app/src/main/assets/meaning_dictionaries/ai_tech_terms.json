@@ -1,0 +1,1744 @@
+{
+  "id": "ai_tech_terms",
+  "label": "AI・テクノロジー用語",
+  "entries": [
+    {
+      "term": "Deep Learning",
+      "reading": "でぃーぷらーにんぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「でぃーぷらーにんぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Machine Learning",
+      "reading": "ましんらーにんぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「ましんらーにんぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "機械学習",
+      "reading": "きかいがくしゅう",
+      "meanings": [
+        "AI・機械学習分野の用語。「きかいがくしゅう」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "深層学習",
+      "reading": "しんそうがくしゅう",
+      "meanings": [
+        "AI・機械学習分野の用語。「しんそうがくしゅう」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Neural Network",
+      "reading": "にゅーらるねっとわーく",
+      "meanings": [
+        "AI・機械学習分野の用語。「にゅーらるねっとわーく」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "ニューラルネット",
+      "reading": "しんけいもう",
+      "meanings": [
+        "AI・機械学習分野の用語。「しんけいもう」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "ニューラルネットワーク",
+      "reading": "しんけいかいそう",
+      "meanings": [
+        "AI・機械学習分野の用語。「しんけいかいそう」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "自然言語処理",
+      "reading": "しぜんげんごしょり",
+      "meanings": [
+        "AI・機械学習分野の用語。「しぜんげんごしょり」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "NLP",
+      "reading": "えぬえるぴー",
+      "meanings": [
+        "AI・機械学習分野の用語。「えぬえるぴー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Computer Vision",
+      "reading": "こんぴゅーたーびじょん",
+      "meanings": [
+        "AI・機械学習分野の用語。「こんぴゅーたーびじょん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "教師あり学習",
+      "reading": "きょうしありがくしゅう",
+      "meanings": [
+        "AI・機械学習分野の用語。「きょうしありがくしゅう」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "教師なし学習",
+      "reading": "きょうしなしがくしゅう",
+      "meanings": [
+        "AI・機械学習分野の用語。「きょうしなしがくしゅう」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "強化学習",
+      "reading": "きょうかがくしゅう",
+      "meanings": [
+        "AI・機械学習分野の用語。「きょうかがくしゅう」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "RLHF",
+      "reading": "あーるえるえいちえふ",
+      "meanings": [
+        "AI・機械学習分野の用語。「あーるえるえいちえふ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "RLHF",
+      "reading": "あーるえるえいちえふ",
+      "meanings": [
+        "AI・機械学習分野の用語。「あーるえるえいちえふ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Deep Q-Network",
+      "reading": "でぃーぷきゅーねっとわーく",
+      "meanings": [
+        "AI・機械学習分野の用語。「でぃーぷきゅーねっとわーく」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Policy Gradient",
+      "reading": "ぽりしーぐらでぃえんと",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぽりしーぐらでぃえんと」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "PPO",
+      "reading": "ぴーぴーおー",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぴーぴーおー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "DPO",
+      "reading": "でぃーぴーおー",
+      "meanings": [
+        "AI・機械学習分野の用語。「でぃーぴーおー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Attention Mechanism",
+      "reading": "あたっくはんてぃんぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「あたっくはんてぃんぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Attention",
+      "reading": "あてんしょんめかにずむ",
+      "meanings": [
+        "AI・機械学習分野の用語。「あてんしょんめかにずむ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Attention",
+      "reading": "せんちょうそー",
+      "meanings": [
+        "AI・機械学習分野の用語。「せんちょうそー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Transformer",
+      "reading": "とらんすふぉーまー",
+      "meanings": [
+        "AI・機械学習分野の用語。「とらんすふぉーまー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Transformer",
+      "reading": "じーぴーてぃーあーきてくちゃ",
+      "meanings": [
+        "AI・機械学習分野の用語。「じーぴーてぃーあーきてくちゃ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Diffusion Model",
+      "reading": "でぃふゅーじょんもでる",
+      "meanings": [
+        "AI・機械学習分野の用語。「でぃふゅーじょんもでる」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "拡散モデル",
+      "reading": "かくさんもでる",
+      "meanings": [
+        "AI・機械学習分野の用語。「かくさんもでる」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "GAN",
+      "reading": "じゃん",
+      "meanings": [
+        "AI・機械学習分野の用語。「じゃん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "GAN",
+      "reading": "ぎゃんがくしゅう",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぎゃんがくしゅう」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "GAN",
+      "reading": "ぎゃん",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぎゃん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "VAE",
+      "reading": "ぶいえーいー",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぶいえーいー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "変分オートエンコーダ",
+      "reading": "じこへんかんき",
+      "meanings": [
+        "AI・機械学習分野の用語。「じこへんかんき」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "VAE",
+      "reading": "ぶいえーいー",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぶいえーいー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "LSTM",
+      "reading": "えるえすてぃーえむ",
+      "meanings": [
+        "AI・機械学習分野の用語。「えるえすてぃーえむ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "GRU",
+      "reading": "じーあーるゆー",
+      "meanings": [
+        "AI・機械学習分野の用語。「じーあーるゆー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Seq2Seq",
+      "reading": "せっくつーせっく",
+      "meanings": [
+        "AI・機械学習分野の用語。「せっくつーせっく」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "BERT",
+      "reading": "ばーと",
+      "meanings": [
+        "AI・機械学習分野の用語。「ばーと」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "GPT",
+      "reading": "じーぴーてぃー",
+      "meanings": [
+        "AI・機械学習分野の用語。「じーぴーてぃー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "T5",
+      "reading": "てぃーご",
+      "meanings": [
+        "AI・機械学習分野の用語。「てぃーご」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "XLNet",
+      "reading": "えっくすえるねっと",
+      "meanings": [
+        "AI・機械学習分野の用語。「えっくすえるねっと」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "RoBERTa",
+      "reading": "ろべると",
+      "meanings": [
+        "AI・機械学習分野の用語。「ろべると」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "MoE",
+      "reading": "だぶりゅーえぬえる",
+      "meanings": [
+        "AI・機械学習分野の用語。「だぶりゅーえぬえる」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Mixture of Experts",
+      "reading": "みくすちゃーおぶえきすぱーつ",
+      "meanings": [
+        "AI・機械学習分野の用語。「みくすちゃーおぶえきすぱーつ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "MoE",
+      "reading": "もう",
+      "meanings": [
+        "AI・機械学習分野の用語。「もう」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "MoE",
+      "reading": "えむおーいー",
+      "meanings": [
+        "AI・機械学習分野の用語。「えむおーいー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "LoRA",
+      "reading": "ろーら",
+      "meanings": [
+        "AI・機械学習分野の用語。「ろーら」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "QLoRA",
+      "reading": "きゅーろーら",
+      "meanings": [
+        "AI・機械学習分野の用語。「きゅーろーら」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Adapter",
+      "reading": "あだぷたー",
+      "meanings": [
+        "AI・機械学習分野の用語。「あだぷたー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "PEFT",
+      "reading": "ぴーふぁいんちゅーにんぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぴーふぁいんちゅーにんぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Fine-tuning",
+      "reading": "ふぁいんちゅーにんぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「ふぁいんちゅーにんぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Zero-shot",
+      "reading": "びぜろしょっと",
+      "meanings": [
+        "AI・機械学習分野の用語。「びぜろしょっと」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Few-shot",
+      "reading": "ふゅーしょっと",
+      "meanings": [
+        "AI・機械学習分野の用語。「ふゅーしょっと」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蒸留",
+      "reading": "もでるちりょう",
+      "meanings": [
+        "AI・機械学習分野の用語。「もでるちりょう」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "蒸留",
+      "reading": "ちしきじょうりゅう",
+      "meanings": [
+        "AI・機械学習分野の用語。「ちしきじょうりゅう」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "量子化",
+      "reading": "りょうしか",
+      "meanings": [
+        "AI・機械学習分野の用語。「りょうしか」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Quantization",
+      "reading": "くぉんたぜーしょん",
+      "meanings": [
+        "AI・機械学習分野の用語。「くぉんたぜーしょん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "GGML",
+      "reading": "じーじーえむえる",
+      "meanings": [
+        "AI・機械学習分野の用語。「じーじーえむえる」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "GGUF",
+      "reading": "じーじーゆーえふ",
+      "meanings": [
+        "AI・機械学習分野の用語。「じーじーゆーえふ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "AWQ",
+      "reading": "えーだぶりゅーきゅー",
+      "meanings": [
+        "AI・機械学習分野の用語。「えーだぶりゅーきゅー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "GPTQ",
+      "reading": "じーぴーてぃーきゅー",
+      "meanings": [
+        "AI・機械学習分野の用語。「じーぴーてぃーきゅー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "XNX",
+      "reading": "えっくすえぬえっくす",
+      "meanings": [
+        "AI・機械学習分野の用語。「えっくすえぬえっくす」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "RAG",
+      "reading": "あーるえーじー",
+      "meanings": [
+        "AI・機械学習分野の用語。「あーるえーじー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "RAG",
+      "reading": "りとりーばるおーぐめんてっどじぇねれーしょん",
+      "meanings": [
+        "AI・機械学習分野の用語。「りとりーばるおーぐめんてっどじぇねれーしょん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "RAG",
+      "reading": "らぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「らぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "GraphRAG",
+      "reading": "ぐらふらぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぐらふらぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Agentic RAG",
+      "reading": "えいじぇんてぃっくらぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「えいじぇんてぃっくらぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "マルチモーダル",
+      "reading": "まちるちもーだる",
+      "meanings": [
+        "AI・機械学習分野の用語。「まちるちもーだる」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Embedding",
+      "reading": "えんべでぃんぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「えんべでぃんぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Vector Database",
+      "reading": "うぇくとるでーたべーす",
+      "meanings": [
+        "AI・機械学習分野の用語。「うぇくとるでーたべーす」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Pinecone",
+      "reading": "ぱいんこーん",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぱいんこーん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Weaviate",
+      "reading": "うぃーびえいと",
+      "meanings": [
+        "AI・機械学習分野の用語。「うぃーびえいと」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Chroma",
+      "reading": "くろま",
+      "meanings": [
+        "AI・機械学習分野の用語。「くろま」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Qdrant",
+      "reading": "きゅーどらんと",
+      "meanings": [
+        "AI・機械学習分野の用語。「きゅーどらんと」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Milvus",
+      "reading": "みるばす",
+      "meanings": [
+        "AI・機械学習分野の用語。「みるばす」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Tokenization",
+      "reading": "とくんかいそう",
+      "meanings": [
+        "AI・機械学習分野の用語。「とくんかいそう」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "token",
+      "reading": "とくん",
+      "meanings": [
+        "AI・機械学習分野の用語。「とくん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "BPE",
+      "reading": "ばいとぺあえんこーでぃんぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「ばいとぺあえんこーでぃんぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "サブワード",
+      "reading": "さぶわーど",
+      "meanings": [
+        "AI・機械学習分野の用語。「さぶわーど」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "WordPiece",
+      "reading": "わーどぴーす",
+      "meanings": [
+        "AI・機械学習分野の用語。「わーどぴーす」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "SentencePiece",
+      "reading": "せんてんすぴーす",
+      "meanings": [
+        "AI・機械学習分野の用語。「せんてんすぴーす」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Unigram",
+      "reading": "ゆにぐらむ",
+      "meanings": [
+        "AI・機械学習分野の用語。「ゆにぐらむ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Context Length",
+      "reading": "こんてきすとれんぐす",
+      "meanings": [
+        "AI・機械学習分野の用語。「こんてきすとれんぐす」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Context Window",
+      "reading": "こんてきすとうぃんどう",
+      "meanings": [
+        "AI・機械学習分野の用語。「こんてきすとうぃんどう」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Perplexity",
+      "reading": "ぱーぷれくしてぃ",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぱーぷれくしてぃ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Hallucination",
+      "reading": "はるしねーしょん",
+      "meanings": [
+        "AI・機械学習分野の用語。「はるしねーしょん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Language Model",
+      "reading": "げんごもでる",
+      "meanings": [
+        "AI・機械学習分野の用語。「げんごもでる」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Foundation Model",
+      "reading": "ふぁうんでーしょんもでる",
+      "meanings": [
+        "AI・機械学習分野の用語。「ふぁうんでーしょんもでる」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Zero-shot",
+      "reading": "ぜろしょっと",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぜろしょっと」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "In-Context Learning",
+      "reading": "いんこんてきすとらーにんぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「いんこんてきすとらーにんぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Synthetic Data",
+      "reading": "しんぷる",
+      "meanings": [
+        "AI・機械学習分野の用語。「しんぷる」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "合成データ",
+      "reading": "ごうせいでーた",
+      "meanings": [
+        "AI・機械学習分野の用語。「ごうせいでーた」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "学習率",
+      "reading": "がくしゅうりつ",
+      "meanings": [
+        "AI・機械学習分野の用語。「がくしゅうりつ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Learning Rate",
+      "reading": "らーにんぐれーと",
+      "meanings": [
+        "AI・機械学習分野の用語。「らーにんぐれーと」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Dropout",
+      "reading": "どろっぷあうと",
+      "meanings": [
+        "AI・機械学習分野の用語。「どろっぷあうと」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Batch Normalization",
+      "reading": "ばっちのーまりぜーしょん",
+      "meanings": [
+        "AI・機械学習分野の用語。「ばっちのーまりぜーしょん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Layer Normalization",
+      "reading": "れいやーのーまりぜーしょん",
+      "meanings": [
+        "AI・機械学習分野の用語。「れいやーのーまりぜーしょん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "損失関数",
+      "reading": "そんしきかんすう",
+      "meanings": [
+        "AI・機械学習分野の用語。「そんしきかんすう」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Loss Function",
+      "reading": "ろすふぁんくしょん",
+      "meanings": [
+        "AI・機械学習分野の用語。「ろすふぁんくしょん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "最適化",
+      "reading": "さいてきか",
+      "meanings": [
+        "AI・機械学習分野の用語。「さいてきか」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Optimizer",
+      "reading": "おぷてぃまいざー",
+      "meanings": [
+        "AI・機械学習分野の用語。「おぷてぃまいざー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Adam",
+      "reading": "あだむ",
+      "meanings": [
+        "AI・機械学習分野の用語。「あだむ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "AdamW",
+      "reading": "あだむだぶりゅー",
+      "meanings": [
+        "AI・機械学習分野の用語。「あだむだぶりゅー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "SGD",
+      "reading": "えすじーでぃー",
+      "meanings": [
+        "AI・機械学習分野の用語。「えすじーでぃー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "RMSprop",
+      "reading": "あーるえむえすぷろっぷ",
+      "meanings": [
+        "AI・機械学習分野の用語。「あーるえむえすぷろっぷ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Lambda",
+      "reading": "らむだ",
+      "meanings": [
+        "AI・機械学習分野の用語。「らむだ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "ロール",
+      "reading": "やくわり",
+      "meanings": [
+        "AI・機械学習分野の用語。「やくわり」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "System Message",
+      "reading": "しすてむめっせーじ",
+      "meanings": [
+        "AI・機械学習分野の用語。「しすてむめっせーじ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "User Message",
+      "reading": "ゆーざーめっせーじ",
+      "meanings": [
+        "AI・機械学習分野の用語。「ゆーざーめっせーじ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Assistant Message",
+      "reading": "あしすたんとめっせーじ",
+      "meanings": [
+        "AI・機械学習分野の用語。「あしすたんとめっせーじ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Function Calling",
+      "reading": "ふぁんくしょんこーりんぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「ふぁんくしょんこーりんぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Tool Use",
+      "reading": "つーるゆーず",
+      "meanings": [
+        "AI・機械学習分野の用語。「つーるゆーず」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Tool Calling",
+      "reading": "つーるこーりんぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「つーるこーりんぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "マルチモーダル",
+      "reading": "まちるちもーだる",
+      "meanings": [
+        "AI・機械学習分野の用語。「まちるちもーだる」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "VLM",
+      "reading": "ぶいじょんらんげーじもでる",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぶいじょんらんげーじもでる」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "ViT",
+      "reading": "びじょんとらんすふぉーまー",
+      "meanings": [
+        "AI・機械学習分野の用語。「びじょんとらんすふぉーまー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "CLIP",
+      "reading": "くりっぷ",
+      "meanings": [
+        "AI・機械学習分野の用語。「くりっぷ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Stable Diffusion",
+      "reading": "すとーぶでぃふゅーじょん",
+      "meanings": [
+        "AI・機械学習分野の用語。「すとーぶでぃふゅーじょん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "DALL-E",
+      "reading": "だりー",
+      "meanings": [
+        "AI・機械学習分野の用語。「だりー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Midjourney",
+      "reading": "みっどじゃーにー",
+      "meanings": [
+        "AI・機械学習分野の用語。「みっどじゃーにー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "RAG",
+      "reading": "あーるえーじー",
+      "meanings": [
+        "AI・機械学習分野の用語。「あーるえーじー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "LangChain",
+      "reading": "らんちぇいん",
+      "meanings": [
+        "AI・機械学習分野の用語。「らんちぇいん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "LlamaIndex",
+      "reading": "らまいんでっくす",
+      "meanings": [
+        "AI・機械学習分野の用語。「らまいんでっくす」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Symphony",
+      "reading": "しんふぉにー",
+      "meanings": [
+        "AI・機械学習分野の用語。「しんふぉにー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Hydra",
+      "reading": "はいどら",
+      "meanings": [
+        "AI・機械学習分野の用語。「はいどら」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "MLflow",
+      "reading": "えむえるふろー",
+      "meanings": [
+        "AI・機械学習分野の用語。「えむえるふろー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Kubeflow",
+      "reading": "きゅーぶふろー",
+      "meanings": [
+        "AI・機械学習分野の用語。「きゅーぶふろー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Weights & Biases",
+      "reading": "うぃーつあんどばいあしーず",
+      "meanings": [
+        "AI・機械学習分野の用語。「うぃーつあんどばいあしーず」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "WandB",
+      "reading": "わんどびー",
+      "meanings": [
+        "AI・機械学習分野の用語。「わんどびー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "TensorBoard",
+      "reading": "てんさーぼーど",
+      "meanings": [
+        "AI・機械学習分野の用語。「てんさーぼーど」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Grafana",
+      "reading": "ぐらふぁな",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぐらふぁな」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Prometheus",
+      "reading": "ぷろめてうす",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぷろめてうす」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "DeepSpeed",
+      "reading": "でぃーぷすぴーど",
+      "meanings": [
+        "AI・機械学習分野の用語。「でぃーぷすぴーど」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Megatron",
+      "reading": "めーがとろん",
+      "meanings": [
+        "AI・機械学習分野の用語。「めーがとろん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "FSDP",
+      "reading": "えふえすでぃーぴー",
+      "meanings": [
+        "AI・機械学習分野の用語。「えふえすでぃーぴー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Data Parallelism",
+      "reading": "でーたぱられりずむ",
+      "meanings": [
+        "AI・機械学習分野の用語。「でーたぱられりずむ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Model Parallelism",
+      "reading": "もでるぱられりずむ",
+      "meanings": [
+        "AI・機械学習分野の用語。「もでるぱられりずむ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Pipeline Parallelism",
+      "reading": "ぱいぷらいんぱられりずむ",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぱいぷらいんぱられりずむ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Tensor Parallelism",
+      "reading": "てんさーぱられりずむ",
+      "meanings": [
+        "AI・機械学習分野の用語。「てんさーぱられりずむ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "ZeRO",
+      "reading": "しーくーえぬえす",
+      "meanings": [
+        "AI・機械学習分野の用語。「しーくーえぬえす」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "FlashAttention",
+      "reading": "ふらんく",
+      "meanings": [
+        "AI・機械学習分野の用語。「ふらんく」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "FlashAttention",
+      "reading": "ふらっしゅあてんしょん",
+      "meanings": [
+        "AI・機械学習分野の用語。「ふらっしゅあてんしょん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "PagedAttention",
+      "reading": "ぺーじあてんしょん",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぺーじあてんしょん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Sliding Window Attention",
+      "reading": "すらいでぃんぐうぃんどうあてんしょん",
+      "meanings": [
+        "AI・機械学習分野の用語。「すらいでぃんぐうぃんどうあてんしょん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "MQA",
+      "reading": "えむきゅーえー",
+      "meanings": [
+        "AI・機械学習分野の用語。「えむきゅーえー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "GQA",
+      "reading": "じーきゅーえー",
+      "meanings": [
+        "AI・機械学習分野の用語。「じーきゅーえー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Multi-Head Attention",
+      "reading": "まちるへっどあてんしょん",
+      "meanings": [
+        "AI・機械学習分野の用語。「まちるへっどあてんしょん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "MQA",
+      "reading": "まちるくえりあてんしょん",
+      "meanings": [
+        "AI・機械学習分野の用語。「まちるくえりあてんしょん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "GQA",
+      "reading": "ぐるーぷどくえりあてんしょん",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぐるーぷどくえりあてんしょん」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "RoPE",
+      "reading": "ろーたりーぽじしょなるえんこーでぃんぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「ろーたりーぽじしょなるえんこーでぃんぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "RoPE",
+      "reading": "あーるおーぴーいー",
+      "meanings": [
+        "AI・機械学習分野の用語。「あーるおーぴーいー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "ALiBi",
+      "reading": "えーえるいーびーあい",
+      "meanings": [
+        "AI・機械学習分野の用語。「えーえるいーびーあい」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "ALiBi",
+      "reading": "あらいばい",
+      "meanings": [
+        "AI・機械学習分野の用語。「あらいばい」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Sinusoidal PE",
+      "reading": "すぃんそいだるぽじしょなるえんこーでぃんぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「すぃんそいだるぽじしょなるえんこーでぃんぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Pre-training",
+      "reading": "ぷりとれーにんぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぷりとれーにんぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Post-training",
+      "reading": "ぽすととれーにんぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「ぽすととれーにんぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Alignment",
+      "reading": "あらいめんと",
+      "meanings": [
+        "AI・機械学習分野の用語。「あらいめんと」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "SFT",
+      "reading": "すーぱーばいずどふぁいんちゅーにんぐ",
+      "meanings": [
+        "AI・機械学習分野の用語。「すーぱーばいずどふぁいんちゅーにんぐ」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "SFT",
+      "reading": "えすえふてぃー",
+      "meanings": [
+        "AI・機械学習分野の用語。「えすえふてぃー」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    },
+    {
+      "term": "Constitutional AI",
+      "reading": "こんすてぃてゅーしょなるえーあい",
+      "meanings": [
+        "AI・機械学習分野の用語。「こんすてぃてゅーしょなるえーあい」と読む。"
+      ],
+      "tags": [
+        "AI・テクノロジー"
+      ],
+      "source": "Komorebi IME"
+    }
+  ]
+}

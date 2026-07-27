@@ -135,6 +135,7 @@ private fun BundledDictionaryToggles() {
     val context = LocalContext.current
     val settings = remember { ImeSettings(context) }
     var useDict by remember { mutableStateOf(settings.useProperNounDictionary) }
+    var useAiDict by remember { mutableStateOf(settings.useAiTechDictionary) }
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -160,6 +161,35 @@ private fun BundledDictionaryToggles() {
                             try {
                                 MozcEngine.get(context)?.setBundledDictionaryActive(
                                     context, "proper-nouns.txt", checked
+                                )
+                            } catch (_: Exception) {}
+                        }.apply { isDaemon = true }.start()
+                    },
+                )
+            }
+
+            HorizontalDivider()
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("AI・テクノロジー", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "AI企業・技術用語・スタートアップ名の候補",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Switch(
+                    checked = useAiDict,
+                    onCheckedChange = { checked ->
+                        useAiDict = checked
+                        settings.useAiTechDictionary = checked
+                        Thread {
+                            try {
+                                MozcEngine.get(context)?.setBundledDictionaryActive(
+                                    context, "ai-tech-nouns.txt", checked
                                 )
                             } catch (_: Exception) {}
                         }.apply { isDaemon = true }.start()
