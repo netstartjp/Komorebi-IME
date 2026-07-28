@@ -24,6 +24,7 @@ class MozcEngine private constructor() {
 
     private val lock = Any()
     private var sessionId: Long = INVALID_SESSION_ID
+    private var consecutiveFailures = 0
 
     val dataVersion: String
         get() = synchronized(lock) { MozcJNI.getDataVersion() }
@@ -101,11 +102,27 @@ class MozcEngine private constructor() {
     private fun evalLocked(input: Input.Builder): Output? {
         val command = Command.newBuilder().setInput(input).build()
         return try {
-            val responseBytes = MozcJNI.evalCommand(command.toByteArray()) ?: return null
-            Command.parseFrom(responseBytes).output
+            val responseBytes = MozcJNI.evalCommand(command.toByteArray()) ?: run {
+                handleEvalFailure(input.type)
+                return null
+            }
+            val output = Command.parseFrom(responseBytes).output
+            consecutiveFailures = 0
+            output
         } catch (e: Exception) {
             Log.e(TAG, "evalCommand failed for ${input.type}", e)
+            handleEvalFailure(input.type)
             null
+        }
+    }
+
+    private fun handleEvalFailure(type: Input.CommandType) {
+        if (type == Input.CommandType.CREATE_SESSION || type == Input.CommandType.DELETE_SESSION) return
+        consecutiveFailures++
+        if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+            Log.w(TAG, "$consecutiveFailures consecutive failures; invalidating session")
+            sessionId = INVALID_SESSION_ID
+            consecutiveFailures = 0
         }
     }
 
@@ -113,6 +130,7 @@ class MozcEngine private constructor() {
         private const val TAG = "MozcEngine"
         private const val INVALID_SESSION_ID = 0L
         private const val DATA_ASSET = "mozc.data"
+        private const val MAX_CONSECUTIVE_FAILURES = 3
 
         @Volatile
         private var instance: MozcEngine? = null
@@ -166,10 +184,14 @@ class MozcEngine private constructor() {
             // bundled dictionaries are several MB of TSV. mozc parses them on its own thread and
             // enables the entries as soon as it is done, so nothing here needs to be waited on.
             Thread({
-                BundledDictionaries.importIfNeeded(context, engine)
-                // Our TSV is the source of truth for the user's own words, so pushing it at start-up
-                // restores them even if mozc's profile was wiped underneath us.
-                UserDictionary(context).sync(engine)
+                try {
+                    BundledDictionaries.importIfNeeded(context, engine)
+                    // Our TSV is the source of truth for the user's own words, so pushing it at start-up
+                    // restores them even if mozc's profile was wiped underneath us.
+                    UserDictionary(context).sync(engine)
+                } catch (e: Exception) {
+                    Log.e(TAG, "background dictionary import failed", e)
+                }
             }, "mozc-dict-import")
                 .apply { isDaemon = true; priority = Thread.MIN_PRIORITY }
                 .start()
@@ -198,7 +220,10 @@ class MozcEngine private constructor() {
                 if (target.isFile && stamp.isFile && stamp.readText() == version) return target
 
                 context.assets.open(DATA_ASSET).use { input ->
-                    target.outputStream().use { output -> input.copyTo(output) }
+                    target.outputStream().use { output ->
+                        input.copyTo(output)
+                        output.fd.sync()
+                    }
                 }
                 stamp.writeText(version)
                 target

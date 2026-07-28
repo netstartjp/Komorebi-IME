@@ -29,13 +29,33 @@ cd "${MOZC_SRC}"
 # Patches against upstream. third_party/mozc is otherwise a pristine checkout, so anything we need
 # to change there lives in patches/ and is re-applied here. `git apply --check` first so a re-run
 # on an already-patched tree is a no-op rather than an error.
+MOZC_IS_GIT=false
+if git -C "${ROOT}/third_party/mozc" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  MOZC_IS_GIT=true
+fi
+
 for patch in "${ROOT}"/patches/*.patch; do
   [[ -e "${patch}" ]] || continue
-  if git -C "${ROOT}/third_party/mozc" apply --check "${patch}" 2>/dev/null; then
-    echo "==> Applying $(basename "${patch}")"
-    git -C "${ROOT}/third_party/mozc" apply "${patch}"
+  name="$(basename "${patch}")"
+  if [[ "${MOZC_IS_GIT}" == true ]]; then
+    if git -C "${ROOT}/third_party/mozc" apply --check "${patch}"; then
+      echo "==> Applying ${name}"
+      git -C "${ROOT}/third_party/mozc" apply "${patch}"
+    else
+      echo "==> ${name} already applied"
+    fi
   else
-    echo "==> $(basename "${patch}") already applied"
+    # Non-git checkout (e.g. tarball): fall back to patch(1).
+    if patch -p1 -d "${ROOT}/third_party/mozc" --dry-run --forward --silent < "${patch}" >/dev/null 2>&1; then
+      echo "==> Applying ${name} (patch)"
+      patch -p1 -d "${ROOT}/third_party/mozc" --forward < "${patch}"
+    elif patch -p1 -d "${ROOT}/third_party/mozc" --dry-run --reverse --silent < "${patch}" >/dev/null 2>&1; then
+      echo "==> ${name} already applied"
+    else
+      echo "error: cannot apply ${name} and it does not appear to be already applied." >&2
+      echo "       Ensure third_party/mozc is a git clone or a clean checkout." >&2
+      exit 1
+    fi
   fi
 done
 

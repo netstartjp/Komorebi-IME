@@ -66,9 +66,11 @@ class ZinnaImeService : InputMethodService() {
 
     private var keyboardView: FlickKeyboardView? = null
     private var panelView: KeyboardPanelView? = null
+    private var contentLayout: LinearLayout? = null
     private var candidateView: CandidateStripView? = null
     private var meaningPopup: MeaningPopupView? = null
     private var layout: KeyboardLayout? = null
+    private var lastNightMode = Int.MIN_VALUE
     private var theme: KeyboardTheme = KeyboardTheme.Default
     private var fieldPolicy = InputFieldPolicy.DEFAULT
     private var activeProfile: AppProfileStore.Profile? = null
@@ -200,7 +202,9 @@ class ZinnaImeService : InputMethodService() {
         val popupView = MeaningPopupView(this).apply {
             applyTheme(this@ZinnaImeService.theme)
             onDismiss = {
-                candidateView?.setCandidates(lastCandidates, lastFocusedCandidateIndex)
+                if (isComposing) {
+                    candidateView?.setCandidates(lastCandidates, lastFocusedCandidateIndex)
+                }
             }
         }
 
@@ -375,10 +379,13 @@ class ZinnaImeService : InputMethodService() {
 
         candidateView = candidates
         panelView = panel
+        contentLayout = content
         keyboardView = keyboard
         meaningPopup = popupView
         builtFromRevision = combinedRevision()
         builtStructureFingerprint = viewStructureFingerprint()
+        lastNightMode = resources.configuration.uiMode and
+            android.content.res.Configuration.UI_MODE_NIGHT_MASK
         session.setPhoneToggleEnabled(
             settings.flickInputMode == ImeSettings.FlickInputMode.FLICK_AND_TOGGLE
         )
@@ -433,7 +440,17 @@ class ZinnaImeService : InputMethodService() {
         } else {
             val before = ic.getTextBeforeCursor(MAX_STYLE_CORRECTION_LENGTH, 0) ?: return
             if (before.isBlank()) return
-            val text = before.toString()
+            var text = before.toString()
+            if (text.length >= MAX_STYLE_CORRECTION_LENGTH) {
+                val boundary = maxOf(
+                    text.lastIndexOf('。'),
+                    text.lastIndexOf('！'),
+                    text.lastIndexOf('？'),
+                    text.lastIndexOf('\n'),
+                )
+                if (boundary >= 0) text = text.substring(boundary + 1)
+            }
+            if (text.isBlank()) return
             val leading = text.trimStart()
             val prefixLen = text.length - leading.length
             val corrected = TextStyleEngine.apply(leading, style)
@@ -454,6 +471,9 @@ class ZinnaImeService : InputMethodService() {
      * One toolbar button walks 全幅 → 左 → 右 → 全幅. Cycling (rather than two directional
      * buttons) means the way back is the same tap that got you here, so nobody is stranded in a
      * narrow keyboard with no obvious exit.
+     *
+     * Updates the existing view's gravity and width in place instead of rebuilding, so a live
+     * composition survives the switch.
      */
     private fun cycleOneHandMode() {
         val next = when (effectiveOneHandMode()) {
@@ -467,7 +487,34 @@ class ZinnaImeService : InputMethodService() {
         } else {
             settings.oneHandMode = next
         }
-        setInputView(onCreateInputView())
+        val content = contentLayout
+        val panel = panelView
+        if (content == null || panel == null) {
+            setInputView(onCreateInputView())
+            return
+        }
+        val mode = effectiveOneHandMode()
+        val gravity = when (mode) {
+            ImeSettings.OneHandMode.LEFT -> Gravity.START
+            ImeSettings.OneHandMode.RIGHT -> Gravity.END
+            ImeSettings.OneHandMode.OFF -> Gravity.CENTER_HORIZONTAL
+        }
+        content.gravity = gravity
+        panel.gravity = gravity
+        val lp = content.layoutParams as? LinearLayout.LayoutParams
+        if (lp != null) {
+            lp.width = if (mode == ImeSettings.OneHandMode.OFF) {
+                LinearLayout.LayoutParams.MATCH_PARENT
+            } else {
+                (resources.displayMetrics.widthPixels * ONE_HAND_WIDTH).toInt()
+            }
+            content.layoutParams = lp
+        }
+        candidateView?.oneHandMode = when (mode) {
+            ImeSettings.OneHandMode.OFF -> CandidateStripView.OneHandDisplayMode.FULL
+            ImeSettings.OneHandMode.LEFT -> CandidateStripView.OneHandDisplayMode.LEFT
+            ImeSettings.OneHandMode.RIGHT -> CandidateStripView.OneHandDisplayMode.RIGHT
+        }
     }
 
     /** Keeps the bottom-left key as the language switch on the mixed QWERTY alphabet plane. */
@@ -554,21 +601,22 @@ class ZinnaImeService : InputMethodService() {
                 candidateView?.clear()
             }
         }
-        if (!nextPolicy.incognito) {
-            clipboardHistory.record(
-                this,
-                getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager,
-            )
-        }
     }
 
     /**
      * Rebuilds the keyboard so a light/dark switch or a wallpaper recolour is picked up. The
      * dynamic palette is read at view-creation time, so without this the keyboard keeps the colours
      * it was born with until the IME process restarts.
+     *
+     * Only a night-mode change triggers a rebuild: locale, font scale and other configuration
+     * changes do not affect the Material You palette, and a full rebuild destroys any live
+     * composition.
      */
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
         super.onConfigurationChanged(newConfig)
+        val nightMode = newConfig.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
+        if (nightMode == lastNightMode) return
+        lastNightMode = nightMode
         setInputView(onCreateInputView())
     }
 
@@ -651,6 +699,7 @@ class ZinnaImeService : InputMethodService() {
     }
 
     override fun onDestroy() {
+        panelView?.releaseBitmap()
         karukanEngine.close()
         session.close()
         super.onDestroy()
@@ -743,7 +792,7 @@ class ZinnaImeService : InputMethodService() {
             val fullWidth = layout?.inputStyle?.fullWidthSpace ?: false
             currentInputConnection?.commitText(if (fullWidth) FULL_WIDTH_SPACE else " ", 1)
         }
-        render(state)
+        if (state != null) render(state)
     }
 
     private fun handleBackspace() {
@@ -759,7 +808,11 @@ class ZinnaImeService : InputMethodService() {
         } else {
             runCatching { !ic?.getSelectedText(0).isNullOrEmpty() }.getOrDefault(false)
         }
-        val state = session.sendSpecialKey(KeyEvent.SpecialKey.BACKSPACE)
+        val state = if (hadComposition) {
+            session.sendSpecialKey(KeyEvent.SpecialKey.BACKSPACE)
+        } else {
+            null
+        }
         when (BackspaceRouting.target(hadComposition, hasSelection, rawKeyEvents)) {
             BackspaceRouting.Target.MOZC_COMPOSITION -> Unit
             BackspaceRouting.Target.EDITOR_SELECTION -> ic?.commitText("", 1)
@@ -1116,7 +1169,7 @@ class ZinnaImeService : InputMethodService() {
             val fullWidth = layout?.inputStyle?.fullWidthSpace ?: false
             currentInputConnection?.commitText(if (fullWidth) FULL_WIDTH_SPACE else " ", 1)
         }
-        render(state)
+        if (state != null) render(state)
     }
 
     private fun submitCurrentComposition() {

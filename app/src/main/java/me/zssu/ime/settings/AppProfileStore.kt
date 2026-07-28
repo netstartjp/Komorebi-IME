@@ -42,6 +42,9 @@ class AppProfileStore(context: Context) {
         encodeDefaults = true
     }
 
+    @Volatile
+    private var cached: Store? = null
+
     @Synchronized
     fun profiles(): List<Profile> = read().profiles.sortedBy { it.packageName }
 
@@ -92,15 +95,22 @@ class AppProfileStore(context: Context) {
         return true
     }
 
-    val revision: Int get() = read().revision
+    val revision: Int @Synchronized get() = read().revision
 
     private fun read(): Store {
+        cached?.let { return it }
         if (!file.isFile) return Store()
-        return runCatching { json.decodeFromString<Store>(file.readText()) }.getOrDefault(Store())
+        val store =
+            runCatching { json.decodeFromString<Store>(file.readText()) }.getOrDefault(Store())
+        cached = store
+        return store
     }
 
     private fun write(value: Store) {
-        file.writeText(json.encodeToString(Store.serializer(), value))
+        val tmp = File(file.parentFile, "${file.name}.tmp")
+        tmp.writeText(json.encodeToString(Store.serializer(), value))
+        tmp.renameTo(file)
+        cached = value
     }
 
     companion object {

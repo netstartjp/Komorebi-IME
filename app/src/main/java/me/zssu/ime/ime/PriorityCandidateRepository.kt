@@ -26,6 +26,9 @@ class PriorityCandidateRepository(context: Context) {
     @Volatile
     private var cached: List<Entry>? = null
 
+    @Volatile
+    private var indexByValue: Map<String, List<Entry>>? = null
+
     @Synchronized
     fun entries(): List<Entry> = cached ?: read().also { cached = it }
 
@@ -38,6 +41,7 @@ class PriorityCandidateRepository(context: Context) {
             normalized).takeLast(MAX_ENTRIES)
         if (!write(next)) return false
         cached = next
+        indexByValue = null
         return true
     }
 
@@ -51,20 +55,28 @@ class PriorityCandidateRepository(context: Context) {
         if (next.size == current.size) return false
         if (!write(next)) return false
         cached = next
+        indexByValue = null
         return true
     }
 
     fun match(reading: String, value: String): PriorityMatch {
         val normalizedReading = ReadingSimilarity.normalize(reading)
         if (normalizedReading.isEmpty() || value.isEmpty()) return PriorityMatch.NONE
+        val candidates = ensureIndex()[value] ?: return PriorityMatch.NONE
         var similar = false
-        for (entry in entries()) {
-            if (entry.value != value) continue
+        for (entry in candidates) {
             val pinnedReading = ReadingSimilarity.normalize(entry.reading)
             if (pinnedReading == normalizedReading) return PriorityMatch.EXACT
             if (ReadingSimilarity.isNear(pinnedReading, normalizedReading)) similar = true
         }
         return if (similar) PriorityMatch.SIMILAR else PriorityMatch.NONE
+    }
+
+    private fun ensureIndex(): Map<String, List<Entry>> {
+        indexByValue?.let { return it }
+        val idx = entries().groupBy { it.value }
+        indexByValue = idx
+        return idx
     }
 
     private fun read(): List<Entry> {

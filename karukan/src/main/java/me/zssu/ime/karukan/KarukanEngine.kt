@@ -48,7 +48,12 @@ class KarukanEngine(context: Context) : Closeable {
                 check(files.ready) { "Karukanモデルが未導入です" }
                 val fingerprint = "${files.model.length()}:${files.tokenizer.length()}"
                 if (handle == 0L || loadedFingerprint != fingerprint) {
-                    if (handle != 0L) KarukanNative.nativeDestroy(handle)
+                    if (handle != 0L) {
+                        val old = handle
+                        handle = 0L
+                        loadedFingerprint = null
+                        KarukanNative.nativeDestroy(old)
+                    }
                     val threads = Runtime.getRuntime().availableProcessors().coerceIn(2, 6)
                     handle = KarukanNative.nativeCreate(
                         files.model.absolutePath,
@@ -93,6 +98,13 @@ class KarukanEngine(context: Context) : Closeable {
     override fun close() {
         unload()
         executor.shutdown()
+        try {
+            if (!executor.awaitTermination(2, java.util.concurrent.TimeUnit.SECONDS)) {
+                executor.shutdownNow()
+            }
+        } catch (_: InterruptedException) {
+            executor.shutdownNow()
+        }
     }
 
     companion object {

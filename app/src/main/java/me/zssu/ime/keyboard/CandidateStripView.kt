@@ -55,6 +55,9 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
     /** Which chip currently carries the focus highlight, so only the two that change are touched. */
     private var focusedChild = -1
 
+    /** Texts of the last rendered candidate list; scroll resets only when content changes. */
+    private var lastCandidateTexts: List<String> = emptyList()
+
     var oneHandMode: OneHandDisplayMode = OneHandDisplayMode.FULL
 
     private val container = LinearLayout(context).apply {
@@ -124,7 +127,11 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
             highlight(focusedIndex, true)
             focusedChild = focusedIndex
         }
-        scrollTo(0, 0)
+        val newTexts = candidates.map { it.text }
+        if (newTexts != lastCandidateTexts) {
+            scrollTo(0, 0)
+            lastCandidateTexts = newTexts
+        }
     }
 
     private fun highlight(index: Int, on: Boolean) {
@@ -147,8 +154,10 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
             if (theme.hapticFeedback) {
                 clicked.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             }
-            val candidate = clicked.tag as? MozcSession.Candidate ?: return@setOnLongClickListener false
-            onCandidateLongPressed?.invoke(candidate)
+            val candidate = clicked.tag as? MozcSession.Candidate
+            if (candidate != null) {
+                onCandidateLongPressed?.invoke(candidate)
+            }
             true
         }
     }
@@ -164,6 +173,7 @@ class CandidateStripView(context: Context) : HorizontalScrollView(context) {
 
     fun showTools() {
         focusedChild = -1
+        lastCandidateTexts = emptyList()
         container.removeAllViews()
         setContainerFillWidth(true)
         scrollTo(0, 0)

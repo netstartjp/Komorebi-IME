@@ -76,7 +76,7 @@ private fun AppearanceScreen() {
     val pickImage = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         val bytes = runCatching { context.contentResolver.openInputStream(uri)?.use { it.readBytes() } }.getOrNull()
-        if (bytes != null) { settings.setBackgroundImage(bytes); hasImage = true; selectedPreset = null }
+        if (bytes != null && settings.setBackgroundImage(bytes)) { hasImage = true; selectedPreset = null }
     }
 
     Scaffold(

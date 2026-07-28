@@ -65,18 +65,27 @@ class UserDictionary(context: Context) {
      */
     fun importTsv(tsv: String): Result<List<Entry>> = runCatching {
         require(tsv.toByteArray().size <= MAX_IMPORT_BYTES) { "辞書は 5 MB 以下にしてください" }
+        var skippedPos = 0
         val parsed = tsv.lines().mapNotNull { line ->
             if (line.isBlank() || line.startsWith("#")) return@mapNotNull null
             val fields = line.split('\t')
             require(fields.size >= 2) { "TSVとして読めない行があります" }
+            val pos = fields.getOrNull(2)?.ifBlank { DEFAULT_POS } ?: DEFAULT_POS
+            if (pos !in POS_TYPES) {
+                skippedPos++
+                return@mapNotNull null
+            }
             Entry(
                 fields[0],
                 fields[1],
-                fields.getOrNull(2)?.ifBlank { DEFAULT_POS } ?: DEFAULT_POS,
+                pos,
                 fields.getOrNull(3).orEmpty(),
             ).sanitized()
         }
         require(parsed.isNotEmpty()) { "有効な単語がありません" }
+        if (skippedPos > 0) {
+            Log.w(TAG, "skipped $skippedPos row(s) with unrecognized part-of-speech")
+        }
         write(parsed.distinctBy { it.reading to it.word })
     }
 

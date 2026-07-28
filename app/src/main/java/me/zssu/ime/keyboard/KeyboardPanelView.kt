@@ -80,6 +80,13 @@ class KeyboardPanelView(context: Context) : LinearLayout(context) {
     // view every time the keyboard hides and shows, so freeing the bitmap there would blank the
     // background for the rest of the session. It is released with the view.
 
+    /** Deterministic release for service destruction; the view will not be re-attached. */
+    fun releaseBitmap() {
+        bitmap?.recycle()
+        bitmap = null
+        invalidate()
+    }
+
     /**
      * Decodes at roughly panel resolution rather than the camera's.
      *

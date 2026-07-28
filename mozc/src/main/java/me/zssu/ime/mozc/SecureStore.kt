@@ -47,10 +47,13 @@ object SecureStore {
         return try {
             val cipher = Cipher.getInstance(TRANSFORMATION).apply { init(Cipher.ENCRYPT_MODE, key()) }
             file.parentFile?.mkdirs()
-            file.outputStream().use { out ->
+            val tmp = File(file.parentFile, "${file.name}.tmp")
+            tmp.outputStream().use { out ->
                 out.write(cipher.iv)
                 out.write(cipher.doFinal(bytes))
+                out.fd.sync()
             }
+            tmp.renameTo(file)
             true
         } catch (e: Exception) {
             Log.e(TAG, "failed to write ${file.name}", e)

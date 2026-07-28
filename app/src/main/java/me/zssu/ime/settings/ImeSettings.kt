@@ -159,12 +159,15 @@ class ImeSettings(context: Context) {
     val backgroundPresetId: String?
         get() = prefs.getString(KEY_BACKGROUND_PRESET, null)
 
-    /** Replaces the background image with [bytes]. */
-    fun setBackgroundImage(bytes: ByteArray) {
+    /** Replaces the background image with [bytes]. Returns false on write failure. */
+    fun setBackgroundImage(bytes: ByteArray): Boolean {
         backgroundDir.mkdirs()
-        File(backgroundDir, BACKGROUND_FILE).writeBytes(bytes)
-        prefs.edit().remove(KEY_BACKGROUND_PRESET).apply()
-        bumpRevision()
+        return runCatching {
+            File(backgroundDir, BACKGROUND_FILE).writeBytes(bytes)
+            prefs.edit().remove(KEY_BACKGROUND_PRESET).apply()
+            bumpRevision()
+            true
+        }.getOrDefault(false)
     }
 
     fun setBackgroundPreset(id: String): Boolean {
@@ -173,10 +176,12 @@ class ImeSettings(context: Context) {
             appContext.assets.open(preset.assetPath).use { it.readBytes() }
         }.getOrNull() ?: return false
         backgroundDir.mkdirs()
-        File(backgroundDir, BACKGROUND_FILE).writeBytes(bytes)
-        prefs.edit().putString(KEY_BACKGROUND_PRESET, id).apply()
-        bumpRevision()
-        return true
+        return runCatching {
+            File(backgroundDir, BACKGROUND_FILE).writeBytes(bytes)
+            prefs.edit().putString(KEY_BACKGROUND_PRESET, id).apply()
+            bumpRevision()
+            true
+        }.getOrDefault(false)
     }
 
     fun clearBackgroundImage() {
@@ -223,10 +228,13 @@ class ImeSettings(context: Context) {
      * exactly when something moved instead of on every input session.
      */
     val revision: Int
-        get() = prefs.getInt(KEY_REVISION, 0) +
-            (if (pureBlack) 1 shl 16 else 0) +
-            (backgroundOpacity * 100).toInt() * (1 shl 8) +
-            (keyHeightScale * 100).toInt() * (1 shl 20)
+        get() {
+            var h = prefs.getInt(KEY_REVISION, 0)
+            h = h * 31 + pureBlack.hashCode()
+            h = h * 31 + (backgroundOpacity * 100).toInt()
+            h = h * 31 + (keyHeightScale * 100).toInt()
+            return h
+        }
 
     private fun bumpRevision() {
         prefs.edit().putInt(KEY_REVISION, prefs.getInt(KEY_REVISION, 0) + 1).apply()
