@@ -17,8 +17,8 @@ android {
         applicationId = "me.zssu.ime"
         minSdk = 24
         targetSdk = 36
-        versionCode = 22
-        versionName = "0.2.0-komorebi.8"
+        versionCode = 23
+        versionName = "0.2.0-komorebi.9"
     }
 
     buildTypes {

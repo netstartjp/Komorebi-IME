@@ -113,6 +113,7 @@ class ZinnaImeService : InputMethodService() {
      */
     private var systemInsetLeft = 0
     private var systemInsetRight = 0
+    private var systemInsetBottom = 0
 
     override fun onCreate() {
         super.onCreate()
@@ -148,28 +149,41 @@ class ZinnaImeService : InputMethodService() {
         val panel = KeyboardPanelView(this).apply {
             setBackgroundColor(this@ZinnaImeService.theme.backgroundColor)
             setBackgroundImage(settings.backgroundImage, settings.backgroundOpacity)
-            // Keep lateral navigation controls and cutouts clear in landscape. Bottom navigation
-            // space is already outside the IME content area and must not be added again here.
+            // Seed all previously observed safe areas. A replacement view can draw before Android
+            // dispatches fresh insets; starting at zero lets its first frame overlap OS controls.
             updatePadding(
                 left = systemInsetLeft,
                 right = systemInsetRight,
-                bottom = 0,
+                bottom = systemInsetBottom,
             )
             ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
                 val bars = insets.getInsets(
                     WindowInsetsCompat.Type.navigationBars() or
+                        WindowInsetsCompat.Type.mandatorySystemGestures() or
+                        WindowInsetsCompat.Type.tappableElement() or
                         WindowInsetsCompat.Type.displayCutout()
                 )
-                val padding = KeyboardInsetPolicy.contentPadding(bars.left, bars.right)
+                // Settings Activities can return while the navigation controls are between
+                // visibility states. Stable navigation geometry prevents that transient zero from
+                // pulling the keyboard down for the lifetime of the replacement view.
+                val stableBars = insets.getInsetsIgnoringVisibility(
+                    WindowInsetsCompat.Type.navigationBars() or
+                        WindowInsetsCompat.Type.displayCutout()
+                )
+                val padding = KeyboardInsetPolicy.contentPadding(
+                    left = maxOf(bars.left, stableBars.left),
+                    right = maxOf(bars.right, stableBars.right),
+                    bottom = maxOf(bars.bottom, stableBars.bottom),
+                )
                 systemInsetLeft = padding.left
                 systemInsetRight = padding.right
+                systemInsetBottom = padding.bottom
                 view.updatePadding(
                     left = padding.left,
                     right = padding.right,
                     bottom = padding.bottom,
                 )
-                // We consume no bottom inset ourselves. Passing the original object on keeps the
-                // IME window's navigation-bar placement authoritative during a view replacement.
+                // Preserve dispatch for the popup and any OEM parent handling.
                 insets
             }
             // And ask for a fresh dispatch once attached, so a stale seed (after a rotation, say)
