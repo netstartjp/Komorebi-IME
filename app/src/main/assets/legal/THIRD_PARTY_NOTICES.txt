@@ -3,8 +3,41 @@ THIRD-PARTY SOFTWARE NOTICES
 
 This file records the runtime software incorporated into Komorebi IME.
 Build-only tools are not part of the APK. The dependency graph
-was reviewed against debugRuntimeClasspath on 2026-07-27. Refresh this file when
+was reviewed against debugRuntimeClasspath on 2026-07-28. Refresh this file when
 dependencies change.
+
+Karukan neural conversion (optional runtime)
+--------------------------------------------
+
+* Karukan engine, fixed from upstream revision
+  7756d68c725ea2c6e611618af79e06b6363275db.
+  Copyright karukan contributors. MIT OR Apache-2.0.
+  https://github.com/togatoga/karukan
+
+* llama.cpp / llama-cpp-2. Copyright llama.cpp contributors. MIT.
+  https://github.com/ggml-org/llama.cpp
+
+* Hugging Face tokenizers 0.23.1. Copyright Hugging Face. Apache-2.0.
+  https://github.com/huggingface/tokenizers
+
+* Rust Onig and Oniguruma. MIT and BSD-2-Clause.
+  https://github.com/rust-onig/rust-onig
+
+* LLVM libc++ shared runtime from Android NDK r28c. Apache-2.0 WITH
+  LLVM-exception and other component terms listed in ANDROID_NDK_NOTICE.txt.
+
+Karukan is statically linked with Rust crates under permissive MIT,
+Apache-2.0, BSD, ISC, Unicode-3.0, and Zlib terms. Tokenizers is built without
+its optional training acceleration and progress UI; its required regex backend
+is Oniguruma. The vendored Cargo.lock is
+the authoritative version inventory. Karukan's own notices and the complete
+license texts for the principal native components are separate documents in
+this directory and are exposed by the in-app license screen.
+
+Optional model (not bundled in the APK):
+* jinen-v1-xsmall-Q5_K_M.gguf, Copyright 2026 togagotaga, CC BY-SA 4.0.
+  Source, SHA-256, attribution and full terms are in JINEN_MODEL_NOTICE.txt and
+  CC_BY_SA_4_0.txt.
 
 Apache License 2.0 components
 -----------------------------

@@ -22,6 +22,9 @@ import kotlin.math.max
 class KeyboardPanelView(context: Context) : LinearLayout(context) {
 
     private var bitmap: Bitmap? = null
+    private var sourcePath: String? = null
+    private var sourceLength: Long = -1
+    private var sourceModified: Long = -1
     private val bitmapPaint = Paint(Paint.FILTER_BITMAP_FLAG)
     private val matrix = Matrix()
 
@@ -40,8 +43,20 @@ class KeyboardPanelView(context: Context) : LinearLayout(context) {
      *   user trades legibility against the image.
      */
     fun setBackgroundImage(file: File?, opacity: Float) {
-        bitmap?.recycle()
-        bitmap = file?.let { decodeScaled(it) }
+        val nextPath = file?.absolutePath
+        val nextLength = file?.length() ?: -1
+        val nextModified = file?.lastModified() ?: -1
+        if (
+            nextPath != sourcePath ||
+            nextLength != sourceLength ||
+            nextModified != sourceModified
+        ) {
+            bitmap?.recycle()
+            bitmap = file?.let { decodeScaled(it) }
+            sourcePath = nextPath
+            sourceLength = nextLength
+            sourceModified = nextModified
+        }
         bitmapPaint.alpha = (opacity.coerceIn(0f, 1f) * 255).toInt()
         invalidate()
     }

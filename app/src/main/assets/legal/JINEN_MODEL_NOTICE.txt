@@ -1,0 +1,21 @@
+jinen-v1-xsmall-Q5_K_M.gguf
+================================
+
+Source model:
+  jinen-v1-xsmall
+  Copyright 2026 togagotaga
+  https://huggingface.co/togatogah/jinen-v1-xsmall
+
+Distributed GGUF:
+  https://huggingface.co/togatogah/jinen-v1-xsmall.gguf
+  File: jinen-v1-xsmall-Q5_K_M.gguf
+  SHA-256: bb3110f06e539bf8596756df85a48b3946f1378e6cb912322b9c368be06d79aa
+  Tokenizer SHA-256: dde9713961ba536b14f20ed0c6e166abeeb5444886b966c590da1ad44dc9a3af
+
+License:
+  Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+  https://creativecommons.org/licenses/by-sa/4.0/
+
+Komorebi IME does not bundle this model in the APK. The settings screen downloads
+the unmodified Q5_K_M GGUF and tokenizer only after the user requests it. The
+complete license text is available as CC_BY_SA_4_0.txt in this screen.

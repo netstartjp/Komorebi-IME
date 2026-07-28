@@ -27,6 +27,8 @@ local.properties
 !/patches/
 /mozc/src/main/jniLibs/
 /mozc/src/main/assets/mozc.data
+/third_party/karukan/target/
+!/third_party/karukan/Cargo.lock
 
 # IDE
 .idea/

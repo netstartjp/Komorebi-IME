@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!--
-      No uses-permission elements at all, and that is the point: conversion runs entirely inside
-      libmozc.so against the bundled mozc.data, so the app has no way to reach the network even if
-      a future dependency tried to. Any PR that adds android.permission.INTERNET is changing the
-      product, not just the manifest.
-    -->
+    <!-- Used only when the user explicitly downloads the optional Karukan model. Conversion and
+         typed text remain on-device; Mozc works without a network connection. -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <!--
       allowBackup is off deliberately. The profile directory holds mozc's conversion-learning

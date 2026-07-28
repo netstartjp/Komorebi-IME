@@ -20,6 +20,9 @@ This checklist is part of the release process. It is not legal advice.
    listed in both NOTICE files and `THIRD_PARTY_NOTICES.txt`.
 8. Do not add data whose upstream terms merely disclaim copyright or whose source
    rights are unclear. Require an affirmative redistribution license.
+9. Run `cargo metadata` in `third_party/karukan`, compare the native dependency
+   inventory with `THIRD_PARTY_NOTICES.txt`, and retain the vendored Cargo.lock.
+10. Verify the downloadable jinen GGUF SHA-256 against `JINEN_MODEL_NOTICE.txt`.
 
 ## Files that must be in the APK
 
@@ -29,6 +32,16 @@ This checklist is part of the release process. It is not legal advice.
 - `assets/legal/THIRD_PARTY_NOTICES.txt`
 - `assets/legal/MOZC_LICENSE.txt`
 - `assets/legal/MOZC_DICTIONARY_LICENSES.txt`
+- `assets/legal/KARUKAN_LICENSE_MIT.txt`
+- `assets/legal/KARUKAN_LICENSE_APACHE.txt`
+- `assets/legal/KARUKAN_UPSTREAM_NOTICES.txt`
+- `assets/legal/LLAMA_CPP_LICENSE.txt`
+- `assets/legal/TOKENIZERS_LICENSE.txt`
+- `assets/legal/ONIG_LICENSE.txt`
+- `assets/legal/ONIGURUMA_LICENSE.txt`
+- `assets/legal/ANDROID_NDK_NOTICE.txt`
+- `assets/legal/JINEN_MODEL_NOTICE.txt`
+- `assets/legal/CC_BY_SA_4_0.txt`
 
 The Git repository intentionally excludes downloaded dictionaries and Mozc build
 outputs. Legal files are tracked because a source-only checkout must still state

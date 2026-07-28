@@ -23,17 +23,22 @@ import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import me.zssu.ime.mozc.MozcEngine
+import me.zssu.ime.karukan.KarukanPlatform
 import me.zssu.ime.theme.ZinnaTheme
 
 class EngineDictActivity : ComponentActivity() {
@@ -57,8 +63,15 @@ class EngineDictActivity : ComponentActivity() {
 private fun EngineDictScreen() {
     val context = LocalContext.current
     val settings = remember { ImeSettings(context) }
+    val modelManager = remember { KarukanModelManager.get(context) }
     var useDict by remember { mutableStateOf(settings.useProperNounDictionary) }
     var useAiDict by remember { mutableStateOf(settings.useAiTechDictionary) }
+    var engine by remember { mutableStateOf(settings.conversionEngine) }
+    var modelState by remember { mutableStateOf(modelManager.currentState()) }
+    DisposableEffect(modelManager) {
+        val observation = modelManager.observe { modelState = it }
+        onDispose { observation.close() }
+    }
 
     Scaffold(
         topBar = {
@@ -81,7 +94,7 @@ private fun EngineDictScreen() {
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            // Engine status
+            // Engine selector and optional on-device model
             Card(shape = RoundedCornerShape(14.dp)) {
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -89,7 +102,46 @@ private fun EngineDictScreen() {
                         Spacer(Modifier.width(8.dp))
                         Text("変換エンジン", style = MaterialTheme.typography.titleMedium)
                     }
-                    Text(describeEngine(context), style = MaterialTheme.typography.bodyMedium)
+                    EngineChoice(
+                        title = "Mozc",
+                        subtitle = "高速・省電力。端末内の辞書と学習履歴で変換",
+                        selected = engine == ImeSettings.ConversionEngine.MOZC,
+                        onClick = {
+                            engine = ImeSettings.ConversionEngine.MOZC
+                            settings.conversionEngine = engine
+                        },
+                    )
+                    EngineChoice(
+                        title = "Karukan ニューラル変換（実験的）",
+                        subtitle = "文脈を考慮した高精度変換。明示変換時のみ端末内AIを使用",
+                        selected = engine == ImeSettings.ConversionEngine.KARUKAN,
+                        enabled = modelState is KarukanModelManager.State.Installed &&
+                            KarukanPlatform.isSupported,
+                        onClick = {
+                            engine = ImeSettings.ConversionEngine.KARUKAN
+                            settings.conversionEngine = engine
+                        },
+                    )
+                    KarukanModelControls(
+                        state = modelState,
+                        supported = KarukanPlatform.isSupported,
+                        onInstall = modelManager::install,
+                        onCancel = modelManager::cancel,
+                        onDelete = {
+                            modelManager.delete()
+                            engine = ImeSettings.ConversionEngine.MOZC
+                            settings.conversionEngine = engine
+                        },
+                    )
+                    if (!KarukanPlatform.isSupported) {
+                        Text(
+                            "このCPUでは現在Karukanを利用できません。Mozcは引き続き利用できます。",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                    Text(describeEngine(context, engine, modelState),
+                        style = MaterialTheme.typography.bodyMedium)
                     Text(describeDictionaries(context), style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -122,6 +174,92 @@ private fun EngineDictScreen() {
 }
 
 @Composable
+private fun EngineChoice(
+    title: String,
+    subtitle: String,
+    selected: Boolean,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) {
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(selected = selected, onClick = onClick, enabled = enabled)
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge,
+                color = if (enabled) MaterialTheme.colorScheme.onSurface
+                else MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(subtitle, style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@Composable
+private fun KarukanModelControls(
+    state: KarukanModelManager.State,
+    supported: Boolean,
+    onInstall: () -> Unit,
+    onCancel: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    when (state) {
+        KarukanModelManager.State.NotInstalled -> {
+            Button(
+                onClick = onInstall,
+                enabled = supported,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("軽量モデルをダウンロード（約32 MB）")
+            }
+            Text(
+                "Hugging Faceから一度だけ取得します。入力内容は送信されません。",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        is KarukanModelManager.State.Downloading -> {
+            val progress = if (state.totalBytes > 0) {
+                state.downloadedBytes.toFloat() / state.totalBytes
+            } else 0f
+            LinearProgressIndicator(progress = { progress.coerceIn(0f, 1f) },
+                modifier = Modifier.fillMaxWidth())
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("${(progress * 100).toInt()}%",
+                    style = MaterialTheme.typography.bodySmall)
+                OutlinedButton(onClick = onCancel) { Text("中止") }
+            }
+        }
+        KarukanModelManager.State.Installed -> {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("モデル導入済み", color = MaterialTheme.colorScheme.primary)
+                OutlinedButton(onClick = onDelete) { Text("モデルを削除") }
+            }
+        }
+        is KarukanModelManager.State.Failed -> {
+            Text(state.message, color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall)
+            Button(
+                onClick = onInstall,
+                enabled = supported,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("ダウンロードを再開")
+            }
+        }
+    }
+}
+
+@Composable
 private fun SwitchRow(title: String, subtitle: String, checked: Boolean, enabled: Boolean = true, onCheckedChange: (Boolean) -> Unit) {
     Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
@@ -139,7 +277,16 @@ private fun describeDictionaries(context: Context): String {
     return installed.joinToString(", ") { "${it.name} ${"%,d".format(it.entryCount)}語" }
 }
 
-private fun describeEngine(context: Context): String {
+private fun describeEngine(
+    context: Context,
+    selected: ImeSettings.ConversionEngine,
+    modelState: KarukanModelManager.State,
+): String {
     val engine = MozcEngine.get(context) ?: return "読み込み失敗"
-    return "オフライン動作中 / 辞書 v${engine.dataVersion.ifEmpty { "unknown" }}"
+    return when {
+        selected == ImeSettings.ConversionEngine.KARUKAN &&
+            modelState is KarukanModelManager.State.Installed ->
+            "Karukan変換 / 端末内推論 / Mozcかな入力"
+        else -> "Mozc / オフライン動作中 / 辞書 v${engine.dataVersion.ifEmpty { "unknown" }}"
+    }
 }

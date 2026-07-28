@@ -18,3 +18,4 @@ rootProject.name = "komorebi-ime"
 
 include(":app")
 include(":mozc")
+include(":karukan")

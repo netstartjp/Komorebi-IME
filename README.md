@@ -1,7 +1,7 @@
 # Komorebi IME
 
 言葉を木漏れ日のようにそっと照らす、Android向けオープンソース日本語IMEです。
-端末の外へ入力内容を送らずに使えます。
+入力内容を端末の外へ送らずに使えます。
 [Mozc](https://github.com/google/mozc) をネイティブ組み込みし、フリック入力と QWERTY
 入力、ユーザー辞書、誤入力補正、キーボードの外観カスタマイズに対応しています。
 
@@ -18,8 +18,11 @@
 
 ## 特長
 
-- **完全オフライン** — 変換は同梱した `libmozc.so` と `mozc.data` だけで完結します。
-  アプリは `INTERNET` を含む `uses-permission` を一つも要求しません。
+- **入力内容は端末内** — Mozc変換は完全オフラインです。任意のKarukanモデル取得時だけ
+  ネットワークを使い、入力内容・周辺文脈は送信しません。
+- **Mozc / Karukan切り替え** — 高速・省電力なMozcと、文脈を考慮する実験的な
+  Karukanニューラル変換を設定から選べます。Karukanは約32 MBのモデルを明示操作で取得し、
+  推論は端末内で行います。
 - **3 種類の入力方式** — かな/英字ともフリック、かな/英字とも QWERTY、かなフリック
   + 英字 QWERTY から選べます。
 - **実用的な日本語変換** — Mozc の学習・予測変換に加え、キーと方向の類似度による
@@ -62,6 +65,10 @@
 初回起動時は同梱の追加辞書をバックグラウンドで取り込みます。進捗は設定画面の
 「追加辞書」で確認できます。この処理にもネットワーク接続は使いません。
 
+Karukanを使う場合は「変換エンジン・辞書」から軽量モデルをダウンロードし、完了後に
+Karukanを選びます。現在、ニューラル変換の正式対応は `arm64-v8a` です。モデル未導入、
+非対応CPU、読み込み失敗時はMozcへ安全にフォールバックします。
+
 application ID がフォーク元と異なるため、Android 上では別アプリとして共存します。
 フォーク元や旧 `dev.oss.ime` ビルドの設定・学習履歴・ユーザー辞書は自動移行されません。
 
@@ -83,6 +90,9 @@ application ID がフォーク元と異なるため、Android 上では別アプ
 
 composition 同期により、たとえば Chrome のアドレスバーを「×」で消した後に、消す前の
 読みが次の入力へ混ざることはありません。
+変換エンジンから応答が返らなかった場合も、画面上の未確定文字は通常文字として保持して
+内部状態だけを初期化するため、次のキーで古い確定文字が突然現れたり、Backspaceが効かない
+状態に固定されたりしません。
 
 URL・メール欄では英字 QWERTY と英語候補を表示します。パスワード・数値欄では候補領域を
 非表示にし、特にパスワード欄では学習も行いません。
@@ -123,6 +133,11 @@ SSH端末などが非リッチ入力欄（`TYPE_NULL`）を公開している場
 変換します。変換中はIMEが扱う全範囲を薄いオレンジ、選択文節を濃いオレンジで表示し、
 左右の矢印キーで対象文節を移動できます。
 スペースキーを左右にフリックすると、選択文節の境界を縮小・拡大できます。
+
+Karukanを選択している場合、かな入力とライブ候補はMozcが担当し、明示的に変換したとき
+だけKarukanが直前の文脈を考慮して候補を生成します。推論中に入力を続けた場合は古い結果を
+破棄するため、遅れて返った候補が新しい未確定文字を上書き・確定することはありません。
+パスワード欄やシークレットモードではKarukanを呼び出さず、Mozcへ戻します。
 
 変換前にスペースキーを左右にフリックすると、未変換文字列内のカーソルを1文字ずつ移動
 できます。その位置から入力を続けても、既存の未変換文字列は保持されます。変換確定後の
@@ -191,6 +206,9 @@ Mozc / Google 日本語入力の辞書ツールと互換性のある TSV とし�
 
 設定画面では入力方式、キー操作のバイブ、キーの高さ、ピュアブラック、背景画像と濃さを
 変更できます。バイブはテーマに関係なく「入力方式」からオン・オフできます。
+背景画像と濃さだけを変更した場合は、表示中の入力ビューを作り直さず、Insets適用済みの
+背景パネルをその場で再描画します。設定画面から戻った直後もナビゲーション領域との位置関係
+を維持します。
 背景画像には「森のともだち」「水晶の藤」「サイバー墨」「月夜のこもれび」の4つの
 生成アート・プリセットを同梱し、自分の画像を読み込まなくてもすぐに選択できます。
 「プリセット選択・自作・共有」から配列・テーマスタジオを開き、使用するプリセットも
@@ -231,8 +249,9 @@ ID には 1〜64 文字の英数字、ハイフン、アンダースコアを使
 
 ## プライバシーとセキュリティ
 
-`AndroidManifest.xml` に `uses-permission` はありません。したがって、入力内容、変換履歴、
-ユーザー辞書、背景画像をアプリ自身がネットワークへ送ることはできません。
+`AndroidManifest.xml` は任意モデル取得用の `INTERNET` だけを要求します。通信先は
+Hugging Face上の公開モデルで、ユーザーが設定画面で開始したダウンロードに限ります。
+入力内容、周辺文脈、変換履歴、ユーザー辞書、背景画像は送信しません。
 
 保存データは次のように扱います。
 
@@ -246,6 +265,7 @@ ID には 1〜64 文字の英数字、ハイフン、アンダースコアを使
 | アプリ別プロファイルと入力先パッケージ名 | アプリ専用領域のJSON |
 | 最近使った絵文字・顔文字、お気に入り | アプリ専用SharedPreferences |
 | 追加した意味辞書 | アプリ専用領域のJSON |
+| Karukanモデル | アプリ専用領域（設定画面から削除可能） |
 | Android のクラウドバックアップ | 無効 |
 
 これは Android の端末暗号化を置き換えるものではありません。Keystore の実装や安全性は
@@ -258,6 +278,8 @@ ID には 1〜64 文字の英数字、ハイフン、アンダースコアを使
   特殊アクションなど全項目の編集にはJSONエディタを使用します。
 - 意味辞書は候補文字列との完全一致です。活用形から基本形を推測したり、Mozcの辞書から
   未登録の意味を自動生成したりはしません。
+- Karukanニューラル変換は実験的機能で、現在は `arm64-v8a` の明示変換だけに対応します。
+  ライブ候補、かな編集、非対応CPUではMozcを使用します。
 - 暗号化した Mozc ストレージは 64 MB を超えるファイルを読み込めません。
 - Keystore を使う Android 固有の暗号化経路は、実機での継続的な検証が必要です。
 - Open Beta 中は設定形式や内部ファイル形式が変更される可能性があります。
@@ -298,6 +320,8 @@ ID には 1〜64 文字の英数字、ハイフン、アンダースコアを使
 - JDK 17–21（JRE のみ、および JDK 25 は不可）
 - Python 3.12 以上
 - Android SDK Platform 36.1 / Build Tools 36.0.0
+- Android NDK r28c
+- Rust 1.92 と `cargo-ndk` 4.1
 - [Bazelisk](https://github.com/bazelbuild/bazelisk) または Bazel
 - `curl`、`unzip`
 
@@ -337,6 +361,11 @@ git clone --depth 1 https://github.com/google/mozc.git third_party/mozc
 # Mozc の取得、パッチ適用、4 ABI の libmozc.so、mozc.data、proto の配置
 ./scripts/build_mozc.sh
 
+# Karukan / llama.cpp の arm64-v8a ライブラリと libc++ の配置
+rustup target add aarch64-linux-android
+cargo install cargo-ndk --version 4.1.2
+./scripts/build_karukan.sh
+
 # Mozc のローマ字テーブルからフリック配列と補正用データを再生成
 python3 scripts/gen_flick_layout.py
 
@@ -357,10 +386,11 @@ Git管理対象外なので、Windows側のcheckoutに存在しなくても異�
 
 ```bash
 unzip -l app/build/outputs/apk/debug/app-universal-debug.apk \
-  | grep -E 'libmozc\.so|mozc\.data'
+  | grep -E 'libmozc\.so|mozc\.data|libkarukan_android\.so|libc\+\+_shared\.so'
 ```
 
-4 ABI の `libmozc.so` と1つの `mozc.data` が表示されてからAPKを実機へ渡してください。
+4 ABI の `libmozc.so`、1つの `mozc.data`、arm64-v8a の
+`libkarukan_android.so` と `libc++_shared.so` が表示されてからAPKを実機へ渡してください。
 
 生成物は `app/build/outputs/apk/` 以下に出力されます。ABI 別 APK と universal APK を
 生成します。実機と接続できる場合は、次でもインストールできます。
@@ -388,10 +418,12 @@ editor/composition の同期方針をユニットテストしています。ネ�
 ```text
 app/              InputMethodService、キーボード UI、設定画面
 mozc/             JNI シム、Kotlin ラッパー、生成 protobuf、ネイティブ成果物
+karukan/          Kotlinラッパー、arm64-v8aのKarukanネイティブ成果物
 patches/          Mozc に適用する誤入力補正・保存時暗号化・JNI軽量化のパッチ
 scripts/          Mozc ビルド、配列生成、追加辞書取得
 docs/             設計と検証の詳細
 third_party/mozc/ 上流 Mozc の checkout（Git 管理対象外）
+third_party/karukan/ 固定リビジョンのKarukan engineとAndroid JNI（Git管理対象）
 ```
 
 ### Mozc との境界

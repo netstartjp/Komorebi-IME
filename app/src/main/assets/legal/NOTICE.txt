@@ -22,6 +22,19 @@ This product bundles software from the Mozc project:
   Copyright 2010-2021, Google Inc. All rights reserved.
   Licensed under the BSD 3-Clause License.
 
+This product optionally runs the Karukan kana-kanji conversion engine:
+  https://github.com/togatoga/karukan
+  Copyright karukan contributors
+  Licensed under MIT OR Apache-2.0.
+
+Karukan uses llama.cpp (MIT), Hugging Face tokenizers (Apache-2.0), and
+Rust Onig / Oniguruma (MIT and BSD-2-Clause). Complete texts and upstream
+notices are shipped in assets/legal/ and are readable in the application.
+
+The optional jinen-v1-xsmall model is downloaded only on user request and is
+licensed under CC BY-SA 4.0. Attribution, file hash, source URL, and the full
+license are shown in the application's license screen.
+
 Bundled binaries built from Mozc sources:
   lib/*/libmozc.so    - Mozc conversion engine
   assets/mozc.data    - Mozc OSS dictionary and conversion data

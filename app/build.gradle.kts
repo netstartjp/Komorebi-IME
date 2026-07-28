@@ -17,8 +17,8 @@ android {
         applicationId = "me.zssu.ime"
         minSdk = 24
         targetSdk = 36
-        versionCode = 21
-        versionName = "0.2.0-komorebi.7"
+        versionCode = 22
+        versionName = "0.2.0-komorebi.8"
     }
 
     buildTypes {
@@ -69,6 +69,7 @@ android {
 
 dependencies {
     implementation(project(":mozc"))
+    implementation(project(":karukan"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

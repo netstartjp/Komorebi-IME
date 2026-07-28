@@ -13,9 +13,8 @@ import java.io.File
  * Owns the single native mozc SessionHandler and the one session we talk to it through.
  *
  * Everything here runs entirely on-device: [ensureLoaded] copies mozc.data out of the APK once and
- * hands the native side a plain filesystem path. No network is touched at any point, and the
- * manifest declares no INTERNET permission, so that property is enforced rather than merely
- * intended.
+ * hands the native side a plain filesystem path. Mozc never touches the network. The app's
+ * INTERNET permission is reserved for an explicit optional Karukan model download.
  *
  * Threading: the native SessionHandler is a single global with no internal locking, so every call
  * funnels through [lock]. Callers should stay off the main thread for anything but short

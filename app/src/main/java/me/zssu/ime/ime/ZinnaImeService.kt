@@ -32,6 +32,8 @@ import me.zssu.ime.keyboard.KeyboardLayout
 import me.zssu.ime.keyboard.KeyboardPanelView
 import me.zssu.ime.keyboard.LayoutRepository
 import me.zssu.ime.keyboard.MeaningPopupView
+import me.zssu.ime.karukan.KarukanEngine
+import me.zssu.ime.karukan.KarukanModelStore
 import me.zssu.ime.settings.ImeSettings
 import me.zssu.ime.settings.AppProfileStore
 import me.zssu.ime.settings.SettingsActivity
@@ -60,8 +62,10 @@ class ZinnaImeService : InputMethodService() {
     private lateinit var priorityCandidates: PriorityCandidateRepository
     private lateinit var clipboardHistory: ClipboardHistory
     private lateinit var session: MozcSession
+    private lateinit var karukanEngine: KarukanEngine
 
     private var keyboardView: FlickKeyboardView? = null
+    private var panelView: KeyboardPanelView? = null
     private var candidateView: CandidateStripView? = null
     private var meaningPopup: MeaningPopupView? = null
     private var layout: KeyboardLayout? = null
@@ -70,6 +74,8 @@ class ZinnaImeService : InputMethodService() {
     private var activeProfile: AppProfileStore.Profile? = null
     private var lastCandidates: List<MozcSession.Candidate> = emptyList()
     private var lastFocusedCandidateIndex: Int = -1
+    private var karukanConversionActive = false
+    private var karukanReading = ""
 
     /**
      * Whether mozc currently holds a composition. Mirrors the last rendered state so Enter can
@@ -95,6 +101,7 @@ class ZinnaImeService : InputMethodService() {
 
     /** [ImeSettings.revision] the current input view was built from. */
     private var builtFromRevision = Int.MIN_VALUE
+    private var builtStructureFingerprint = Int.MIN_VALUE
 
     /**
      * The horizontal system-bar insets last dispatched to us.
@@ -117,6 +124,7 @@ class ZinnaImeService : InputMethodService() {
         priorityCandidates = PriorityCandidateRepository(this)
         clipboardHistory = ClipboardHistory()
         session = MozcSession(this, priorityCandidates::match)
+        karukanEngine = KarukanEngine(this)
         if (!session.isAvailable) {
             // Without the native engine there is nothing useful to do; the keyboard still renders
             // so the user can switch away rather than being stuck with a dead input field.
@@ -160,7 +168,9 @@ class ZinnaImeService : InputMethodService() {
                     right = padding.right,
                     bottom = padding.bottom,
                 )
-                WindowInsetsCompat.CONSUMED
+                // We consume no bottom inset ourselves. Passing the original object on keeps the
+                // IME window's navigation-bar placement authoritative during a view replacement.
+                insets
             }
             // And ask for a fresh dispatch once attached, so a stale seed (after a rotation, say)
             // is corrected rather than persisting for the rest of the session.
@@ -183,6 +193,7 @@ class ZinnaImeService : InputMethodService() {
         val candidates = CandidateStripView(this).apply {
             theme = this@ZinnaImeService.theme
             listener = CandidateStripView.OnCandidateSelectedListener { candidate ->
+                cancelKarukanConversion(clearReading = true)
                 render(session.selectCandidate(candidate))
             }
             onCandidateLongPressed = { candidate ->
@@ -349,9 +360,11 @@ class ZinnaImeService : InputMethodService() {
         )
 
         candidateView = candidates
+        panelView = panel
         keyboardView = keyboard
         meaningPopup = popupView
         builtFromRevision = combinedRevision()
+        builtStructureFingerprint = viewStructureFingerprint()
         session.setPhoneToggleEnabled(
             settings.flickInputMode == ImeSettings.FlickInputMode.FLICK_AND_TOGGLE
         )
@@ -394,6 +407,7 @@ class ZinnaImeService : InputMethodService() {
             val preedit = session.currentPreedit()
             if (preedit.isNotEmpty()) {
                 val corrected = TextStyleEngine.apply(preedit, style)
+                cancelKarukanConversion(clearReading = true)
                 session.resetContext()
                 isComposing = false
                 isConverting = false
@@ -476,13 +490,31 @@ class ZinnaImeService : InputMethodService() {
         val nextPolicy = effectivePolicy(InputFieldPolicy.from(info), nextProfile)
         // Settings live in another process's Activity, so this is the first moment we can notice
         // they changed. Rebuilding only on a revision bump keeps the common case free.
-        if (combinedRevision() != builtFromRevision ||
+        val structureChanged =
             nextPolicy != fieldPolicy ||
-            nextProfile != activeProfile
+                nextProfile != activeProfile ||
+                viewStructureFingerprint() != builtStructureFingerprint
+        when (
+            InputViewRefreshPolicy.target(
+                structureChanged = structureChanged,
+                revisionChanged = combinedRevision() != builtFromRevision,
+            )
         ) {
-            activeProfile = nextProfile
-            fieldPolicy = nextPolicy
-            setInputView(onCreateInputView())
+            InputViewRefreshPolicy.Target.REBUILD -> {
+                activeProfile = nextProfile
+                fieldPolicy = nextPolicy
+                setInputView(onCreateInputView())
+            }
+            InputViewRefreshPolicy.Target.UPDATE_PANEL -> {
+                // Background and opacity are paint-only settings. Keep the already inset, attached
+                // view in place so it cannot be transiently measured across the navigation bar.
+                panelView?.setBackgroundImage(
+                    settings.backgroundImage,
+                    settings.backgroundOpacity,
+                )
+                builtFromRevision = combinedRevision()
+            }
+            InputViewRefreshPolicy.Target.NONE -> Unit
         }
         session.setIncognitoMode(nextPolicy.incognito)
         ownSelectionUpdatePending = false
@@ -497,6 +529,7 @@ class ZinnaImeService : InputMethodService() {
             InputRestartRouting.Target.RESET_SESSION -> {
                 // In particular, a restart while our editor-facing state is idle must not retain
                 // an invisible Mozc conversion. Its result could otherwise surface on the next key.
+                cancelKarukanConversion(clearReading = true)
                 session.resetContext()
                 isComposing = false
                 isConverting = false
@@ -528,6 +561,7 @@ class ZinnaImeService : InputMethodService() {
     override fun onFinishInput() {
         super.onFinishInput()
         meaningPopup?.hide(notify = false)
+        cancelKarukanConversion(clearReading = true)
         // Anything half-composed at this point can no longer be committed anywhere sensible.
         session.resetContext()
         isComposing = false
@@ -596,27 +630,38 @@ class ZinnaImeService : InputMethodService() {
         isConverting = false
         renderedPreeditCursor = 0
         keyboardView?.isConversionAvailable = false
+        cancelKarukanConversion(clearReading = true)
         session.resetContext()
         currentInputConnection?.finishComposingText()
         candidateView?.clear()
     }
 
     override fun onDestroy() {
+        karukanEngine.close()
         session.close()
         super.onDestroy()
     }
 
     private fun onKeyOutput(output: KeyOutput, key: KeySpec, direction: FlickDirection) {
         when (val action = output.action) {
-            is KeyAction.Input -> render(session.sendText(action.text))
+            is KeyAction.Input -> {
+                cancelKarukanConversion()
+                render(session.sendText(action.text))
+            }
 
             // The dakuten/small-kana cycle is a table entry, not a session command: mozc's flick
             // table maps '*' onto "advance the preceding kana one step" (あ→ぁ→あ, は→ば→ぱ→は).
-            is KeyAction.ModifyChar -> render(session.sendText(CYCLE_MODIFIER_KEY))
+            is KeyAction.ModifyChar -> {
+                cancelKarukanConversion()
+                render(session.sendText(CYCLE_MODIFIER_KEY))
+            }
 
             is KeyAction.InsertSymbol -> handleSymbol(action.text)
 
-            is KeyAction.Undo -> render(session.undo())
+            is KeyAction.Undo -> {
+                cancelKarukanConversion(clearReading = true)
+                render(session.undo())
+            }
 
             is KeyAction.Backspace -> handleBackspace()
 
@@ -656,7 +701,7 @@ class ZinnaImeService : InputMethodService() {
      * first means the symbol lands after the kana rather than in the middle of it.
      */
     private fun handleSymbol(text: String) {
-        if (isComposing) render(session.submit())
+        if (isComposing) submitCurrentComposition()
         currentInputConnection?.commitText(text, 1)
     }
 
@@ -668,6 +713,17 @@ class ZinnaImeService : InputMethodService() {
      * nothing at all, so space appeared to work only as the second keystroke of a word.
      */
     private fun handleSpace() {
+        if (karukanConversionActive) {
+            if (lastCandidates.isNotEmpty()) {
+                val next = (lastFocusedCandidateIndex + 1).mod(lastCandidates.size)
+                renderKarukanCandidates(lastCandidates, next)
+            }
+            return
+        }
+        if (shouldUseKarukan()) {
+            startKarukanConversion()
+            return
+        }
         val state = session.convertOrSpace()
         if (state == null || !state.consumed) {
             val fullWidth = layout?.inputStyle?.fullWidthSpace ?: false
@@ -681,6 +737,7 @@ class ZinnaImeService : InputMethodService() {
         // removed, Mozc's response is empty — indistinguishable from a key pressed while already
         // idle — and inspecting only that response used to delete one extra editor character.
         val hadComposition = isComposing
+        cancelKarukanConversion()
         val ic = currentInputConnection
         val rawKeyEvents = fieldPolicy.rawKeyEvents
         val hasSelection = if (hadComposition || rawKeyEvents) {
@@ -732,20 +789,15 @@ class ZinnaImeService : InputMethodService() {
         val info = currentInputEditorInfo
         val imeOptions = info?.imeOptions ?: 0
         val action = imeOptions and EditorInfo.IME_MASK_ACTION
-        val hasEnabledEditorAction = action != EditorInfo.IME_ACTION_NONE &&
-            action != EditorInfo.IME_ACTION_UNSPECIFIED &&
-            imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION == 0
-        val multiline =
-            (info?.inputType ?: 0) and EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE != 0
         when (
-            EnterRouting.target(
+            EnterRouting.targetForEditor(
                 hadComposition = isComposing,
                 rawKeyEvents = fieldPolicy.rawKeyEvents,
-                hasEnabledEditorAction = hasEnabledEditorAction,
-                multiline = multiline,
+                imeOptions = imeOptions,
+                inputType = info?.inputType ?: 0,
             )
         ) {
-            EnterRouting.Target.SUBMIT_COMPOSITION -> render(session.submit())
+            EnterRouting.Target.SUBMIT_COMPOSITION -> submitCurrentComposition()
             EnterRouting.Target.EDITOR_ACTION -> ic.performEditorAction(action)
             EnterRouting.Target.NEWLINE -> ic.commitText("\n", 1)
             EnterRouting.Target.RAW_KEY_EVENT ->
@@ -754,6 +806,12 @@ class ZinnaImeService : InputMethodService() {
     }
 
     private fun handleCursorMove(delta: Int, adjustSegment: Boolean) {
+        if (karukanConversionActive && lastCandidates.isNotEmpty()) {
+            val next = (lastFocusedCandidateIndex + if (delta < 0) -1 else 1)
+                .mod(lastCandidates.size)
+            renderKarukanCandidates(lastCandidates, next)
+            return
+        }
         session.stopKeyToggling()
         if (
             CursorRouting.target(
@@ -794,7 +852,7 @@ class ZinnaImeService : InputMethodService() {
             return
         }
         // Finalise before swapping planes so a half-typed kana is not silently discarded.
-        render(session.submit())
+        submitCurrentComposition()
         layout = next
         keyboardView?.layout = adaptLayoutForStyle(next)
         session.applyInputStyle(next.inputStyle)
@@ -815,7 +873,10 @@ class ZinnaImeService : InputMethodService() {
 
     private fun render(state: MozcSession.State?) {
         val ic = currentInputConnection ?: return
-        if (state == null) return
+        if (state == null) {
+            recoverFromLostSession(ic)
+            return
+        }
 
         val hadComposition = isComposing
         val removeOldEditorComposition =
@@ -915,6 +976,156 @@ class ZinnaImeService : InputMethodService() {
         candidateView?.setCandidates(state.candidates, state.focusedCandidateIndex)
     }
 
+    /**
+     * A null JNI response leaves Mozc's state unknowable. Preserve the visible characters as
+     * ordinary editor text, then clear every local/native conversion marker so the next key starts
+     * cleanly instead of releasing an old confirmed string later.
+     */
+    private fun recoverFromLostSession(ic: android.view.inputmethod.InputConnection) {
+        Log.w(TAG, "conversion engine returned no state; finishing visible composition")
+        val plan = LostSessionRecovery.plan(isComposing)
+        cancelKarukanConversion(clearReading = true)
+        if (plan.finishEditorComposition) ic.finishComposingText()
+        session.resetContext()
+        isComposing = false
+        isConverting = false
+        renderedPreeditCursor = 0
+        ownSelectionUpdatePending = false
+        keyboardView?.isConversionAvailable = false
+        lastCandidates = emptyList()
+        lastFocusedCandidateIndex = -1
+        candidateView?.clear()
+    }
+
+    private fun shouldUseKarukan(): Boolean =
+        isComposing &&
+            !fieldPolicy.incognito &&
+            settings.conversionEngine == ImeSettings.ConversionEngine.KARUKAN &&
+            KarukanModelStore.files(this).ready &&
+            karukanEngine.isNativeAvailable
+
+    /**
+     * Runs only explicit conversion through Karukan. Mozc continues to own the flick/12-key
+     * composition, so dakuten, small kana, cursor editing and every fallback remain dependable.
+     */
+    private fun startKarukanConversion() {
+        val stopped = session.stopKeyToggling()
+        if (stopped != null) render(stopped)
+        val reading = session.currentPreedit()
+        if (reading.isEmpty()) {
+            handleMozcSpace()
+            return
+        }
+        karukanConversionActive = true
+        karukanReading = reading
+        render(
+            MozcSession.State(
+                preedit = reading,
+                preeditCursor = reading.length,
+                segments = listOf(MozcSession.Segment(reading, highlighted = true)),
+                isConverting = true,
+                consumed = true,
+            )
+        )
+        val context = if (fieldPolicy.incognito) {
+            ""
+        } else {
+            currentInputConnection
+                ?.getTextBeforeCursor(KARUKAN_CONTEXT_CHARS, 0)
+                ?.toString()
+                ?.removeSuffix(reading)
+                .orEmpty()
+        }
+        karukanEngine.convert(reading, context, KARUKAN_CANDIDATE_COUNT) { result ->
+            if (!karukanConversionActive || karukanReading != reading || !isComposing) {
+                return@convert
+            }
+            when (result) {
+                is KarukanEngine.Result.Success -> {
+                    val values = (result.candidates + reading).distinct().filter(String::isNotBlank)
+                    if (values.isEmpty()) {
+                        fallbackFromKarukan("候補を生成できなかったためMozcへ戻しました")
+                    } else {
+                        val candidates = values.mapIndexed { index, value ->
+                            MozcSession.Candidate(
+                                id = KARUKAN_CANDIDATE_ID_START - index,
+                                text = value,
+                                inputReading = reading,
+                                sourceReading = reading,
+                                priorityMatch = priorityCandidates.match(reading, value),
+                                directCommit = true,
+                            )
+                        }.sortedBy {
+                            when (it.priorityMatch) {
+                                PriorityMatch.EXACT -> 0
+                                PriorityMatch.SIMILAR -> 1
+                                PriorityMatch.NONE -> 2
+                            }
+                        }
+                        renderKarukanCandidates(candidates, 0)
+                    }
+                }
+                is KarukanEngine.Result.Failure -> fallbackFromKarukan(result.message)
+            }
+        }
+    }
+
+    private fun renderKarukanCandidates(
+        candidates: List<MozcSession.Candidate>,
+        focusedIndex: Int,
+    ) {
+        if (candidates.isEmpty()) return
+        val index = focusedIndex.coerceIn(candidates.indices)
+        val focused = candidates[index]
+        render(
+            MozcSession.State(
+                preedit = focused.text,
+                preeditCursor = focused.text.length,
+                candidates = candidates,
+                focusedCandidateIndex = index,
+                segments = listOf(MozcSession.Segment(focused.text, highlighted = true)),
+                isConverting = true,
+                consumed = true,
+            )
+        )
+    }
+
+    private fun fallbackFromKarukan(message: String) {
+        cancelKarukanConversion(clearReading = true)
+        Toast.makeText(this, "$message", Toast.LENGTH_SHORT).show()
+        render(session.convertOrSpace())
+    }
+
+    private fun handleMozcSpace() {
+        val state = session.convertOrSpace()
+        if (state == null || !state.consumed) {
+            val fullWidth = layout?.inputStyle?.fullWidthSpace ?: false
+            currentInputConnection?.commitText(if (fullWidth) FULL_WIDTH_SPACE else " ", 1)
+        }
+        render(state)
+    }
+
+    private fun submitCurrentComposition() {
+        if (karukanConversionActive) {
+            val candidate = lastCandidates.getOrNull(lastFocusedCandidateIndex)
+                ?: lastCandidates.firstOrNull()
+            cancelKarukanConversion(clearReading = true)
+            if (candidate != null) {
+                render(session.selectCandidate(candidate))
+            } else {
+                render(session.submit())
+            }
+        } else {
+            render(session.submit())
+        }
+    }
+
+    private fun cancelKarukanConversion(clearReading: Boolean = true) {
+        if (karukanConversionActive || karukanReading.isNotEmpty()) karukanEngine.invalidate()
+        karukanConversionActive = false
+        if (clearReading) karukanReading = ""
+    }
+
     /** Refreshes only explicit priority state; candidate ids and Mozc's conversion state stay put. */
     private fun refreshCandidatePriorities() {
         val focusedId = lastCandidates.getOrNull(lastFocusedCandidateIndex)?.id
@@ -957,6 +1168,19 @@ class ZinnaImeService : InputMethodService() {
 
     private fun combinedRevision(): Int = settings.revision * 31 + appProfiles.revision
 
+    /** Settings that can change layout, measurement, labels or haptics of the input view. */
+    private fun viewStructureFingerprint(): Int = listOf(
+        settings.pureBlack,
+        settings.keyHeightScale,
+        settings.keyboardStyle,
+        settings.flickInputMode,
+        settings.activeThemeId,
+        settings.activeLayoutId,
+        settings.oneHandMode,
+        settings.flickGuideStyle,
+        settings.hapticFeedbackEnabled,
+    ).hashCode()
+
     companion object {
         private const val TAG = "ZinnaImeService"
 
@@ -967,6 +1191,9 @@ class ZinnaImeService : InputMethodService() {
         private const val FULL_WIDTH_SPACE = "　"
         private const val ONE_HAND_WIDTH = 0.82f
         private const val MAX_STYLE_CORRECTION_LENGTH = 500
+        private const val KARUKAN_CONTEXT_CHARS = 320
+        private const val KARUKAN_CANDIDATE_COUNT = 3
+        private const val KARUKAN_CANDIDATE_ID_START = -10_000
         private val CONVERSION_RANGE_COLOR = Color.argb(72, 255, 152, 0)
         private val CONVERSION_FOCUSED_COLOR = Color.argb(184, 255, 122, 0)
     }

@@ -52,6 +52,16 @@ private val DOCUMENTS = listOf(
     LegalDocument("第三者ソフトウェア", "THIRD_PARTY_NOTICES.txt"),
     LegalDocument("Mozc", "MOZC_LICENSE.txt"),
     LegalDocument("Mozc辞書", "MOZC_DICTIONARY_LICENSES.txt"),
+    LegalDocument("Karukan / MIT", "KARUKAN_LICENSE_MIT.txt"),
+    LegalDocument("Karukan / Apache 2.0", "KARUKAN_LICENSE_APACHE.txt"),
+    LegalDocument("Karukan付属データ", "KARUKAN_UPSTREAM_NOTICES.txt"),
+    LegalDocument("llama.cpp", "LLAMA_CPP_LICENSE.txt"),
+    LegalDocument("Tokenizers", "TOKENIZERS_LICENSE.txt"),
+    LegalDocument("Rust Onig", "ONIG_LICENSE.txt"),
+    LegalDocument("Oniguruma本体", "ONIGURUMA_LICENSE.txt"),
+    LegalDocument("Android NDK / libc++", "ANDROID_NDK_NOTICE.txt"),
+    LegalDocument("jinenモデル", "JINEN_MODEL_NOTICE.txt"),
+    LegalDocument("CC BY-SA 4.0", "CC_BY_SA_4_0.txt"),
     LegalDocument("プライバシー", "PRIVACY.txt"),
 )
 

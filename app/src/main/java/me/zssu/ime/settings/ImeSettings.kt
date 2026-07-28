@@ -22,6 +22,7 @@ class ImeSettings(context: Context) {
 
     enum class OneHandMode { OFF, LEFT, RIGHT }
     enum class FlickInputMode { FLICK_ONLY, FLICK_AND_TOGGLE }
+    enum class ConversionEngine { MOZC, KARUKAN }
 
     private val appContext = context.applicationContext
     private val prefs: SharedPreferences =
@@ -32,12 +33,18 @@ class ImeSettings(context: Context) {
     /** Forces a true-black panel. On OLED those pixels are switched off entirely. */
     var pureBlack: Boolean
         get() = prefs.getBoolean(KEY_PURE_BLACK, false)
-        set(value) = prefs.edit().putBoolean(KEY_PURE_BLACK, value).apply()
+        set(value) {
+            prefs.edit().putBoolean(KEY_PURE_BLACK, value).apply()
+            bumpRevision()
+        }
 
     /** How strongly the background image shows through, 0f–1f. */
     var backgroundOpacity: Float
         get() = prefs.getFloat(KEY_BACKGROUND_OPACITY, DEFAULT_BACKGROUND_OPACITY)
-        set(value) = prefs.edit().putFloat(KEY_BACKGROUND_OPACITY, value.coerceIn(0f, 1f)).apply()
+        set(value) {
+            prefs.edit().putFloat(KEY_BACKGROUND_OPACITY, value.coerceIn(0f, 1f)).apply()
+            bumpRevision()
+        }
 
     /**
      * Multiplier on the theme's key height.
@@ -48,9 +55,15 @@ class ImeSettings(context: Context) {
      */
     var keyHeightScale: Float
         get() = prefs.getFloat(KEY_HEIGHT_SCALE, 1f)
-        set(value) = prefs.edit()
-            .putFloat(KEY_HEIGHT_SCALE, value.coerceIn(MIN_KEY_HEIGHT_SCALE, MAX_KEY_HEIGHT_SCALE))
-            .apply()
+        set(value) {
+            prefs.edit()
+                .putFloat(
+                    KEY_HEIGHT_SCALE,
+                    value.coerceIn(MIN_KEY_HEIGHT_SCALE, MAX_KEY_HEIGHT_SCALE),
+                )
+                .apply()
+            bumpRevision()
+        }
 
     /**
      * Flick, qwerty, or one of each. See [KeyboardStyle].
@@ -189,6 +202,21 @@ class ImeSettings(context: Context) {
         }
 
     /**
+     * Kana composition always retains Mozc's mature mobile tables. KARUKAN replaces explicit
+     * kana-kanji conversion with local neural inference when its optional model is ready.
+     */
+    var conversionEngine: ConversionEngine
+        get() = runCatching {
+            ConversionEngine.valueOf(
+                prefs.getString(KEY_CONVERSION_ENGINE, ConversionEngine.MOZC.name)!!
+            )
+        }.getOrDefault(ConversionEngine.MOZC)
+        set(value) {
+            prefs.edit().putString(KEY_CONVERSION_ENGINE, value.name).apply()
+            bumpRevision()
+        }
+
+    /**
      * Changes whenever anything here does.
      *
      * The IME compares this against the value it built its current view from, so it can rebuild
@@ -222,6 +250,7 @@ class ImeSettings(context: Context) {
         private const val KEY_BACKGROUND_PRESET = "background_preset"
         private const val KEY_USE_PRONOUN_DICT = "use_pronoun_dict"
         private const val KEY_USE_AI_TECH_DICT = "use_ai_tech_dict"
+        private const val KEY_CONVERSION_ENGINE = "conversion_engine"
         const val DEFAULT_THEME_ID = "material_you"
         const val DEFAULT_BACKGROUND_OPACITY = 0.45f
         const val MIN_KEY_HEIGHT_SCALE = 0.7f
