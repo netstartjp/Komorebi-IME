@@ -527,19 +527,34 @@ class ZinnaImeService : InputMethodService() {
             setInputView(onCreateInputView())
         }
         session.setIncognitoMode(nextPolicy.incognito)
-        if (!restarting) session.resetContext()
-        isComposing = false
-        isConverting = false
-        renderedPreeditCursor = 0
-        keyboardView?.isConversionAvailable = false
         ownSelectionUpdatePending = false
+        when (InputRestartRouting.target(restarting, isComposing)) {
+            InputRestartRouting.Target.PRESERVE_COMPOSITION -> {
+                // Android is restarting the same editor with its composing span intact. Keep both
+                // sides of that composition alive, including candidates lost by a view rebuild.
+                keyboardView?.isConversionAvailable =
+                    layout?.inputStyle?.fullWidthSpace == true
+                candidateView?.setCandidates(lastCandidates, lastFocusedCandidateIndex)
+            }
+            InputRestartRouting.Target.RESET_SESSION -> {
+                // In particular, a restart while our editor-facing state is idle must not retain
+                // an invisible Mozc conversion. Its result could otherwise surface on the next key.
+                session.resetContext()
+                isComposing = false
+                isConverting = false
+                renderedPreeditCursor = 0
+                keyboardView?.isConversionAvailable = false
+                lastCandidates = emptyList()
+                lastFocusedCandidateIndex = -1
+                candidateView?.clear()
+            }
+        }
         if (!nextPolicy.incognito) {
             clipboardHistory.record(
                 this,
                 getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager,
             )
         }
-        candidateView?.clear()
     }
 
     /**
@@ -782,6 +797,20 @@ class ZinnaImeService : InputMethodService() {
 
     private fun handleCursorMove(delta: Int, adjustSegment: Boolean) {
         session.stopKeyToggling()
+        if (
+            CursorRouting.target(
+                hasComposition = isComposing,
+                rawKeyEvents = fieldPolicy.rawKeyEvents,
+            ) == CursorRouting.Target.RAW_KEY_EVENT
+        ) {
+            val rawKey = if (delta < 0) {
+                android.view.KeyEvent.KEYCODE_DPAD_LEFT
+            } else {
+                android.view.KeyEvent.KEYCODE_DPAD_RIGHT
+            }
+            currentInputConnection?.let { sendRawKeyPress(it, rawKey) }
+            return
+        }
         val special = if (delta < 0) KeyEvent.SpecialKey.LEFT else KeyEvent.SpecialKey.RIGHT
         // In conversion, ordinary arrows move the focused clause. A sideways space flick supplies
         // Shift+Arrow, Mozc's standard command for shrinking/expanding that clause boundary.
