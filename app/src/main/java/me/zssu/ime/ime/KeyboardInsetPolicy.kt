@@ -1,31 +1,22 @@
 package me.zssu.ime.ime
 
 /**
- * Insets reserved inside the IME panel so keys never overlap system navigation controls.
- */
-internal data class KeyboardSystemInsets(
-    val left: Int = 0,
-    val right: Int = 0,
-    val bottom: Int = 0,
-) {
-    val isKnown: Boolean get() = left > 0 || right > 0 || bottom > 0
-}
-
-/**
- * Chooses a safe value before the input view's first layout.
+ * Insets applied inside the IME content view.
  *
- * The IME window may not have dispatched WindowInsets when Android asks for its input view. A
- * framework navigation-bar dimension is therefore used only for the first, otherwise-unknown
- * frame; real window insets replace it as soon as the view is attached.
+ * Android's IME window already places its content above bottom navigation controls. Applying the
+ * reported bottom system-bar inset again grows the input view and leaves an empty strip below the
+ * keys. Horizontal insets are still needed for side navigation and display cutouts in landscape.
  */
 internal object KeyboardInsetPolicy {
-    fun initial(
-        window: KeyboardSystemInsets?,
-        previous: KeyboardSystemInsets,
-        navigationBarFallback: Int,
-    ): KeyboardSystemInsets = when {
-        window != null -> window
-        previous.isKnown -> previous
-        else -> KeyboardSystemInsets(bottom = navigationBarFallback.coerceAtLeast(0))
-    }
+    data class Padding(
+        val left: Int,
+        val right: Int,
+        val bottom: Int,
+    )
+
+    fun contentPadding(left: Int, right: Int): Padding = Padding(
+        left = left.coerceAtLeast(0),
+        right = right.coerceAtLeast(0),
+        bottom = 0,
+    )
 }

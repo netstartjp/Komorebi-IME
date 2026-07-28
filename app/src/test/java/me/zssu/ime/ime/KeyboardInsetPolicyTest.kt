@@ -6,50 +6,26 @@ import org.junit.Test
 class KeyboardInsetPolicyTest {
 
     @Test
-    fun `current window insets win before first layout`() {
+    fun `bottom system bar is not added to IME content`() {
         assertEquals(
-            KeyboardSystemInsets(left = 20, bottom = 12),
-            KeyboardInsetPolicy.initial(
-                window = KeyboardSystemInsets(left = 20, bottom = 12),
-                previous = KeyboardSystemInsets(bottom = 48),
-                navigationBarFallback = 60,
-            ),
+            KeyboardInsetPolicy.Padding(left = 0, right = 0, bottom = 0),
+            KeyboardInsetPolicy.contentPadding(left = 0, right = 0),
         )
     }
 
     @Test
-    fun `known previous insets seed a rebuilt view`() {
+    fun `horizontal safety insets remain in landscape`() {
         assertEquals(
-            KeyboardSystemInsets(bottom = 48),
-            KeyboardInsetPolicy.initial(
-                window = null,
-                previous = KeyboardSystemInsets(bottom = 48),
-                navigationBarFallback = 60,
-            ),
+            KeyboardInsetPolicy.Padding(left = 48, right = 12, bottom = 0),
+            KeyboardInsetPolicy.contentPadding(left = 48, right = 12),
         )
     }
 
     @Test
-    fun `first launch reserves navigation bar before insets arrive`() {
+    fun `invalid negative insets cannot create negative padding`() {
         assertEquals(
-            KeyboardSystemInsets(bottom = 60),
-            KeyboardInsetPolicy.initial(
-                window = null,
-                previous = KeyboardSystemInsets(),
-                navigationBarFallback = 60,
-            ),
-        )
-    }
-
-    @Test
-    fun `fallback cannot create negative padding`() {
-        assertEquals(
-            KeyboardSystemInsets(),
-            KeyboardInsetPolicy.initial(
-                window = null,
-                previous = KeyboardSystemInsets(),
-                navigationBarFallback = -1,
-            ),
+            KeyboardInsetPolicy.Padding(left = 0, right = 0, bottom = 0),
+            KeyboardInsetPolicy.contentPadding(left = -1, right = -20),
         )
     }
 }

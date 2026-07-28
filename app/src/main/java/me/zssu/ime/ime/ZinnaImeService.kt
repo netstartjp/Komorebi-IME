@@ -1,6 +1,5 @@
 package me.zssu.ime.ime
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.ClipboardManager
 import android.content.Intent
@@ -98,16 +97,15 @@ class ZinnaImeService : InputMethodService() {
     private var builtFromRevision = Int.MIN_VALUE
 
     /**
-     * The system-bar insets last dispatched to us.
+     * The horizontal system-bar insets last dispatched to us.
      *
      * Kept because a view built mid-session may never be handed them again: the window's insets
-     * have not changed, so nothing re-dispatches, and a fresh panel would sit at zero padding with
-     * its bottom row under the navigation bar. Seeding from these makes the rebuilt view correct on
-     * its first frame instead of waiting for a dispatch that may not come.
+     * have not changed, so nothing re-dispatches. The IME window already reserves the bottom
+     * navigation area; adding that inset to the input view as padding would count it twice and
+     * create an empty strip below the keys.
      */
     private var systemInsetLeft = 0
     private var systemInsetRight = 0
-    private var systemInsetBottom = 0
 
     override fun onCreate() {
         super.onCreate()
@@ -139,46 +137,29 @@ class ZinnaImeService : InputMethodService() {
         layout = loaded
         theme = resolveTheme()
 
-        // onCreateInputView can run before this window's first insets dispatch. Seed the panel from
-        // the decor view when possible and from Android's configured navigation-bar height on the
-        // very first launch, so no frame places the bottom row underneath system controls.
-        val initialInsets = KeyboardInsetPolicy.initial(
-            window = currentImeWindowInsets(),
-            previous = KeyboardSystemInsets(
-                left = systemInsetLeft,
-                right = systemInsetRight,
-                bottom = systemInsetBottom,
-            ),
-            navigationBarFallback = navigationBarHeightFallback(),
-        )
-        systemInsetLeft = initialInsets.left
-        systemInsetRight = initialInsets.right
-        systemInsetBottom = initialInsets.bottom
-
         val panel = KeyboardPanelView(this).apply {
-            // The IME window runs edge-to-edge from targetSdk 35, so it extends underneath the
-            // navigation bar and the bottom key row ends up beneath the gesture pill. Padding the
-            // panel lifts the keys clear while its own background keeps covering the strip behind
-            // the bar, so the keyboard still reaches the bottom of the screen.
             setBackgroundColor(this@ZinnaImeService.theme.backgroundColor)
             setBackgroundImage(settings.backgroundImage, settings.backgroundOpacity)
-            // Start from what we already know, so a rebuild triggered by a settings change is
-            // padded before it draws rather than after the next dispatch — which, since the
-            // window's insets did not change, may never arrive.
+            // Keep lateral navigation controls and cutouts clear in landscape. Bottom navigation
+            // space is already outside the IME content area and must not be added again here.
             updatePadding(
                 left = systemInsetLeft,
                 right = systemInsetRight,
-                bottom = systemInsetBottom,
+                bottom = 0,
             )
             ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
                 val bars = insets.getInsets(
                     WindowInsetsCompat.Type.navigationBars() or
                         WindowInsetsCompat.Type.displayCutout()
                 )
-                systemInsetLeft = bars.left
-                systemInsetRight = bars.right
-                systemInsetBottom = bars.bottom
-                view.updatePadding(left = bars.left, right = bars.right, bottom = bars.bottom)
+                val padding = KeyboardInsetPolicy.contentPadding(bars.left, bars.right)
+                systemInsetLeft = padding.left
+                systemInsetRight = padding.right
+                view.updatePadding(
+                    left = padding.left,
+                    right = padding.right,
+                    bottom = padding.bottom,
+                )
                 WindowInsetsCompat.CONSUMED
             }
             // And ask for a fresh dispatch once attached, so a stale seed (after a rotation, say)
@@ -378,29 +359,6 @@ class ZinnaImeService : InputMethodService() {
         loaded?.let { session.applyInputStyle(it.inputStyle) }
         candidates.showTools()
         return root
-    }
-
-    private fun currentImeWindowInsets(): KeyboardSystemInsets? {
-        val decorView = window?.window?.decorView ?: return null
-        val insets = ViewCompat.getRootWindowInsets(decorView) ?: return null
-        val bars = insets.getInsets(
-            WindowInsetsCompat.Type.navigationBars() or
-                WindowInsetsCompat.Type.displayCutout()
-        )
-        return KeyboardSystemInsets(left = bars.left, right = bars.right, bottom = bars.bottom)
-    }
-
-    @SuppressLint("DiscouragedApi", "InternalInsetResource")
-    private fun navigationBarHeightFallback(): Int {
-        val showNavigationBar = resources.getIdentifier(
-            "config_showNavigationBar",
-            "bool",
-            "android",
-        )
-        if (showNavigationBar != 0 && !resources.getBoolean(showNavigationBar)) return 0
-
-        val height = resources.getIdentifier("navigation_bar_height", "dimen", "android")
-        return if (height != 0) resources.getDimensionPixelSize(height) else 0
     }
 
     private fun handleToolAction(action: CandidateStripView.ToolAction) {
